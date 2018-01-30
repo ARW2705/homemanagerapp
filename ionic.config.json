@@ -1,0 +1,8 @@
+{
+  "name": "HomeManagerApp",
+  "app_id": "276d46c6",
+  "type": "ionic-angular",
+  "integrations": {
+    "cordova": {}
+  }
+}
