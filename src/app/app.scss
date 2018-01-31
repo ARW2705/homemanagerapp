@@ -14,3 +14,43 @@
 // To declare rules for a specific mode, create a child rule
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
+
+$light-gray: #ddd;
+$dark-gray: #576366;
+$light-green: #6edd73;
+
+ion-list-header {
+  margin-bottom: 0px !important;
+}
+
+ion-list {
+  margin-bottom: 0px !important;
+}
+
+.toolbar-background {
+  background-color: $dark-gray !important;
+}
+
+.toolbar-title {
+  color: $light-green !important;
+}
+
+.scroll-content {
+  overflow-y: hidden;
+}
+
+.scroll {
+  height: 100%;
+}
+
+.light-green {
+  color: $light-green;
+}
+
+.dark-gray {
+  color: $dark-gray
+}
+
+.background-dark-gray {
+  background-color: $dark-gray;
+}
