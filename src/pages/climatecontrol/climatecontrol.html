@@ -15,13 +15,139 @@
 
 </ion-header>
 
+<!-- TODO
+  Show current status
+  Choose between sensors?
+  Pre-program CRUD operations -->
+<ion-content>
+  <ion-grid>
+    <ion-row>
 
-<ion-content padding>
-  <h1 class="warning">Coming Soon</h1>
-  <h4>TODOs</h4>
-  <ol>
-    <li>Show current status</li>
-    <li>Choose between sensors</li>
-    <li>Pre-program CRUD operations</li>
-  </ol>
+      <ion-col col-12 col-lg-6>
+        <ion-slides #climateSlide *ngIf="climate">
+          <ion-slide *ngFor="let zone of zones">
+            <ion-card color="light">
+
+              <ion-card-header>
+                <span>{{ zone.location | titlecase }} Conditions</span>
+              </ion-card-header>
+              <ion-card-content class="no-padding no-margin">
+                <ion-grid>
+                  <ion-row>
+
+                    <ion-col col-12 col-lg-6>
+                      <ion-card>
+                        <ion-card-header>
+                          <span>Temperature</span>
+                        </ion-card-header>
+                        <ion-card-content class="conditions">
+                          {{ zone.temperature }}<span [innerHtml]="getTemperatureSymbol()"></span>
+                        </ion-card-content>
+                      </ion-card>
+                    </ion-col>
+
+                    <ion-col col-12 col-lg-6>
+                      <ion-card>
+                        <ion-card-header>
+                          <span>Humidity</span>
+                        </ion-card-header>
+                        <ion-card-content class="conditions">
+                          {{ zone.humidity }}%
+                        </ion-card-content>
+                      </ion-card>
+                    </ion-col>
+
+                  </ion-row>
+                  <ion-row>
+
+                    <ion-col>
+                      <ion-label text-center>
+                        Selected Temperature {{ desiredTemperature }}
+                        <span [innerHtml]="getTemperatureSymbol()"></span>
+                      </ion-label>
+                      <ion-range
+                        debounce="500"
+                        (ionChange)="onSliderChangeEnd()"
+                        [(ngModel)]="desiredTemperature"
+                        color="light-green"
+                        min="{{ minTemperature }}" max="{{ maxTemperature }}" pin>
+                        <ion-label range-left>{{ minTemperature}}</ion-label>
+                        <ion-label range-right>{{ maxTemperature }}</ion-label>
+                      </ion-range>
+                    </ion-col>
+
+                  </ion-row>
+                </ion-grid>
+              </ion-card-content>
+            </ion-card>
+          </ion-slide>
+        </ion-slides>
+
+      </ion-col>
+      <ion-col col-12 col-lg-6>
+        <ion-card *ngIf="climate && programs" color="light">
+          <ion-card-header>
+            <span>Operating Status</span>
+          </ion-card-header>
+          <ion-card-content class="no-padding no-margin">
+            <ion-grid>
+              <ion-row>
+                <ion-col col-12 col-md-6>
+                  Target Temperature:<br>
+                  {{ desiredTemperature }}
+                  <span [innerHtml]="getTemperatureSymbol()"></span>
+                </ion-col>
+                <ion-col col-12 col-md-6>
+                  Program Status:<br>
+                  {{ selectedProgram.isActive ? 'RUNNING': 'INACTIVE' }}
+                </ion-col>
+                <ion-col col-12 col-md-6>
+                  Operation Mode: {{ climate.selectedMode | uppercase }}
+                </ion-col>
+                <ion-col col-12 col-md-6>
+                  Home System {{ climate.operatingStatus | uppercase }}
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-card class="no-margin-bottom">
+                    <ion-card-content class="program-card">
+                      Selected Program: {{ selectedProgram.name | uppercase }}
+                    </ion-card-content>
+                  </ion-card>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <ion-label text-center>
+                    Selected Temperature {{ desiredTemperature }}
+                    <span [innerHtml]="getTemperatureSymbol()"></span>
+                  </ion-label>
+                  <ion-range
+                    id="margin-adjust-down"
+                    debounce="500"
+                    (ionChange)="onSliderChangeEnd()"
+                    [(ngModel)]="desiredTemperature"
+                    color="light-green"
+                    min="{{ minTemperature }}" max="{{ maxTemperature }}" pin>
+                    <ion-label range-left>{{ minTemperature}}</ion-label>
+                    <ion-label range-right>{{ maxTemperature }}</ion-label>
+                  </ion-range>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+  <div *ngIf="!climate && !errMsg">
+    <ion-spinner></ion-spinner>
+    <h4>Loading...</h4>
+  </div>
+  <div *ngIf="errMsg">
+    <h2>Error</h2>
+    <h4>{{ errMsg }}</h4>
+  </div>
 </ion-content>

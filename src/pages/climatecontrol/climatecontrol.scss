@@ -5,3 +5,32 @@ page-climatecontrol {
     color: $warning;
   }
 }
+
+h3 {
+  font-weight: bold;
+}
+
+ion-card-header {
+  span {
+    color: $light-green !important;
+    fond-size: 1.5em !important;
+  }
+  background-color: $dark-gray;
+}
+
+.conditions {
+  text-align: center;
+  font-size: 2.5em;
+}
+
+.program-card {
+  text-align: center;
+}
+
+.no-margin-bottom {
+  margin-bottom: 0px !important;
+}
+
+#margin-adjust-down {
+  margin-bottom: 3px !important;
+}

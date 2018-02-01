@@ -19,12 +19,24 @@ $light-gray: #ddd;
 $dark-gray: #576366;
 $light-green: #6edd73;
 
+body {
+  background-color: $light-gray;
+}
+
 ion-list-header {
   margin-bottom: 0px !important;
 }
 
 ion-list {
   margin-bottom: 0px !important;
+}
+
+ion-label {
+  font-size: 1.2em;
+}
+
+ion-card-header {
+  text-align: center;
 }
 
 .toolbar-background {
@@ -36,7 +48,7 @@ ion-list {
 }
 
 .scroll-content {
-  overflow-y: hidden;
+  overflow-y: auto !important;
 }
 
 .scroll {
@@ -51,6 +63,18 @@ ion-list {
   color: $dark-gray
 }
 
+.background-light-green {
+  background-color: $light-green;
+}
+
 .background-dark-gray {
   background-color: $dark-gray;
+}
+
+.no-padding {
+  padding: 0px !important;
+}
+
+.no-margin {
+  margin: 0px !important;
 }

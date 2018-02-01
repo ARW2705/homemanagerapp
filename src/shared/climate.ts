@@ -1,9 +1,8 @@
+import { Sensor } from './sensor';
+
 export interface Climate {
-  indoorTemperature: number;
-  indoorHumidity: number;
-  selectedZone: number;
+  zoneData: Array<Sensor>;
   selectedMode: string;
   operatingStatus: string;
-  isProgramActive: boolean;
   targetTemperature: number;
 }

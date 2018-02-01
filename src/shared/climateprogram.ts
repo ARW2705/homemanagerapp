@@ -4,4 +4,5 @@ export interface ClimateProgram {
   listIndex: number;
   program: Array<number>;
   mode: number;
+  isActive: boolean;
 }
