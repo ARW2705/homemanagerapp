@@ -19,14 +19,14 @@
   Show current status
   Choose between sensors?
   Pre-program CRUD operations -->
-<ion-content>
+<ion-content background-color="light">
   <ion-grid>
     <ion-row>
 
       <ion-col col-12 col-lg-6>
         <ion-slides #climateSlide *ngIf="climate">
           <ion-slide *ngFor="let zone of zones">
-            <ion-card color="light">
+            <ion-card color="light-gray">
 
               <ion-card-header>
                 <span>{{ zone.location | titlecase }} Conditions</span>
@@ -85,7 +85,7 @@
 
       </ion-col>
       <ion-col col-12 col-lg-6>
-        <ion-card *ngIf="climate && programs" color="light">
+        <ion-card *ngIf="climate && programs" color="light-gray">
           <ion-card-header>
             <span>Operating Status</span>
           </ion-card-header>
@@ -98,11 +98,14 @@
                   <span [innerHtml]="getTemperatureSymbol()"></span>
                 </ion-col>
                 <ion-col col-12 col-md-6>
-                  Program Status:<br>
-                  {{ selectedProgram.isActive ? 'RUNNING': 'INACTIVE' }}
+                    Program Status:<br>
+                    {{ selectedProgram.isActive ? 'RUNNING': 'INACTIVE' }}
                 </ion-col>
                 <ion-col col-12 col-md-6>
-                  Operation Mode: {{ climate.selectedMode | uppercase }}
+                  Operation Mode:
+                  <span class="mode-btn card-btn" (click)="openModeActionSheet()">
+                    {{ climate.selectedMode | uppercase }}
+                  </span>
                 </ion-col>
                 <ion-col col-12 col-md-6>
                   Home System {{ climate.operatingStatus | uppercase }}
@@ -110,8 +113,8 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <ion-card class="no-margin-bottom">
-                    <ion-card-content class="program-card">
+                  <ion-card class="no-margin-bottom card-btn" color="dark-gray" (click)="openActionSheet()">
+                    <ion-card-content class="program-card" color="light-green">
                       Selected Program: {{ selectedProgram.name | uppercase }}
                     </ion-card-content>
                   </ion-card>

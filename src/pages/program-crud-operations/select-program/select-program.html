@@ -1,0 +1,28 @@
+<!--
+  Generated template for the SelectProgramPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-toolbar>
+    <ion-buttons start>
+      <button ion-button (click)="dismiss()">
+        <ion-icon name="close-circle" color="light-green"></ion-icon>
+      </button>
+    </ion-buttons>
+    <ion-title>Select Program</ion-title>
+  </ion-toolbar>
+
+</ion-header>
+
+
+<ion-content padding  class="modal-background-dark-gray">
+  <ion-list *ngIf="programs">
+    <button ion-item *ngFor="let program of programs; index as i" (click)="selectProgram(i)" color="light-gray">
+      <ion-icon name="code"></ion-icon>
+      {{ program.name | uppercase }}
+    </button>
+  </ion-list>
+</ion-content>

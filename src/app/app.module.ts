@@ -11,10 +11,15 @@ import { ClimatecontrolPage } from '../pages/climatecontrol/climatecontrol';
 import { GaragedoorPage } from '../pages/garagedoor/garagedoor';
 import { BrewingPage } from '../pages/brewing/brewing';
 import { LoginPage } from '../pages/login/login';
+import { CreateProgramPage } from '../pages/program-crud-operations/create-program/create-program';
+import { SelectProgramPage } from '../pages/program-crud-operations/select-program/select-program';
+import { UpdateProgramPage } from '../pages/program-crud-operations/update-program/update-program';
 
 import { ClimateProvider } from '../providers/climate/climate';
 
 import { baseURL } from '../shared/baseurl';
+import { minTemperature, maxTemperature } from '../shared/temperatureconst';
+import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-httpmsg';
 
 @NgModule({
   declarations: [
@@ -23,7 +28,10 @@ import { baseURL } from '../shared/baseurl';
     ClimatecontrolPage,
     GaragedoorPage,
     BrewingPage,
-    LoginPage
+    LoginPage,
+    CreateProgramPage,
+    SelectProgramPage,
+    UpdateProgramPage
   ],
   imports: [
     BrowserModule,
@@ -37,14 +45,20 @@ import { baseURL } from '../shared/baseurl';
     ClimatecontrolPage,
     GaragedoorPage,
     BrewingPage,
-    LoginPage
+    LoginPage,
+    CreateProgramPage,
+    SelectProgramPage,
+    UpdateProgramPage
   ],
   providers: [
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     {provide: 'baseURL', useValue: baseURL},
-    ClimateProvider
+    {provide: 'minTemperature', useValue: minTemperature},
+    {provide: 'maxTemperature', useValue: maxTemperature},
+    ClimateProvider,
+    ProcessHttpmsgProvider
   ]
 })
 export class AppModule {}

@@ -1,3 +1,26 @@
 page-home {
 
 }
+
+ion-content {
+  background-color: $light-gray;
+}
+
+ion-card-header {
+  span {
+    color: $light-green !important;
+    fond-size: 1.5em !important;
+  }
+  background-color: $dark-gray;
+}
+
+.card-btn {
+  cursor: pointer;
+}
+
+.conditions {
+  text-align: center;
+  font-size: 2.5em;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+}
