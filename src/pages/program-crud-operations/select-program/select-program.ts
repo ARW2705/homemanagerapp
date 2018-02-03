@@ -38,9 +38,9 @@ export class SelectProgramPage implements OnInit {
   }
 
   selectProgram(index: number) {
-    console.log(index);
     console.log(this.programs[index]);
     this.selectedProgram = this.programs[index];
+    this.dismiss();
   }
 
   dismiss() {

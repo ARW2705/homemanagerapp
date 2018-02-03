@@ -6,13 +6,40 @@
 -->
 <ion-header>
 
-  <ion-navbar>
-    <ion-title>create-program</ion-title>
-  </ion-navbar>
+  <ion-toolbar color="dark-gray">
+    <ion-buttons start>
+      <button ion-button (click)="dismiss()">
+        <ion-icon name="close-circle" color="light-green"></ion-icon>
+      </button>
+    </ion-buttons>
+    <ion-title>Create a New Program</ion-title>
+  </ion-toolbar>
 
 </ion-header>
 
 
 <ion-content padding>
-
+  <form [formGroup]="program" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-label floating>Enter Program Name</ion-label>
+      <ion-input type="text" formControlName="name"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Select Mode</ion-label>
+      <ion-select formControlName="mode" interface="popover">
+        <ion-option value="HEAT">HEAT</ion-option>
+        <ion-option value="COOL">COOL</ion-option>
+        <ion-option value="FAN">FAN</ion-option>
+      </ion-select>
+    </ion-item>
+    <ion-item type="" (click)="openSchedulerModal()">
+      <ion-icon name="calendar"></ion-icon>
+      Open Program Scheduler
+    </ion-item>
+    <ion-item>
+      <ion-label>Activate Program Upon Completion</ion-label>
+      <ion-toggle formControlName="isActive"></ion-toggle>
+    </ion-item>
+    <button ion-button type="submit" [disabled]="!program.valid && isValidSchedule">Submit</button>
+  </form>
 </ion-content>

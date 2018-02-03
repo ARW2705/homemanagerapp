@@ -14,12 +14,13 @@ import { LoginPage } from '../pages/login/login';
 import { CreateProgramPage } from '../pages/program-crud-operations/create-program/create-program';
 import { SelectProgramPage } from '../pages/program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../pages/program-crud-operations/update-program/update-program';
+import { SchedulerPage } from '../pages/scheduler/scheduler';
 
 import { ClimateProvider } from '../providers/climate/climate';
+import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-httpmsg';
 
 import { baseURL } from '../shared/baseurl';
 import { minTemperature, maxTemperature } from '../shared/temperatureconst';
-import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-httpmsg';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-htt
     LoginPage,
     CreateProgramPage,
     SelectProgramPage,
-    UpdateProgramPage
+    UpdateProgramPage,
+    SchedulerPage
   ],
   imports: [
     BrowserModule,
@@ -48,7 +50,8 @@ import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-htt
     LoginPage,
     CreateProgramPage,
     SelectProgramPage,
-    UpdateProgramPage
+    UpdateProgramPage,
+    SchedulerPage
   ],
   providers: [
     StatusBar,

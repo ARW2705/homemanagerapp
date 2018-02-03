@@ -63,10 +63,9 @@ export class HomePage implements OnInit {
             // start selection modal
             const modal = this.modalCtrl.create(SelectProgramPage);
             modal.onDidDismiss(data => {
-              if (data && data.valid) {
-                console.log("Valid", data);
-              } else if (data) {
-                console.log("Invalid", data);
+              if (data) {
+                console.log(data.id);
+                this.climateservice.updateClimateParameters(null, null, data.id);
               }
             });
             modal.present();
@@ -79,10 +78,8 @@ export class HomePage implements OnInit {
             // start creation modal
             const modal = this.modalCtrl.create(CreateProgramPage);
             modal.onDidDismiss(data => {
-              if (data.valid) {
+              if (data) {
                 console.log("Valid", data);
-              } else {
-                console.log("Invalid", data);
               }
             });
             modal.present();
@@ -95,10 +92,8 @@ export class HomePage implements OnInit {
             // start update modal
             const modal = this.modalCtrl.create(UpdateProgramPage);
             modal.onDidDismiss(data => {
-              if (data.valid) {
-                console.log("Valid", data);
-              } else {
-                console.log("Invalid", data);
+              if (data) {
+                console.log(data);
               }
             });
             modal.present();
