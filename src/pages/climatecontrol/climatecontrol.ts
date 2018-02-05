@@ -8,6 +8,9 @@ import { Sensor } from '../../shared/sensor';
 import { ClimateProgram } from '../../shared/climateprogram';
 import { ClimateProvider } from '../../providers/climate/climate';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
+import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
+import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
+import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
 
 @IonicPage()
 @Component({
@@ -83,7 +86,7 @@ export class ClimatecontrolPage implements OnInit {
     this.updateDesiredTemperature();
   }
 
-  openActionSheet() {
+  openProgramsActionSheet() {
     console.log("Open Action Sheet");
     const actionSheet = this.actionsheetCtrl.create({
       title: 'Select an Option',
@@ -93,6 +96,14 @@ export class ClimatecontrolPage implements OnInit {
           handler: () => {
             console.log("Select Program");
             // start selection modal
+            const modal = this.modalCtrl.create(SelectProgramPage);
+            modal.onDidDismiss(data => {
+              if (data) {
+                console.log(data.id);
+                this.climateservice.selectPreProgrammed(data.id);
+              }
+            });
+            modal.present();
           }
         },
         {
@@ -100,6 +111,13 @@ export class ClimatecontrolPage implements OnInit {
           handler: () => {
             console.log("Create a New Program");
             // start creation modal
+            const modal = this.modalCtrl.create(CreateProgramPage);
+            modal.onDidDismiss(data => {
+              if (data) {
+                console.log("Valid", data);
+              }
+            });
+            modal.present();
           }
         },
         {
@@ -107,6 +125,13 @@ export class ClimatecontrolPage implements OnInit {
           handler: () => {
             console.log("Update Existing Program");
             // start update modal
+            const modal = this.modalCtrl.create(UpdateProgramPage);
+            modal.onDidDismiss(data => {
+              if (data) {
+                console.log(data);
+              }
+            });
+            modal.present();
           }
         },
         {
@@ -128,25 +153,25 @@ export class ClimatecontrolPage implements OnInit {
         {
           text: 'COOL',
           handler: () => {
-
+            this.updateDesiredMode('COOL');
           }
         },
         {
           text: 'HEAT',
           handler: () => {
-
+            this.updateDesiredMode('HEAT');
           }
         },
         {
           text: 'FAN',
           handler: () => {
-
+            this.updateDesiredMode('FAN');
           }
         },
         {
           text: 'OFF',
           handler: () => {
-
+            this.updateDesiredMode('OFF');
           }
         },
         {
@@ -168,7 +193,15 @@ export class ClimatecontrolPage implements OnInit {
   updateDesiredTemperature() {
     this.climateservice.updateClimateParameters(this.desiredTemperature)
       .subscribe(update => {
-        console.log("Update complete", update);
+        console.log("Updated", update);
+        this.updateOperatingStatusCard();
+      }, err => this.errMsg = err);
+  }
+
+  updateDesiredMode(mode: string) {
+    this.climateservice.updateClimateParameters(null, mode)
+      .subscribe(update => {
+        console.log("Updated", update);
         this.updateOperatingStatusCard();
       }, err => this.errMsg = err);
   }

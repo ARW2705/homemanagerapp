@@ -1,7 +1,40 @@
 page-scheduler {
-
-}
-
-.btn-text-green {
-  color: $light-green;
+  ion-label {
+    font-size: 1.3em;
+    font-weight: 500;
+    ion-icon {
+      color: $light-green !important;
+    }
+  }
+  .btn-text-green {
+    color: $light-green;
+  }
+  .invalid {
+    color: red;
+  }
+  .review {
+    font-size: 1.5em;
+    font-weight: 500;
+    ion-label {
+      color: $dark-gray;
+    }
+    ion-col {
+      text-align: center;
+    }
+  }
+  .review-label {
+    font-size: 3em;
+    text-align: center;
+    margin: auto !important;
+    background-color: $dark-gray;
+    color: $light-green;
+  }
+  .review-day {
+    border: 3px solid $dark-gray;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    ion-col {
+      margin-bottom: 10px;
+    }
+  }
 }

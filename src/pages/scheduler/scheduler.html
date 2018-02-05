@@ -8,6 +8,9 @@
 
   <ion-toolbar color="dark-gray">
     <ion-buttons start>
+      <button color="pale-blue" *ngIf="providedSchedule" ion-button (click)="toggleDisplaySchedule()">
+        <ion-label>Schedule Available</ion-label>
+      </button>
       <button ion-button (click)="dismiss()">
         <ion-icon name="close-circle" color="light-green"></ion-icon>
       </button>
@@ -19,6 +22,9 @@
 
 
 <ion-content>
+
+  <!-- Selection View -->
+
   <div *ngIf="!viewReview">
     <ion-item>
       <ion-label>Select Day(s)</ion-label>
@@ -239,31 +245,47 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-
-    <ion-item (click)="pushScheduleValues()">
-      <ion-icon name="clipboard"></ion-icon>
-      Add values
+    <ion-item *ngIf="daysError">
+      <p class="invalid">At least one day must be selected</p>
     </ion-item>
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-item (click)="pushScheduleValues()">
+            <ion-icon name="clipboard"></ion-icon>
+            Add Values
+          </ion-item>
+        </ion-col>
+        <ion-col>
+          <ion-item (click)="toggleDisplaySchedule()">
+            <ion-icon name="calendar"></ion-icon>
+            View Current Schedule
+          </ion-item>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </div>
+
+  <!-- Review View -->
 
   <div *ngIf="viewReview">
     <ion-grid>
-      <ion-row *ngFor="let day of stringDays; index as i">
-        <ion-col col-12>
-          <ion-label>{{ day }}</ion-label>
+      <ion-row *ngFor="let day of stringDays; index as i" class="review-day">
+        <ion-col col-12 align-self-center>
+          <ion-label class="review-label">{{ day }}</ion-label>
         </ion-col>
         <ion-col>
-          <ion-row *ngFor="let _ of hour; index as j">
-            <ion-col col-12 col-lg-3>
+          <ion-row *ngFor="let _ of hour; index as j" class="review">
+            <ion-col col-12 col-lg *ngIf="this.schedule[i * 16 + j * 4] != -1">
               <ion-label>HOUR:</ion-label> {{ this.schedule[i * 16 + j * 4] }}
             </ion-col>
-            <ion-col col-12 col-lg-3>
+            <ion-col col-12 col-lg *ngIf="this.schedule[i * 16 + j * 4 + 1] != -1">
               <ion-label>MINUTE:</ion-label> {{ this.schedule[i * 16 + j * 4 + 1] }}
             </ion-col>
-            <ion-col col-12 col-lg-3>
+            <ion-col col-12 col-lg *ngIf="this.schedule[i * 16 + j * 4 + 2] != -1">
               <ion-label>TEMPERATURE:</ion-label> {{ this.schedule[i * 16 + j * 4 + 2] }}
             </ion-col>
-            <ion-col col-12 col-lg-3>
+            <ion-col col-12 col-lg *ngIf="this.schedule[i * 16 + j * 4 + 3] != -1">
               <ion-label>ZONE:</ion-label> {{ this.schedule[i * 16 + j * 4 + 3] }}
             </ion-col>
           </ion-row>
@@ -271,13 +293,13 @@
       </ion-row>
       <ion-row>
         <ion-col>
-          <button ion-button color="dark-gray" class="btn-text-green" (click)="onSubmit()">
-            <ion-icon name="thumbs-up"></ion-icon> Accept
+          <button ion-button item-right color="dark-gray" class="btn-text-green" (click)="toggleDisplaySchedule()">
+            <ion-icon name="build"></ion-icon> Adjust
           </button>
         </ion-col>
         <ion-col>
-          <button ion-button item-right color="dark-gray" class="btn-text-green" (click)="toggleDisplaySchedule()">
-            <ion-icon name="build"></ion-icon> Adjust
+          <button *ngIf="isScheduleValid()" ion-button color="dark-gray" class="btn-text-green" (click)="onSubmit()">
+            <ion-icon name="thumbs-up"></ion-icon> Accept
           </button>
         </ion-col>
       </ion-row>

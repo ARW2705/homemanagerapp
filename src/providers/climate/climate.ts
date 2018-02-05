@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 
+import { ClimateProgram } from '../../shared/climateprogram';
 import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
 import { baseURL } from '../../shared/baseurl';
 
@@ -20,37 +21,41 @@ export class ClimateProvider {
     return this.desiredTemperature;
   }
 
-  setDesiredTemperature(temperature: number) {
-    this.desiredTemperature = temperature;
-  }
-
+  // get climate data - temps/humidity/etc
   getCurrentClimateData(): Observable<any> {
     return this.http.get(baseURL + 'climate')
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
+  // get all climate pre-programmed documents
   getClimatePrograms(): Observable<any> {
     return this.http.get(baseURL + 'climateprograms')
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
+  // send override target temperature and/or mode
   updateClimateParameters(temperature: number = null,
-    operatingStatus: string = null,
-    selectedProgramId: number = null): Observable<any> {
-    this.setDesiredTemperature(temperature);
+    operatingStatus: string = null): Observable<any> {
+    this.desiredTemperature = temperature;
     const payload:any = {};
-    let destination;
     if (temperature) {
       payload.temperature = temperature;
-      destination = 'climate';
     } else if (operatingStatus) {
       payload.operatingStatus = operatingStatus;
-      destination = 'climate';
-    } else if (selectedProgramId) {
-      payload.id = selectedProgramId;
-      destination = 'climateprogram';
     }
-    return this.http.patch(baseURL + destination, JSON.stringify(payload))
+    return this.http.patch(baseURL + 'climate', JSON.stringify(payload))
+      .catch(err => this.processHttpmsgservice.handleError(err));
+  }
+
+  // update selected program
+  updateSelectedProgram(update: ClimateProgram): Observable<any> {
+    return this.http.patch(baseURL + `climateprograms/${update.id}`, JSON.stringify(update))
+      .catch(err => this.processHttpmsgservice.handleError(err));
+  }
+
+  // select active pre-programmed
+  selectPreProgrammed(id: number): Observable<any> {
+    return this.http.patch(baseURL + `climateprograms${id}`, JSON.stringify({isActive: true}))
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 

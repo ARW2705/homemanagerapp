@@ -24,6 +24,15 @@
       <ion-label floating>Enter Program Name</ion-label>
       <ion-input type="text" formControlName="name"></ion-input>
     </ion-item>
+    <ion-item *ngIf="name.hasError('minlength') && name.touched">
+      <p class="invalid">Program name must be at least two characters long</p>
+    </ion-item>
+    <ion-item *ngIf="name.hasError('maxlength') && name.touched">
+      <p class="invalid">Program name must be at most ten characters long</p>
+    </ion-item>
+    <ion-item *ngIf="name.hasError('required') && name.touched">
+      <p class="invalid">Program name is required</p>
+    </ion-item>
     <ion-item>
       <ion-label>Select Mode</ion-label>
       <ion-select formControlName="mode" interface="popover">
@@ -38,8 +47,9 @@
     </ion-item>
     <ion-item>
       <ion-label>Activate Program Upon Completion</ion-label>
-      <ion-toggle formControlName="isActive"></ion-toggle>
+      <ion-toggle color="secondary" formControlName="isActive"></ion-toggle>
     </ion-item>
-    <button ion-button type="submit" [disabled]="!program.valid && isValidSchedule">Submit</button>
+    <button ion-button color="light-green" type="submit" [disabled]="!program.valid || !isValidSchedule">Submit</button>
+    <button ion-button color="dark-gray" type="button" (click)="dismiss()">Cancel</button>
   </form>
 </ion-content>

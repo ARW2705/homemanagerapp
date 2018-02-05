@@ -43,7 +43,8 @@ $colors: (
   light-green: #6edd73,
   light-gray: #ddd,
   warning: #ffc107,
-  pale-green: #edffea
+  pale-green: #edffea,
+  pale-blue: #80a5e5
 );
 
 $background-color: #edffea;
@@ -53,6 +54,8 @@ $background-color: #edffea;
 // --------------------------------------------------
 // iOS only Sass variables can go here
 $card-ios-background-color: #ddd;
+$toggle-ios-track-background-color-off: #999797;
+$toggle-ios-handle-background-color-off: #576366;
 
 
 
@@ -60,13 +63,18 @@ $card-ios-background-color: #ddd;
 // --------------------------------------------------
 // Material Design only Sass variables can go here
 $card-md-background-color: #ddd;
-
+$toggle-md-track-background-color-off: #999797;
+$toggle-md-handle-background-color-off: #576366;
+$alert-md-button-text-color: #6edd73;
+$alrt-md-background-color: #576366;
 
 
 // App Windows Variables
 // --------------------------------------------------
 // Windows only Sass variables can go here
 $card-wp-background-color: #ddd;
+$toggle-wp-track-background-color-off: #999797;
+$toggle-wp-handle-background-color-off: #576366;
 
 
 

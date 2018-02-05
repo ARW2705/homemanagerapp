@@ -3,13 +3,6 @@ import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angul
 
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 
-/**
- * Generated class for the SchedulerPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
-
 @IonicPage()
 @Component({
   selector: 'page-scheduler',
@@ -34,10 +27,18 @@ export class SchedulerPage {
   minute: Array<number> = Array.from({length: 4}, (_, i) => this.defaultMinute);
   temp: Array<number> = Array.from({length: 4}, (_, i) => this.defaultTemp);
   zone: Array<number> = Array.from({length: 4}, (_, i) => this.defaultZone);
+  daysError: boolean = false;
+  providedSchedule: boolean = false;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     public viewCtrl: ViewController) {
+      if (navParams.get('program')) {
+        console.log("Scheduler received: ", navParams.get('program'));
+        const toBeUpdated = navParams.get('program');
+        this.schedule = toBeUpdated.program;
+        this.providedSchedule = true;
+      }
   }
 
   ionViewDidLoad() {
@@ -61,6 +62,12 @@ export class SchedulerPage {
   }
 
   pushScheduleValues() {
+    if (!this.days) {
+      console.log("No day(s) selected");
+      this.daysError = true;
+      return;
+    }
+    this.daysError = false;
     for (let i=0; i<7; i++) {
       if (this.days.indexOf(i.toString()) != -1) {
         for (let j=0; j<4; j++) {
@@ -87,7 +94,7 @@ export class SchedulerPage {
   }
 
   onSubmit() {
-
+    this.viewCtrl.dismiss(this.schedule);
   }
 
   dismiss() {

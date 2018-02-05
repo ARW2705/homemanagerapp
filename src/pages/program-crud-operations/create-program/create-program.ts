@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController, NavParams, ViewController, ModalController } from 'ionic-angular';
-import { Validators, FormBuilder, FormGroup } from '@angular/forms';
+import { Validators, FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 
 import { SchedulerPage } from '../../scheduler/scheduler';
 
@@ -12,6 +12,7 @@ import { SchedulerPage } from '../../scheduler/scheduler';
 export class CreateProgramPage {
 
   program: FormGroup;
+  name: AbstractControl;
   isValidSchedule: boolean = false;
   days: Array<string> = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -25,6 +26,7 @@ export class CreateProgramPage {
         mode: ['', Validators.required],
         isActive: false
       });
+      this.name = this.program.controls['name'];
   }
 
   ionViewDidLoad() {
@@ -32,23 +34,27 @@ export class CreateProgramPage {
   }
 
   openSchedulerModal() {
-    console.log("Open Scheduler");
     const modal = this.modalCtrl.create(SchedulerPage);
     modal.onDidDismiss(data => {
       if (data) {
-        console.log(data);
+        if (data.indexOf(-1) == -1) {
+          this.program.value.program = data;
+          this.isValidSchedule = true;
+        }
       }
     });
     modal.present();
   }
 
   onSubmit() {
-    console.log("submitted");
+    this.program.value.name = this.program.value.name;
+    this.program.value.mode = this.program.value.mode;
+    this.program.value.isActive = this.program.value.isActive;
+    console.log("Submitting...", this.program.value);
     this.viewCtrl.dismiss();
   }
 
   dismiss() {
-    console.log(this.program);
     this.viewCtrl.dismiss();
   }
 

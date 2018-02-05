@@ -65,7 +65,7 @@ export class HomePage implements OnInit {
             modal.onDidDismiss(data => {
               if (data) {
                 console.log(data.id);
-                this.climateservice.updateClimateParameters(null, null, data.id);
+                this.climateservice.selectPreProgrammed(data.id);
               }
             });
             modal.present();
