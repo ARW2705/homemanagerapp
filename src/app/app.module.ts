@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
@@ -22,6 +22,8 @@ import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-htt
 import { baseURL } from '../shared/baseurl';
 import { minTemperature, maxTemperature } from '../shared/temperatureconst';
 import { ClimateCrudProvider } from '../providers/climate-crud/climate-crud';
+import { AuthenticationProvider } from '../providers/authentication/authentication';
+import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/interceptor/interceptor';
 
 @NgModule({
   declarations: [
@@ -63,7 +65,18 @@ import { ClimateCrudProvider } from '../providers/climate-crud/climate-crud';
     {provide: 'maxTemperature', useValue: maxTemperature},
     ClimateProvider,
     ProcessHttpmsgProvider,
-    ClimateCrudProvider
+    ClimateCrudProvider,
+    AuthenticationProvider,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthorizedInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: UnauthorizedInterceptor,
+      multi: true
+    }
   ]
 })
 export class AppModule {}
