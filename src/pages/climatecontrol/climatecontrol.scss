@@ -1,74 +1,67 @@
 page-climatecontrol {
-  .warning {
-    color: $warning;
+  
+  h3 {
+    font-weight: bold;
   }
-}
 
-h3 {
-  font-weight: bold;
-}
-
-ion-card-header {
-  span {
-    display: inline;
-    color: $light-green !important;
-    font-size: 1.3em !important;
+  ion-card-header {
+    span {
+      color: $light-green !important;
+      font-size: 1.5em !important;
+    }
+    button {
+      color: $light-green !important;
+      background-color: $dark-gray !important;
+      font-size: 1.5em !important;
+      padding: 0px;
+    }
+    background-color: $dark-gray;
   }
-  button {
-    color: $light-green !important;
-    background-color: $dark-gray !important;
-    font-size: 1.2em !important;
+
+  ion-col {
+    height: 100%;
   }
-  background-color: $dark-gray;
-}
 
-ion-col {
-  height: 100%;
-}
+  .inner-card {
+    font-size: 1em !important;
+  }
 
-.inner-card {
-  font-size: 1em !important;
-}
+  .card-btn {
+    cursor: pointer;
+  }
 
-.card-btn {
-  cursor: pointer;
-}
+  .mode-btn {
+    color: $light-green;
+    background-color: $dark-gray;
+    padding-top: 4px !important;
+  }
 
-.mode-btn {
-  color: $light-green;
-  background-color: $dark-gray;
-  padding-top: 4px !important;
-}
+  .conditions {
+    text-align: center;
+    font-size: 2.5em;
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
 
-.conditions {
-  text-align: center;
-  font-size: 2.5em;
-  padding-top: 7px !important;
-  padding-bottom: 7px !important;
-}
+  .program-card {
+    text-align: center;
+  }
 
-.program-card {
-  text-align: center;
-}
+  .no-margin-bottom {
+    margin-bottom: 0px !important;
+  }
 
-.no-margin-bottom {
-  margin-bottom: 0px !important;
-}
+  .only-bottom-padding {
+    padding: 0 0 20px 0 !important;
+  }
 
-.no-padding {
-  padding: 0px;
-}
+  .swiper-pagination-bullet-active {
+    background: $light-green;
+    margin-bottom: 10px;
+  }
 
-.only-bottom-padding {
-  padding: 0 0 20px 0 !important;
-}
+  .adjust-down {
+    margin-bottom: 1.5% !important;
+  }
 
-.swiper-pagination-bullet-active {
-  background: $light-green;
-  margin-bottom: 10px;
-}
-
-.adjust-down {
-  margin-top: 1.5% !important;
-  margin-bottom: 1.5% !important;
 }

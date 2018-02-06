@@ -21,6 +21,7 @@ import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-htt
 
 import { baseURL } from '../shared/baseurl';
 import { minTemperature, maxTemperature } from '../shared/temperatureconst';
+import { ClimateCrudProvider } from '../providers/climate-crud/climate-crud';
 
 @NgModule({
   declarations: [
@@ -61,7 +62,8 @@ import { minTemperature, maxTemperature } from '../shared/temperatureconst';
     {provide: 'minTemperature', useValue: minTemperature},
     {provide: 'maxTemperature', useValue: maxTemperature},
     ClimateProvider,
-    ProcessHttpmsgProvider
+    ProcessHttpmsgProvider,
+    ClimateCrudProvider
   ]
 })
 export class AppModule {}

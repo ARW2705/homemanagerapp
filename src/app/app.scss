@@ -15,11 +15,20 @@
 // for the .md, .ios, or .wp mode classes. The mode class is
 // automatically applied to the <body> element in the app.
 
-$light-gray: #ddd;
-$dark-gray: #576366;
-$light-green: #6edd73;
-$pale-green: #edffea;
-$warning: #ffc107;
+
+
+$primary: color($colors, primary, base);
+$secondary: color($colors, secondary, base);
+$danger: color($colors, danger, base);
+$warning: color($colors, warning, base);
+$light: color($colors, light, base);
+$dark: color($colors, dark, base);
+$pale-blue: color($colors, pale-blue, base);
+$dark-gray: color($colors, dark-gray, base);
+$medium-gray: color($colors, medium-gray, base);
+$light-gray: color($colors, light-gray, base);
+$light-green: color($colors, light-green, base);
+$pale-green: color($colors, pale-green, base);
 
 body {
   background-color: $light-gray;

@@ -40,49 +40,70 @@ $colors: (
   light:      #f4f4f4,
   dark:       #222,
   dark-gray: #576366,
-  light-green: #6edd73,
+  medium-gray: #999797,
   light-gray: #ddd,
+  light-green: #6edd73,
   warning: #ffc107,
   pale-green: #edffea,
   pale-blue: #80a5e5
 );
 
-$background-color: #edffea;
+$background-color: color($colors, pale-green, base);
 
 
 // App iOS Variables
 // --------------------------------------------------
 // iOS only Sass variables can go here
-$card-ios-background-color: #ddd;
-$toggle-ios-track-background-color-off: #999797;
-$toggle-ios-handle-background-color-off: #576366;
-$alert-ios-button-text-color: #6edd73;
-$alert-ios-background-color: #576366;
+$card-ios-background-color: color($colors, light-gray, base);
+$toggle-ios-track-background-color-off: color($colors, medium-gray, base);
+$toggle-ios-handle-background-color-off: color($colors, dark-gray, base);
+$alert-ios-button-text-color: color($colors, light-green, base);
+$alert-ios-head-text-align: center;
 $spilt-pane-ios-side-min-width: 200px;
 $split-pane-ios-side-max-width: 250px;
+.alert-ios .alert-head {
+  background: color($colors, dark-gray, base);
+}
 
 
 // App Material Design Variables
 // --------------------------------------------------
 // Material Design only Sass variables can go here
-$card-md-background-color: #ddd;
-$toggle-md-track-background-color-off: #999797;
-$toggle-md-handle-background-color-off: #576366;
-$alert-md-button-text-color: #6edd73;
-$alert-md-background-color: #576366;
+$card-md-background-color: color($colors, light-gray, base);
+$toggle-md-track-background-color-off: color($colors, medium-gray, base);
+$toggle-md-handle-background-color-off: color($colors, dark-gray, base);
+$alert-md-button-text-color: color($colors, light-green, base);
+$alert-md-button-border-radius: 2px;
+$alert-md-button-background-color: color($colors, dark-gray, base);
+$alert-md-button-group-justify-content: start;
+$alert-md-head-text-align: center;
 $split-pane-md-side-min-width: 200px;
 $split-pane-md-side-max-width: 250px;
+.alert-md .alert-head {
+  background: color($colors, dark-gray, base);
+}
+.alert-md .alert-title {
+  color: color($colors, light-green, base);
+}
+.alert-md .alert-button-group {
+  background: color($colors, dark-gray, base);
+}
+
 
 // App Windows Variables
 // --------------------------------------------------
 // Windows only Sass variables can go here
-$card-wp-background-color: #ddd;
-$toggle-wp-track-background-color-off: #999797;
-$toggle-wp-handle-background-color-off: #576366;
-$alert-wp-button-text-color: #6edd73;
-$alert-wp-background-color: #576366;
+$card-wp-background-color: color($colors, light-gray, base);
+$toggle-wp-track-background-color-off: color($colors, medium-gray, base);
+$toggle-wp-handle-background-color-off: color($colors, dark-gray, base);
+$alert-wp-button-text-color: color($colors, light-green, base);
+$alert-wp-head-text-align: center;
 $split-pane-md-side-min-width: 200px;
 $split-pane-wp-side-max-width: 250px;
+.alert-wp .alert-head {
+  background: color($colors, dark-gray, base);
+}
+
 
 // App Theme
 // --------------------------------------------------

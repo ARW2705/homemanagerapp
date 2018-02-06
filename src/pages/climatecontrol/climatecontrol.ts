@@ -7,6 +7,7 @@ import { Climate } from '../../shared/climate';
 import { Sensor } from '../../shared/sensor';
 import { ClimateProgram } from '../../shared/climateprogram';
 import { ClimateProvider } from '../../providers/climate/climate';
+import { ClimateCrudProvider } from '../../providers/climate-crud/climate-crud';
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
@@ -32,6 +33,7 @@ export class ClimatecontrolPage implements OnInit {
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private climateservice: ClimateProvider,
+    private climateCRUDservice: ClimateCrudProvider,
     private toastCtrl: ToastController,
     private actionsheetCtrl: ActionSheetController,
     public modalCtrl: ModalController,
@@ -67,18 +69,6 @@ export class ClimatecontrolPage implements OnInit {
     this.selectedProgram.isActive = false;
   }
 
-  updateOperatingStatusCard() {
-    this.climateservice.getCurrentClimateData()
-      .subscribe(climate => {
-        this.climate.operatingStatus = climate.operatingStatus;
-        this.climate.selectedMode = climate.selectedMode;
-      }, err => this.errMsg = err);
-    this.climateservice.getClimatePrograms()
-      .subscribe(programs => this.selectedProgram = programs.filter(program => program.isActive)[0]
-        || {name: "None Selected", isActive: false},
-        err => this.errMsg = err);
-  }
-
   onSliderChangeEnd() {
     console.log(this.desiredTemperature);
     this.displayLoading();
@@ -93,64 +83,8 @@ export class ClimatecontrolPage implements OnInit {
     this.slides.slideTo(index+1);
   }
 
-  openProgramsActionSheet() {
-    console.log("Open Action Sheet");
-    const actionSheet = this.actionsheetCtrl.create({
-      title: 'Select an Option',
-      buttons: [
-        {
-          text: 'Select Program',
-          handler: () => {
-            console.log("Select Program");
-            // start selection modal
-            const modal = this.modalCtrl.create(SelectProgramPage);
-            modal.onDidDismiss(data => {
-              if (data) {
-                console.log(data.id);
-                this.climateservice.selectPreProgrammed(data.id);
-              }
-            });
-            modal.present();
-          }
-        },
-        {
-          text: 'Create a New Program',
-          handler: () => {
-            console.log("Create a New Program");
-            // start creation modal
-            const modal = this.modalCtrl.create(CreateProgramPage);
-            modal.onDidDismiss(data => {
-              if (data) {
-                console.log("Valid", data);
-              }
-            });
-            modal.present();
-          }
-        },
-        {
-          text: 'Update Existing Program',
-          handler: () => {
-            console.log("Update Existing Program");
-            // start update modal
-            const modal = this.modalCtrl.create(UpdateProgramPage);
-            modal.onDidDismiss(data => {
-              if (data) {
-                console.log(data);
-              }
-            });
-            modal.present();
-          }
-        },
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            console.log("Action sheet cancelled");
-          }
-        }
-      ]
-    });
-    actionSheet.present();
+  openClimateActionSheet() {
+    this.climateCRUDservice.openClimateProgramActionSheet();
   }
 
   openModeActionSheet() {
@@ -211,6 +145,18 @@ export class ClimatecontrolPage implements OnInit {
         console.log("Updated", update);
         this.updateOperatingStatusCard();
       }, err => this.errMsg = err);
+  }
+
+  updateOperatingStatusCard() {
+    this.climateservice.getCurrentClimateData()
+      .subscribe(climate => {
+        this.climate.operatingStatus = climate.operatingStatus;
+        this.climate.selectedMode = climate.selectedMode;
+      }, err => this.errMsg = err);
+    this.climateservice.getClimatePrograms()
+      .subscribe(programs => this.selectedProgram = programs.filter(program => program.isActive)[0]
+        || {name: "None Selected", isActive: false},
+        err => this.errMsg = err);
   }
 
 }
