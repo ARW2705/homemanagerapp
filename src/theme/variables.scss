@@ -56,7 +56,10 @@ $background-color: #edffea;
 $card-ios-background-color: #ddd;
 $toggle-ios-track-background-color-off: #999797;
 $toggle-ios-handle-background-color-off: #576366;
-
+$alert-ios-button-text-color: #6edd73;
+$alert-ios-background-color: #576366;
+$spilt-pane-ios-side-min-width: 200px;
+$split-pane-ios-side-max-width: 250px;
 
 
 // App Material Design Variables
@@ -66,8 +69,9 @@ $card-md-background-color: #ddd;
 $toggle-md-track-background-color-off: #999797;
 $toggle-md-handle-background-color-off: #576366;
 $alert-md-button-text-color: #6edd73;
-$alrt-md-background-color: #576366;
-
+$alert-md-background-color: #576366;
+$split-pane-md-side-min-width: 200px;
+$split-pane-md-side-max-width: 250px;
 
 // App Windows Variables
 // --------------------------------------------------
@@ -75,8 +79,10 @@ $alrt-md-background-color: #576366;
 $card-wp-background-color: #ddd;
 $toggle-wp-track-background-color-off: #999797;
 $toggle-wp-handle-background-color-off: #576366;
-
-
+$alert-wp-button-text-color: #6edd73;
+$alert-wp-background-color: #576366;
+$split-pane-md-side-min-width: 200px;
+$split-pane-wp-side-max-width: 250px;
 
 // App Theme
 // --------------------------------------------------
@@ -86,6 +92,7 @@ $toggle-wp-handle-background-color-off: #576366;
 // default are overridden.
 
 @import "ionic.theme.default";
+
 
 
 // Ionicons

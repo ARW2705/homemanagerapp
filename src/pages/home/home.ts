@@ -22,6 +22,7 @@ export class HomePage implements OnInit {
   unitType: string = 'e';
   desiredTemperature: number;
   program: string;
+  errMsg: string;
 
   constructor(public navCtrl: NavController,
     private climateservice: ClimateProvider,
@@ -116,7 +117,10 @@ export class HomePage implements OnInit {
   }
 
   updateDesiredTemperature() {
-    this.climateservice.updateClimateParameters(this.desiredTemperature);
+    this.climateservice.updateClimateParameters(this.desiredTemperature)
+    .subscribe(update => {
+      console.log("Updated", update);
+    }, err => this.errMsg = err);
   }
 
 }

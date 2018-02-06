@@ -15,30 +15,28 @@
 
 </ion-header>
 
-<!-- TODO
-  Show current status
-  Choose between sensors?
-  Pre-program CRUD operations -->
 <ion-content background-color="light">
   <ion-grid>
     <ion-row>
 
       <ion-col col-12 col-lg-6>
-        <ion-slides #climateSlide *ngIf="climate">
-          <ion-slide *ngFor="let zone of zones">
+        <ion-slides pager #climateSlide *ngIf="climate">
+          <ion-slide *ngFor="let zone of zones; index as i">
             <ion-card color="light-gray">
 
               <ion-card-header>
-                <span>{{ zone.location | titlecase }} Conditions</span>
+                <button (click)="slideToLeft(i)"><ion-icon name="arrow-dropleft-circle"></ion-icon></button>
+                <span>{{ zone.location | titlecase }}</span>
+                <button (click)="slideToRight(i)"><ion-icon name="arrow-dropright-circle"></ion-icon></button>
               </ion-card-header>
-              <ion-card-content class="no-padding no-margin">
+              <ion-card-content class="no-padding">
                 <ion-grid>
                   <ion-row>
 
-                    <ion-col col-12 col-lg-6>
+                    <ion-col col-12 col-lg-6 class="no-padding">
                       <ion-card>
                         <ion-card-header>
-                          <span>Temperature</span>
+                          <span class="inner-card">Temperature</span>
                         </ion-card-header>
                         <ion-card-content class="conditions">
                           {{ zone.temperature }}<span [innerHtml]="getTemperatureSymbol()"></span>
@@ -46,10 +44,10 @@
                       </ion-card>
                     </ion-col>
 
-                    <ion-col col-12 col-lg-6>
+                    <ion-col col-12 col-lg-6 class="no-padding">
                       <ion-card>
                         <ion-card-header>
-                          <span>Humidity</span>
+                          <span class="inner-card">Humidity</span>
                         </ion-card-header>
                         <ion-card-content class="conditions">
                           {{ zone.humidity }}%
@@ -60,14 +58,14 @@
                   </ion-row>
                   <ion-row>
 
-                    <ion-col>
+                    <ion-col class="only-bottom-padding adjust-down">
                       <ion-label text-center>
                         Selected Temperature {{ desiredTemperature }}
                         <span [innerHtml]="getTemperatureSymbol()"></span>
                       </ion-label>
                       <ion-range
-                        debounce="500"
-                        (ionChange)="onSliderChangeEnd()"
+                        class="adjust-down"
+                        (ionBlur)="onSliderChangeEnd()"
                         [(ngModel)]="desiredTemperature"
                         color="light-green"
                         min="{{ minTemperature }}" max="{{ maxTemperature }}" pin>
@@ -103,9 +101,9 @@
                 </ion-col>
                 <ion-col col-12 col-md-6>
                   Operation Mode:
-                  <span class="mode-btn card-btn" (click)="openModeActionSheet()">
+                  <button class="mode-btn card-btn" (click)="openModeActionSheet()">
                     {{ climate.selectedMode | uppercase }}
-                  </span>
+                  </button>
                 </ion-col>
                 <ion-col col-12 col-md-6>
                   Home System {{ climate.operatingStatus | uppercase }}
@@ -113,7 +111,7 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <ion-card class="no-margin-bottom card-btn" color="dark-gray" (click)="openProgramsActionSheet()">
+                  <ion-card color="dark-gray" (click)="openProgramsActionSheet()">
                     <ion-card-content class="program-card" color="light-green">
                       Selected Program: {{ selectedProgram.name | uppercase }}
                     </ion-card-content>
@@ -127,9 +125,7 @@
                     <span [innerHtml]="getTemperatureSymbol()"></span>
                   </ion-label>
                   <ion-range
-                    id="margin-adjust-down"
-                    debounce="500"
-                    (ionChange)="onSliderChangeEnd()"
+                    (ionBlur)="onSliderChangeEnd()"
                     [(ngModel)]="desiredTemperature"
                     color="light-green"
                     min="{{ minTemperature }}" max="{{ maxTemperature }}" pin>

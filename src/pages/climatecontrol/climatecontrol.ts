@@ -7,7 +7,6 @@ import { Climate } from '../../shared/climate';
 import { Sensor } from '../../shared/sensor';
 import { ClimateProgram } from '../../shared/climateprogram';
 import { ClimateProvider } from '../../providers/climate/climate';
-import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
@@ -84,6 +83,14 @@ export class ClimatecontrolPage implements OnInit {
     console.log(this.desiredTemperature);
     this.displayLoading();
     this.updateDesiredTemperature();
+  }
+
+  slideToLeft(index: number) {
+    this.slides.slideTo(index-1);
+  }
+
+  slideToRight(index: number) {
+    this.slides.slideTo(index+1);
   }
 
   openProgramsActionSheet() {

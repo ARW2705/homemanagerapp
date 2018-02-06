@@ -11,7 +11,7 @@
   <ion-grid>
     <ion-row>
 
-      <ion-col col-12 col-lg-6 *ngIf="climate && program">
+      <ion-col col-12 col-lg-8 *ngIf="climate && program">
         <ion-card color="light-gray">
           <ion-card-header>
             <span>Climate Control</span>
@@ -51,8 +51,7 @@
                     <span [innerHtml]="getTemperatureSymbol()"></span>
                   </ion-label>
                   <ion-range
-                    debounce="500"
-                    (ionChange)="onSliderChangeEnd()"
+                    (ionBlur)="onSliderChangeEnd()"
                     [(ngModel)]="desiredTemperature"
                     color="light-green"
                     min="{{ minTemperature }}" max="{{ maxTemperature }}" pin>
