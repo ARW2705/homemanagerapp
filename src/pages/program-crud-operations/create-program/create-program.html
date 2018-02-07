@@ -13,7 +13,7 @@
 
 
 <ion-content padding>
-  <form [formGroup]="program" (ngSubmit)="onSubmit()">
+  <form [formGroup]="programForm" (ngSubmit)="onSubmit()">
     <ion-item>
       <ion-label floating>Enter Program Name</ion-label>
       <ion-input type="text" formControlName="name"></ion-input>
@@ -43,7 +43,7 @@
       <ion-label>Activate Program Upon Completion</ion-label>
       <ion-toggle color="secondary" formControlName="isActive"></ion-toggle>
     </ion-item>
-    <button ion-button color="light-green" type="submit" [disabled]="!program.valid || !isValidSchedule">Submit</button>
+    <button ion-button color="light-green" type="submit" [disabled]="!programForm.valid || !isValidSchedule">Submit</button>
     <button ion-button color="dark-gray" type="button" (click)="dismiss()">Cancel</button>
   </form>
 </ion-content>

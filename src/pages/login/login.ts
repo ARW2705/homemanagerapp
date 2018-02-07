@@ -1,12 +1,9 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ViewController, ModalController } from 'ionic-angular';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-/**
- * Generated class for the LoginPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
+import { AuthenticationProvider } from '../../providers/authentication/authentication';
+import { User } from '../../shared/user';
 
 @IonicPage()
 @Component({
@@ -15,11 +12,45 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
 })
 export class LoginPage {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  loginForm: FormGroup;
+  user: User = {username: '', password: '', remember: false};
+  errMsg: string;
+
+  constructor(public navCtrl: NavController,
+    public navParams: NavParams,
+    private authService: AuthenticationProvider,
+    public viewCtrl: ViewController,
+    public modalCtrl: ModalController,
+    private formBuilder: FormBuilder) {
+      this.loginForm = this.formBuilder.group({
+        username: ['', Validators.required],
+        password: ['', Validators.required],
+        remember: false
+      });
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad LoginPage');
+  }
+
+  onSubmit() {
+    this.user.username = this.loginForm.get('username').value;
+    this.user.password = this.loginForm.get('password').value;
+    console.log("User: ", this.user);
+    this.authService.logIn(this.user)
+      .subscribe(res => {
+        if (res.success) {
+          this.viewCtrl.dismiss(res.success);
+        } else {
+          console.log(res);
+        }
+      },
+      err => { console.log(err); this.errMsg = err; }
+    );
+  }
+
+  dismiss() {
+    this.viewCtrl.dismiss();
   }
 
 }

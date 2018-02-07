@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Storage } from '@ionic/storage';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
+import { Events } from 'ionic-angular';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/catch';
@@ -30,7 +32,9 @@ export class AuthenticationProvider {
   authToken: string = undefined;
 
   constructor(public http: HttpClient,
-    private processHttpmsgService: ProcessHttpmsgProvider) {
+    private processHttpmsgService: ProcessHttpmsgProvider,
+    private storage: Storage,
+    public events: Events) {
     console.log('Hello AuthenticationProvider Provider');
   }
 
@@ -39,10 +43,12 @@ export class AuthenticationProvider {
       .subscribe(res => {
         console.log("JWT Token Valid: ", res);
         this.sendUsername(res.user.username);
+        this.events.publish('user:authed');
       },
       err => {
         console.log("JWT Token Invalid: ", err);
         this.destroyUserCredentials();
+        this.events.publish('user:not-authed');
       });
   }
 
@@ -63,19 +69,27 @@ export class AuthenticationProvider {
   }
 
   loadUserCredentials() {
-    const credentials = JSON.parse(localStorage.getItem(this.tokenKey));
-    console.log("Loaded user credentials: ", credentials);
-    if (credentials && credentials.username != undefined) {
-      this.useCredentials(credentials);
-      if (this.authToken) {
-        this.checkJWTtoken();
-      }
-    }
+     this.storage.get(this.tokenKey)
+      .then(key => {
+        if (key) {
+          const credentials = JSON.parse(key);
+          console.log("Loaded user credentials: ", credentials);
+          if (credentials && credentials.username != undefined) {
+            this.useCredentials(credentials);
+            if (this.authToken) {
+              this.checkJWTtoken();
+            }
+          }
+        } else {
+          console.log("Token key not defined");
+          this.events.publish('user:not-authed');
+        }
+      });
   }
 
   storeUserCredentials(credentials: any) {
     console.log("Storing user credentials", credentials);
-    localStorage.setItem(this.tokenKey, JSON.stringify(credentials));
+    this.storage.set(this.tokenKey, JSON.stringify(credentials));
     this.useCredentials(credentials);
   }
 
@@ -89,7 +103,7 @@ export class AuthenticationProvider {
     this.authToken = undefined;
     this.clearUsername();
     this.isAuthenticated = false;
-    localStorage.removeItem(this.tokenKey);
+    this.storage.remove(this.tokenKey);
   }
 
   logIn(user: any): Observable<any> {

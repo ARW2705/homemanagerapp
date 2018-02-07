@@ -1,7 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
-import { Nav, Platform, ModalController } from 'ionic-angular';
+import { Nav, Platform, ModalController, Events } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
+import { Storage } from '@ionic/storage';
+
+import { AuthenticationProvider } from '../providers/authentication/authentication';
 
 import { HomePage } from '../pages/home/home';
 import { ClimatecontrolPage } from '../pages/climatecontrol/climatecontrol';
@@ -22,7 +25,19 @@ export class MyApp {
   constructor(public platform: Platform,
     public statusBar: StatusBar,
     public splashScreen: SplashScreen,
-    public modalCtrl: ModalController) {
+    public modalCtrl: ModalController,
+    private authService: AuthenticationProvider,
+    private storage: Storage,
+    public events: Events) {
+    authService.loadUserCredentials();
+    events.subscribe('user:authed', () => {
+      console.log("Authorized");
+      this.rootPage = HomePage;
+    });
+    events.subscribe('user:not-authed', () => {
+      console.log("Not Authorized");
+      this.rootPage = LoginPage;
+    });
     this.initializeApp();
 
     // used for an example of ngFor and navigation
