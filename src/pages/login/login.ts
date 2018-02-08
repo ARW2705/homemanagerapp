@@ -36,7 +36,7 @@ export class LoginPage {
   onSubmit() {
     this.user.username = this.loginForm.get('username').value;
     this.user.password = this.loginForm.get('password').value;
-    console.log("User: ", this.user);
+    this.user.remember = this.loginForm.get('remember').value;
     this.authService.logIn(this.user)
       .subscribe(res => {
         if (res.success) {

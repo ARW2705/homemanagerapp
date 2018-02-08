@@ -11,6 +11,7 @@ import { ClimatecontrolPage } from '../pages/climatecontrol/climatecontrol';
 import { GaragedoorPage } from '../pages/garagedoor/garagedoor';
 import { BrewingPage } from '../pages/brewing/brewing';
 import { LoginPage } from '../pages/login/login';
+import { LandingPage } from '../pages/landing/landing';
 
 @Component({
   templateUrl: 'app.html'
@@ -18,7 +19,8 @@ import { LoginPage } from '../pages/login/login';
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
-  rootPage: any = HomePage;
+  rootPage: any = LandingPage;
+  loggedIn: boolean = false;
 
   pages: Array<{title: string, component: any, icon: string}>;
 
@@ -29,16 +31,22 @@ export class MyApp {
     private authService: AuthenticationProvider,
     private storage: Storage,
     public events: Events) {
-    authService.loadUserCredentials();
-    events.subscribe('user:authed', () => {
-      console.log("Authorized");
-      this.rootPage = HomePage;
-    });
-    events.subscribe('user:not-authed', () => {
-      console.log("Not Authorized");
-      this.rootPage = LoginPage;
-    });
+
     this.initializeApp();
+
+    // open login modal if token invalid
+    authService.loadUserCredentials();
+    storage.get('JWT').then(token => {
+      if (token == null || !(JSON.parse(token).remember)) {
+        this.authService.destroyUserCredentials();
+        this.openLogin();
+      } else {
+        this.openPage(this.pages[0]);
+        this.loggedIn = true;
+      }
+    }, err => {
+      console.log(err);
+    });
 
     // used for an example of ngFor and navigation
     this.pages = [
@@ -67,6 +75,18 @@ export class MyApp {
 
   openLogin() {
     const modal = this.modalCtrl.create(LoginPage);
+    modal.onDidDismiss(data => {
+      this.openPage(this.pages[0]);
+      if (data !== undefined) {
+        this.loggedIn = true;
+      }
+    });
     modal.present();
+  }
+
+  logOut() {
+    this.loggedIn = false;
+    this.authService.logOut();
+    this.openLogin();
   }
 }

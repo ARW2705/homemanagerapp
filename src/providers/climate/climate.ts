@@ -29,7 +29,7 @@ export class ClimateProvider {
 
   // get all climate pre-programmed documents
   getClimatePrograms(): Observable<any> {
-    return this.http.get(baseURL + 'climateprograms')
+    return this.http.get(baseURL + 'climate/programs')
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
@@ -49,13 +49,13 @@ export class ClimateProvider {
 
   // update selected program
   updateSelectedProgram(update: ClimateProgram): Observable<any> {
-    return this.http.patch(baseURL + `climateprograms/${update.id}`, JSON.stringify(update))
+    return this.http.patch(baseURL + `climate/programs/${update.id}`, JSON.stringify(update))
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
   // select active pre-programmed
   selectPreProgrammed(id: number): Observable<any> {
-    return this.http.patch(baseURL + `climateprograms${id}`, JSON.stringify({isActive: true}))
+    return this.http.patch(baseURL + `climate/programs${id}`, JSON.stringify({isActive: true}))
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 

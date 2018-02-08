@@ -45,6 +45,7 @@ export class ClimatecontrolPage implements OnInit {
   ngOnInit() {
     this.climateservice.getCurrentClimateData()
       .subscribe(climate => {
+        console.log(climate);
         this.desiredTemperature = climate.targetTemperature;
         this.zones = climate.zoneData;
         return this.climate = climate;
@@ -52,6 +53,7 @@ export class ClimatecontrolPage implements OnInit {
         err => this.errMsg = err);
     this.climateservice.getClimatePrograms()
       .subscribe(programs => {
+          console.log(programs);
           this.programs = programs;
           return this.selectedProgram = programs.filter(program => program.isActive)[0]
             || {name: "None Selected", isActive: false};

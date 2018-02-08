@@ -16,6 +16,7 @@ import { CreateProgramPage } from '../pages/program-crud-operations/create-progr
 import { SelectProgramPage } from '../pages/program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../pages/program-crud-operations/update-program/update-program';
 import { SchedulerPage } from '../pages/scheduler/scheduler';
+import { LandingPage } from '../pages/landing/landing';
 
 import { ClimateProvider } from '../providers/climate/climate';
 import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-httpmsg';
@@ -37,7 +38,8 @@ import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/int
     CreateProgramPage,
     SelectProgramPage,
     UpdateProgramPage,
-    SchedulerPage
+    SchedulerPage,
+    LandingPage
   ],
   imports: [
     BrowserModule,
@@ -56,7 +58,8 @@ import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/int
     CreateProgramPage,
     SelectProgramPage,
     UpdateProgramPage,
-    SchedulerPage
+    SchedulerPage,
+    LandingPage
   ],
   providers: [
     StatusBar,

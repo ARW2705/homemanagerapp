@@ -1,6 +1,6 @@
 export interface Sensor {
-  id: number;
+  locationId: number;
   temperature: number;
   humidity: number;
-  location: string;
+  locationName: string;
 }
