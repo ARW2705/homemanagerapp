@@ -39,26 +39,25 @@ export class ClimateProvider {
     this.desiredTemperature = temperature;
     const payload:any = {};
     if (temperature) {
-      payload.temperature = temperature;
+      payload.targetTemperature = temperature;
     } else if (operatingStatus) {
       payload.operatingStatus = operatingStatus;
     }
-    return this.http.patch(baseURL + 'climate', JSON.stringify(payload))
+    console.log("Submitting", payload);
+    return this.http.patch(baseURL + 'climate', payload)
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
   // update selected program
   updateSelectedProgram(update: ClimateProgram): Observable<any> {
-    return this.http.patch(baseURL + `climate/programs/${update.id}`, JSON.stringify(update))
+    return this.http.patch(baseURL + `climate/programs/${update.id}`, update)
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
   // select active pre-programmed
-  selectPreProgrammed(id: number): Observable<any> {
-    return this.http.patch(baseURL + `climate/programs/${id}`, JSON.stringify({isActive: true}))
+  selectPreProgrammed(id: string): Observable<any> {
+    return this.http.patch(baseURL + `climate/programs/${id}`, {isActive: true})
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
-
-  // TODO implement CRUD operations for climate programs
 
 }

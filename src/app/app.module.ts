@@ -23,7 +23,6 @@ import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-htt
 
 import { baseURL } from '../shared/baseurl';
 import { minTemperature, maxTemperature } from '../shared/temperatureconst';
-import { ClimateCrudProvider } from '../providers/climate-crud/climate-crud';
 import { AuthenticationProvider } from '../providers/authentication/authentication';
 import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/interceptor/interceptor';
 
@@ -70,7 +69,6 @@ import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/int
     {provide: 'maxTemperature', useValue: maxTemperature},
     ClimateProvider,
     ProcessHttpmsgProvider,
-    ClimateCrudProvider,
     AuthenticationProvider,
     {
       provide: HTTP_INTERCEPTORS,

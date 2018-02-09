@@ -5,12 +5,13 @@ import { Climate } from '../../shared/climate';
 import { Sensor } from '../../shared/sensor';
 import { ClimateProgram } from '../../shared/climateprogram';
 import { ClimateProvider } from '../../providers/climate/climate';
-import { ClimateCrudProvider } from '../../providers/climate-crud/climate-crud';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
 import { LoginPage } from '../login/login';
+
+import { AuthenticationProvider } from '../../providers/authentication/authentication';
 
 @Component({
   selector: 'page-home',
@@ -28,10 +29,10 @@ export class HomePage implements OnInit {
 
   constructor(public navCtrl: NavController,
     private climateservice: ClimateProvider,
-    private climateCRUDservice: ClimateCrudProvider,
     private actionsheetCtrl: ActionSheetController,
     private toastCtrl: ToastController,
     public modalCtrl: ModalController,
+    private authService: AuthenticationProvider,
     @Inject('baseURL') private baseURL,
     @Inject('minTemperature') private minTemperature,
     @Inject('maxTemperature') private maxTemperature) {
@@ -55,6 +56,66 @@ export class HomePage implements OnInit {
     this.updateDesiredTemperature();
   }
 
+  openClimateProgramActionSheet() {
+    console.log("Open Action Sheet");
+    const actionSheet = this.actionsheetCtrl.create({
+      title: 'Select an Option',
+      buttons: [
+        {
+          text: 'Select Program',
+          handler: () => {
+            console.log("Select Program");
+            // start selection modal
+            const modal = this.modalCtrl.create(SelectProgramPage);
+            modal.onDidDismiss(data => {
+              if (data) {
+                console.log(data._id);
+                this.climateservice.selectPreProgrammed(data.id);
+              }
+            });
+            modal.present();
+          }
+        },
+        {
+          text: 'Create a New Program',
+          handler: () => {
+            console.log("Create a New Program");
+            // start creation modal
+            const modal = this.modalCtrl.create(CreateProgramPage);
+            modal.onDidDismiss(data => {
+              if (data) {
+                console.log("Valid", data);
+              }
+            });
+            modal.present();
+          }
+        },
+        {
+          text: 'Update Existing Program',
+          handler: () => {
+            console.log("Update Existing Program");
+            // start update modal
+            const modal = this.modalCtrl.create(UpdateProgramPage);
+            modal.onDidDismiss(data => {
+              if (data) {
+                console.log(data);
+              }
+            });
+            modal.present();
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            console.log("Action sheet cancelled");
+          }
+        }
+      ]
+    });
+    actionSheet.present();
+  }
+
   openLogin() {
     const modal = this.modalCtrl.create(LoginPage);
     modal.onDidDismiss(data => {
@@ -63,10 +124,6 @@ export class HomePage implements OnInit {
       }
     });
     modal.present();
-  }
-
-  openClimateProgramActionSheet() {
-    this.climateCRUDservice.openClimateProgramActionSheet();
   }
 
   getTemperatureSymbol() {
