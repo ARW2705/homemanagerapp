@@ -40,6 +40,7 @@ export class LoginPage {
     this.authService.logIn(this.user)
       .subscribe(res => {
         if (res.success) {
+          console.log("Logged In", res);
           this.viewCtrl.dismiss(res.success);
         } else {
           console.log(res);

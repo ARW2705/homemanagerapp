@@ -18,4 +18,9 @@
 
 <ion-content padding>
   <h1 class="warning">Coming Soon</h1>
+  <div *ngIf="errMsg == '401 - Unauthorized'">
+    <button ion-button color="light-green" (click)="openLogin()">
+      Log In
+    </button>
+  </div>
 </ion-content>

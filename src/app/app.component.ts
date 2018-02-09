@@ -21,6 +21,7 @@ export class MyApp {
 
   rootPage: any = LandingPage;
   loggedIn: boolean = false;
+  authChecked: boolean = false;
 
   pages: Array<{title: string, component: any, icon: string}>;
 
@@ -34,19 +35,25 @@ export class MyApp {
 
     this.initializeApp();
 
-    // open login modal if token invalid
+    // load user credentials from storage if 'remember' was set to true on login
     authService.loadUserCredentials();
-    storage.get('JWT').then(token => {
-      if (token == null || !(JSON.parse(token).remember)) {
-        this.authService.destroyUserCredentials();
-        this.openLogin();
-      } else {
-        this.openPage(this.pages[0]);
-        this.loggedIn = true;
-      }
-    }, err => {
-      console.log(err);
+    events.subscribe('user:authed', () => {
+      console.log("Authed from stored token");
+      this.loggedIn = this.authService.isLoggedIn();
+      this.authChecked = true;
+      this.openPage(this.pages[0]);
     });
+    events.subscribe('user:not-authed', () => {
+      console.log("Not-Authed from stored token");
+      this.loggedIn = this.authService.isLoggedIn();
+      this.authChecked = true;
+      this.openLogin();
+    });
+    events.subscribe('user:loggedin', () => {
+      console.log("Log In Successful");
+      this.loggedIn = this.authService.isLoggedIn();
+      this.authChecked = true;
+    })
 
     // used for an example of ngFor and navigation
     this.pages = [
@@ -78,7 +85,7 @@ export class MyApp {
     modal.onDidDismiss(data => {
       this.openPage(this.pages[0]);
       if (data !== undefined) {
-        this.loggedIn = true;
+        this.loggedIn = this.authService.isLoggedIn();
       }
     });
     modal.present();

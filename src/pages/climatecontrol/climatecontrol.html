@@ -159,4 +159,9 @@
     <h2>Error</h2>
     <h4>{{ errMsg }}</h4>
   </div>
+  <div *ngIf="errMsg == '401 - Unauthorized'">
+    <button ion-button color="light-green" (click)="openLogin()">
+      Log In
+    </button>
+  </div>
 </ion-content>

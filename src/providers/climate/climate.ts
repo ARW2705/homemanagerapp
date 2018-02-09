@@ -55,7 +55,7 @@ export class ClimateProvider {
 
   // select active pre-programmed
   selectPreProgrammed(id: number): Observable<any> {
-    return this.http.patch(baseURL + `climate/programs${id}`, JSON.stringify({isActive: true}))
+    return this.http.patch(baseURL + `climate/programs/${id}`, JSON.stringify({isActive: true}))
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 

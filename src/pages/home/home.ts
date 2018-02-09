@@ -10,6 +10,7 @@ import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
+import { LoginPage } from '../login/login';
 
 @Component({
   selector: 'page-home',
@@ -52,6 +53,16 @@ export class HomePage implements OnInit {
   onSliderChangeEnd() {
     console.log(this.desiredTemperature);
     this.updateDesiredTemperature();
+  }
+
+  openLogin() {
+    const modal = this.modalCtrl.create(LoginPage);
+    modal.onDidDismiss(data => {
+      if (data !== undefined) {
+        this.navCtrl.setRoot(HomePage);
+      }
+    });
+    modal.present();
   }
 
   openClimateProgramActionSheet() {

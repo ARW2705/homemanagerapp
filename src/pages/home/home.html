@@ -84,13 +84,9 @@
     <h2>Error</h2>
     <h4>{{ climateErrMsg }}</h4>
   </div>
-  <!--
-  <h4>TODOs</h4>
-  <ol>
-    <li>Climate control status card</li>
-    <li>Garage door status card</li>
-    <li>Garage door open/close button</li>
-    <li>Brew status overview card</li>
-  </ol>
--->
+  <div *ngIf="errMsg == '401 - Unauthorized'">
+    <button ion-button color="light-green" (click)="openLogin()">
+      Log In
+    </button>
+  </div>
 </ion-content>

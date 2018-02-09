@@ -31,7 +31,7 @@ export class ClimateCrudProvider {
             const modal = this.modalCtrl.create(SelectProgramPage);
             modal.onDidDismiss(data => {
               if (data) {
-                console.log(data.id);
+                console.log(data._id);
                 this.climateservice.selectPreProgrammed(data.id);
               }
             });

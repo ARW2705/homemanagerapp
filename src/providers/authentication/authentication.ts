@@ -30,6 +30,7 @@ export class AuthenticationProvider {
   isAuthenticated: boolean = false;
   username: Subject<string> = new Subject<string>();
   authToken: string = undefined;
+  remember: boolean = false;
 
   constructor(public http: HttpClient,
     private processHttpmsgService: ProcessHttpmsgProvider,
@@ -43,10 +44,12 @@ export class AuthenticationProvider {
       .subscribe(res => {
         console.log("JWT Token Valid: ", res);
         this.sendUsername(res.user.username);
+        this.events.publish("user:authed");
       },
       err => {
         console.log("JWT Token Invalid: ", err);
         this.destroyUserCredentials();
+        this.events.publish("user:not-authed");
       });
   }
 
@@ -70,7 +73,6 @@ export class AuthenticationProvider {
      this.storage.get(this.tokenKey)
       .then(key => {
         if (key) {
-          console.log(JSON.parse(key));
           const credentials = JSON.parse(key);
           console.log("Loaded user credentials: ", credentials);
           if (credentials && credentials.username != undefined) {
@@ -81,7 +83,7 @@ export class AuthenticationProvider {
           }
         } else {
           console.log("Token key not defined");
-          this.events.publish('user:not-authed');
+          this.events.publish("user:not-authed");
         }
       });
   }
@@ -109,7 +111,13 @@ export class AuthenticationProvider {
     return this.http.post<AuthResponse>(baseURL + 'users/login',
       {"username": user.username, "password": user.password})
       .map(res => {
-        this.storeUserCredentials({username: user.username, token: res.token, remember: user.remember});
+        const credentials = {username: user.username, token: res.token};
+        if (user.remember) {
+          this.storeUserCredentials(credentials);
+        } else {
+          this.useCredentials(credentials);
+        }
+        this.events.publish("user:loggedin");
         return {'success': true, 'username': user.username};
       })
       .catch(err => this.processHttpmsgService.handleError(err));

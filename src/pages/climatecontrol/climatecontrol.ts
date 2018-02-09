@@ -11,6 +11,7 @@ import { ClimateCrudProvider } from '../../providers/climate-crud/climate-crud';
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
+import { LoginPage } from '../login/login';
 
 @IonicPage()
 @Component({
@@ -127,6 +128,16 @@ export class ClimatecontrolPage implements OnInit {
       ]
     });
     actionSheet.present();
+  }
+
+  openLogin() {
+    const modal = this.modalCtrl.create(LoginPage);
+    modal.onDidDismiss(data => {
+      if (data !== undefined) {
+        this.navCtrl.setRoot(ClimatecontrolPage);
+      }
+    });
+    modal.present();
   }
 
   getTemperatureSymbol() {
