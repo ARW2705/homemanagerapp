@@ -121,7 +121,7 @@
               </ion-row>
               <ion-row>
                 <ion-col>
-                  <ion-card color="dark-gray" (click)="openClimateActionSheet()">
+                  <ion-card color="dark-gray" (click)="openClimateProgramActionSheet()">
                     <ion-card-content class="program-card" color="light-green">
                       Selected Program: {{ selectedProgram.name | uppercase }}
                     </ion-card-content>
@@ -160,6 +160,7 @@
     <h4>{{ errMsg }}</h4>
   </div>
   <div *ngIf="errMsg == '401 - Unauthorized'">
+    <h4>You must be logged in to view this content</h4>
     <button ion-button color="light-green" (click)="openLogin()">
       Log In
     </button>

@@ -35,16 +35,16 @@ export class ClimateProvider {
 
   // send override target temperature and/or mode
   updateClimateParameters(temperature: number = null,
-    operatingStatus: string = null): Observable<any> {
+    selectedMode: string = null): Observable<any> {
     this.desiredTemperature = temperature;
     const payload:any = {};
     if (temperature) {
       payload.targetTemperature = temperature;
-    } else if (operatingStatus) {
-      payload.operatingStatus = operatingStatus;
+    } else if (selectedMode) {
+      payload.selectedMode = selectedMode;
     }
-    console.log("Submitting", payload);
-    return this.http.patch(baseURL + 'climate', payload)
+    console.log(payload);
+    return this.http.patch(`${baseURL}climate`, payload)
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
@@ -56,7 +56,7 @@ export class ClimateProvider {
 
   // select active pre-programmed
   selectPreProgrammed(id: string): Observable<any> {
-    return this.http.patch(baseURL + `climate/programs/${id}`, {isActive: true})
+    return this.http.patch(`${baseURL}climate/programs/${id}`, {isActive: true})
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 

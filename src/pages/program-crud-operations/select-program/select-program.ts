@@ -38,8 +38,12 @@ export class SelectProgramPage implements OnInit {
   }
 
   selectProgram(index: number) {
-    console.log(this.programs[index]);
     this.selectedProgram = this.programs[index];
+    this.dismiss();
+  }
+
+  stopProgram() {
+    this.selectedProgram = undefined;
     this.dismiss();
   }
 

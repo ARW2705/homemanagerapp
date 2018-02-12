@@ -19,5 +19,9 @@
       <ion-icon *ngIf="program.isActive" name="code-working"></ion-icon>
       {{ program.name | uppercase }}
     </button>
+    <button ion-item color="light-gray" (click)="stopProgram()">
+      <ion-icon name="code"></ion-icon>
+      NONE
+    </button>
   </ion-list>
 </ion-content>

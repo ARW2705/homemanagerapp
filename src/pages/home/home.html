@@ -84,7 +84,8 @@
     <h2>Error</h2>
     <h4>{{ climateErrMsg }}</h4>
   </div>
-  <div *ngIf="errMsg == '401 - Unauthorized'">
+  <div *ngIf="climateErrMsg == '401 - Unauthorized'">
+    <h4>You must be logged in to view this content</h4>
     <button ion-button color="light-green" (click)="openLogin()">
       Log In
     </button>

@@ -1,5 +1,4 @@
 import { Component, OnInit, Inject, ViewChild } from '@angular/core';
-import { TitleCasePipe } from '@angular/common';
 import { IonicPage, NavController, NavParams, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 import { Slides } from 'ionic-angular';
 
@@ -36,12 +35,15 @@ export class ClimatecontrolPage implements OnInit {
     private toastCtrl: ToastController,
     private actionsheetCtrl: ActionSheetController,
     public modalCtrl: ModalController,
-    @Inject('baseURL') private baseURL,
     @Inject('minTemperature') private minTemperature,
     @Inject('maxTemperature') private maxTemperature) {
   }
 
   ngOnInit() {
+    this.getClimateControlData();
+  }
+
+  getClimateControlData() {
     this.climateservice.getCurrentClimateData()
       .subscribe(climate => {
         console.log(climate);
@@ -96,10 +98,12 @@ export class ClimatecontrolPage implements OnInit {
             // start selection modal
             const modal = this.modalCtrl.create(SelectProgramPage);
             modal.onDidDismiss(data => {
-              if (data) {
-                console.log(data._id);
-                this.climateservice.selectPreProgrammed(data.id);
-              }
+              const id = (data) ? data._id: 0;
+              this.climateservice.selectPreProgrammed(id)
+                .subscribe(update => {
+                  console.log("Updated", update);
+                  this.getClimateControlData();
+                }, err => this.errMsg = err);
             });
             modal.present();
           }
@@ -202,7 +206,7 @@ export class ClimatecontrolPage implements OnInit {
     this.climateservice.updateClimateParameters(this.desiredTemperature)
       .subscribe(update => {
         console.log("Updated", update);
-        this.updateOperatingStatusCard();
+        this.getClimateControlData();
       }, err => this.errMsg = err);
   }
 
@@ -210,20 +214,8 @@ export class ClimatecontrolPage implements OnInit {
     this.climateservice.updateClimateParameters(null, mode)
       .subscribe(update => {
         console.log("Updated", update);
-        this.updateOperatingStatusCard();
+        this.getClimateControlData();
       }, err => this.errMsg = err);
-  }
-
-  updateOperatingStatusCard() {
-    this.climateservice.getCurrentClimateData()
-      .subscribe(climate => {
-        this.climate.operatingStatus = climate.operatingStatus;
-        this.climate.selectedMode = climate.selectedMode;
-      }, err => this.errMsg = err);
-    this.climateservice.getClimatePrograms()
-      .subscribe(programs => this.selectedProgram = programs.filter(program => program.isActive)[0]
-        || {name: "None Selected", isActive: false},
-        err => this.errMsg = err);
   }
 
 }

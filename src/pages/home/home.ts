@@ -21,7 +21,6 @@ export class HomePage implements OnInit {
 
   climate: Climate;
   climateErrMsg: string;
-  activeProgram: string;
   unitType: string = 'e';
   desiredTemperature: number;
   program: string;
@@ -39,6 +38,11 @@ export class HomePage implements OnInit {
     }
 
   ngOnInit() {
+    this.getHomeData();
+  }
+
+  getHomeData() {
+    console.log("Getting home page data");
     this.climateservice.getCurrentClimateData()
       .subscribe(climate => {
         this.desiredTemperature = climate.targetTemperature;
@@ -46,13 +50,19 @@ export class HomePage implements OnInit {
         },
         err => this.climateErrMsg = err);
     this.climateservice.getClimatePrograms()
-      .subscribe(programs => this.program = programs.filter(
-        program => program.isActive)[0].name || "None Selected",
+      .subscribe(programs => {
+        const active = programs.filter(program => program.isActive);
+        if (active.length) {
+          this.program = active[0].name;
+        } else {
+          this.program = "NONE SELECTED";
+        }
+      },
         err => this.climateErrMsg = err);
   }
 
   onSliderChangeEnd() {
-    console.log(this.desiredTemperature);
+    console.log("Selected temperature: ", this.desiredTemperature);
     this.updateDesiredTemperature();
   }
 
@@ -68,10 +78,12 @@ export class HomePage implements OnInit {
             // start selection modal
             const modal = this.modalCtrl.create(SelectProgramPage);
             modal.onDidDismiss(data => {
-              if (data) {
-                console.log(data._id);
-                this.climateservice.selectPreProgrammed(data.id);
-              }
+              const id = (data) ? data._id: 0;
+              this.climateservice.selectPreProgrammed(id)
+                .subscribe(update => {
+                  console.log("Updated", update);
+                  this.getHomeData();
+                }, err => this.errMsg = err);
             });
             modal.present();
           }
