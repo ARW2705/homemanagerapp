@@ -2,13 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angular';
 
 import { ClimateProgram } from '../../../shared/climateprogram';
+
 import { ClimateProvider } from '../../../providers/climate/climate';
-/**
- * Generated class for the SelectProgramPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
 
 @IonicPage()
 @Component({
@@ -37,11 +32,13 @@ export class SelectProgramPage implements OnInit {
     console.log('ionViewDidLoad SelectProgramPage');
   }
 
+  // select program to become active by its database id
   selectProgram(index: number) {
     this.selectedProgram = this.programs[index];
     this.dismiss();
   }
 
+  // set all programs to inactive
   stopProgram() {
     this.selectedProgram = undefined;
     this.dismiss();

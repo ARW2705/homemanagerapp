@@ -33,6 +33,11 @@ export class CreateProgramPage {
     console.log('ionViewDidLoad CreateProgramPage');
   }
 
+  /*
+    open modal to select day/time breaks/zone/temperature settings
+    all data points required to submit new program
+    schedule initializes all values to -1 on load
+  */
   openSchedulerModal() {
     const modal = this.modalCtrl.create(SchedulerPage);
     modal.onDidDismiss(data => {

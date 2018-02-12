@@ -64,13 +64,13 @@
 
                     <ion-col class="adjust-down">
                       <ion-label text-center>
-                        Selected Temperature {{ desiredTemperature }}
+                        Selected Temperature {{ targetTemperature }}
                         <span [innerHtml]="getTemperatureSymbol()"></span>
                       </ion-label>
                       <ion-range
                         class="adjust-down"
                         (ionBlur)="onSliderChangeEnd()"
-                        [(ngModel)]="desiredTemperature"
+                        [(ngModel)]="targetTemperature"
                         color="light-green"
                         min="{{ minTemperature }}" max="{{ maxTemperature }}" pin>
                         <ion-label range-left>{{ minTemperature}}</ion-label>
@@ -102,7 +102,7 @@
               <ion-row>
                 <ion-col col-12 col-md-6>
                   Target Temperature:<br>
-                  {{ desiredTemperature }}
+                  {{ targetTemperature }}
                   <span [innerHtml]="getTemperatureSymbol()"></span>
                 </ion-col>
                 <ion-col col-12 col-md-6>
@@ -131,12 +131,12 @@
               <ion-row>
                 <ion-col>
                   <ion-label text-center>
-                    Selected Temperature {{ desiredTemperature }}
+                    Selected Temperature {{ targetTemperature }}
                     <span [innerHtml]="getTemperatureSymbol()"></span>
                   </ion-label>
                   <ion-range
                     (ionBlur)="onSliderChangeEnd()"
-                    [(ngModel)]="desiredTemperature"
+                    [(ngModel)]="targetTemperature"
                     color="light-green"
                     min="{{ minTemperature }}" max="{{ maxTemperature }}" pin>
                     <ion-label range-left>{{ minTemperature}}</ion-label>
@@ -161,7 +161,7 @@
   </div>
   <div *ngIf="errMsg == '401 - Unauthorized'">
     <h4>You must be logged in to view this content</h4>
-    <button ion-button color="light-green" (click)="openLogin()">
+    <button ion-button color="light-green" (click)="openLoginModal()">
       Log In
     </button>
   </div>

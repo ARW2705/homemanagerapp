@@ -1,5 +1,5 @@
 page-climatecontrol {
-  
+
   h3 {
     font-weight: bold;
   }
@@ -20,6 +20,7 @@ page-climatecontrol {
 
   ion-col {
     height: 100%;
+    padding: 0 !important;
   }
 
   .inner-card {
@@ -33,7 +34,8 @@ page-climatecontrol {
   .mode-btn {
     color: $light-green;
     background-color: $dark-gray;
-    padding-top: 4px !important;
+    padding-top: 3px !important;
+    border-radius: 5px;
   }
 
   .conditions {

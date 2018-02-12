@@ -2,16 +2,15 @@ import { Component, ViewChild } from '@angular/core';
 import { Nav, Platform, ModalController, Events } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
-import { Storage } from '@ionic/storage';
 
 import { AuthenticationProvider } from '../providers/authentication/authentication';
 
-import { HomePage } from '../pages/home/home';
+import { BrewingPage } from '../pages/brewing/brewing';
 import { ClimatecontrolPage } from '../pages/climatecontrol/climatecontrol';
 import { GaragedoorPage } from '../pages/garagedoor/garagedoor';
-import { BrewingPage } from '../pages/brewing/brewing';
-import { LoginPage } from '../pages/login/login';
+import { HomePage } from '../pages/home/home';
 import { LandingPage } from '../pages/landing/landing';
+import { LoginPage } from '../pages/login/login';
 
 @Component({
   templateUrl: 'app.html'
@@ -30,7 +29,6 @@ export class MyApp {
     public splashScreen: SplashScreen,
     public modalCtrl: ModalController,
     private authService: AuthenticationProvider,
-    private storage: Storage,
     public events: Events) {
 
     this.initializeApp();

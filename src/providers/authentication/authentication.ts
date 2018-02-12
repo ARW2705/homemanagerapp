@@ -9,6 +9,7 @@ import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/catch';
 
 import { baseURL } from '../../shared/baseurl';
+
 import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
 
 
@@ -40,6 +41,7 @@ export class AuthenticationProvider {
     console.log('Hello AuthenticationProvider Provider');
   }
 
+  // verify valid jsonwebtoken with server
   checkJWTtoken() {
     this.http.get<JWTResponse>(baseURL + 'users/checkJWTtoken')
       .subscribe(res => {
@@ -70,6 +72,7 @@ export class AuthenticationProvider {
     return this.authToken;
   }
 
+  // load username and wbt from ionic storage
   loadUserCredentials() {
      this.storage.get(this.tokenKey)
       .then(key => {
@@ -78,9 +81,7 @@ export class AuthenticationProvider {
           console.log("Loaded user credentials: ", credentials);
           if (credentials && credentials.username != undefined) {
             this.useCredentials(credentials);
-            if (this.authToken) {
-              this.checkJWTtoken();
-            }
+            if (this.authToken) this.checkJWTtoken();
           }
         } else {
           console.log("Token key not defined");
@@ -89,6 +90,7 @@ export class AuthenticationProvider {
       });
   }
 
+  // store username and wbt to ionic storage if 'remember' is set to true at login
   storeUserCredentials(credentials: any) {
     console.log("Storing user credentials", credentials);
     this.storage.set(this.tokenKey, JSON.stringify(credentials));
@@ -113,11 +115,10 @@ export class AuthenticationProvider {
       {"username": user.username, "password": user.password})
       .map(res => {
         const credentials = {username: user.username, token: res.token};
-        if (user.remember) {
-          this.storeUserCredentials(credentials);
-        } else {
-          this.useCredentials(credentials);
-        }
+
+        if (user.remember) this.storeUserCredentials(credentials);
+        else this.useCredentials(credentials);
+
         this.events.publish("user:loggedin");
         return {'success': true, 'username': user.username};
       })

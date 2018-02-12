@@ -3,13 +3,15 @@ import { IonicPage, NavController, NavParams, ActionSheetController, ModalContro
 import { Slides } from 'ionic-angular';
 
 import { Climate } from '../../shared/climate';
-import { Sensor } from '../../shared/sensor';
 import { ClimateProgram } from '../../shared/climateprogram';
+import { Sensor } from '../../shared/sensor';
+
 import { ClimateProvider } from '../../providers/climate/climate';
+
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
+import { LoginPage } from '../login/login';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
-import { LoginPage } from '../login/login';
 
 @IonicPage()
 @Component({
@@ -26,7 +28,7 @@ export class ClimatecontrolPage implements OnInit {
   errMsg: string;
   selectedZone: number = 0;
   unitType: string = "e";
-  desiredTemperature: number;
+  targetTemperature: number;
   currentTemperature: number;
 
   constructor(public navCtrl: NavController,
@@ -41,13 +43,23 @@ export class ClimatecontrolPage implements OnInit {
 
   ngOnInit() {
     this.getClimateControlData();
+    this.refreshClimateControlData();
   }
 
+  // update climate control data every minute
+  refreshClimateControlData() {
+    setInterval(() => {
+      console.log("Updating home data");
+      this.getClimateControlData();
+    }, (60 * 1000));
+  }
+
+  // get climate and climate program data
   getClimateControlData() {
     this.climateservice.getCurrentClimateData()
       .subscribe(climate => {
         console.log(climate);
-        this.desiredTemperature = climate.targetTemperature;
+        this.targetTemperature = climate.targetTemperature;
         this.zones = climate.zoneData;
         return this.climate = climate;
         },
@@ -66,26 +78,35 @@ export class ClimatecontrolPage implements OnInit {
     console.log('ionViewDidLoad ClimatecontrolPage');
   }
 
+  // show updating messages while GET request is in progress
   displayLoading() {
     this.climate.operatingStatus = "UPDATING";
     this.climate.selectedMode = "UPDATING";
     this.selectedProgram.isActive = false;
   }
 
+  /*
+    target temperature selection slider - will stop any active programs
+    and set new target temperature - other parameters will be unchanged
+    unless thermostat status changes
+  */
   onSliderChangeEnd() {
-    console.log(this.desiredTemperature);
+    console.log(this.targetTemperature);
     this.displayLoading();
-    this.updateDesiredTemperature();
+    this.updateTargetTemperature();
   }
 
+  // change to previous climate zone location card
   slideToLeft(index: number) {
     this.slides.slideTo(index-1);
   }
 
+  // change to next climate zone location card
   slideToRight(index: number) {
     this.slides.slideTo(index+1);
   }
 
+  // climate control action sheet: select program, create program, update program
   openClimateProgramActionSheet() {
     console.log("Open Action Sheet");
     const actionSheet = this.actionsheetCtrl.create({
@@ -148,6 +169,7 @@ export class ClimatecontrolPage implements OnInit {
     actionSheet.present();
   }
 
+  // climate control action sheet for mode override: COOL, HEAT, FAN, OFF
   openModeActionSheet() {
     const actionSheet = this.actionsheetCtrl.create({
       title: 'Select Mode',
@@ -155,25 +177,25 @@ export class ClimatecontrolPage implements OnInit {
         {
           text: 'COOL',
           handler: () => {
-            this.updateDesiredMode('COOL');
+            this.updateTargetMode('COOL');
           }
         },
         {
           text: 'HEAT',
           handler: () => {
-            this.updateDesiredMode('HEAT');
+            this.updateTargetMode('HEAT');
           }
         },
         {
           text: 'FAN',
           handler: () => {
-            this.updateDesiredMode('FAN');
+            this.updateTargetMode('FAN');
           }
         },
         {
           text: 'OFF',
           handler: () => {
-            this.updateDesiredMode('OFF');
+            this.updateTargetMode('OFF');
           }
         },
         {
@@ -188,7 +210,8 @@ export class ClimatecontrolPage implements OnInit {
     actionSheet.present();
   }
 
-  openLogin() {
+  // login modal if not authenticated, will refresh climate control page on login
+  openLoginModal() {
     const modal = this.modalCtrl.create(LoginPage);
     modal.onDidDismiss(data => {
       if (data !== undefined) {
@@ -198,19 +221,22 @@ export class ClimatecontrolPage implements OnInit {
     modal.present();
   }
 
+  // set html unicode for degrees fahrenheit or celsius
   getTemperatureSymbol() {
     return (this.unitType === 'm') ? "&#8451": "&#8457";
   }
 
-  updateDesiredTemperature() {
-    this.climateservice.updateClimateParameters(this.desiredTemperature)
+  // override set temperature, any active program will be set to inactive
+  updateTargetTemperature() {
+    this.climateservice.updateClimateParameters(this.targetTemperature)
       .subscribe(update => {
         console.log("Updated", update);
         this.getClimateControlData();
       }, err => this.errMsg = err);
   }
 
-  updateDesiredMode(mode: string) {
+  // override set mode, any active program will be set to inactive
+  updateTargetMode(mode: string) {
     this.climateservice.updateClimateParameters(null, mode)
       .subscribe(update => {
         console.log("Updated", update);

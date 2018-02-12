@@ -2,16 +2,16 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { NavController, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 
 import { Climate } from '../../shared/climate';
-import { Sensor } from '../../shared/sensor';
 import { ClimateProgram } from '../../shared/climateprogram';
-import { ClimateProvider } from '../../providers/climate/climate';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
+import { Sensor } from '../../shared/sensor';
+
+import { ClimateProvider } from '../../providers/climate/climate';
+
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
+import { LoginPage } from '../login/login';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
-import { LoginPage } from '../login/login';
-
-import { AuthenticationProvider } from '../../providers/authentication/authentication';
 
 @Component({
   selector: 'page-home',
@@ -31,7 +31,6 @@ export class HomePage implements OnInit {
     private actionsheetCtrl: ActionSheetController,
     private toastCtrl: ToastController,
     public modalCtrl: ModalController,
-    private authService: AuthenticationProvider,
     @Inject('baseURL') private baseURL,
     @Inject('minTemperature') private minTemperature,
     @Inject('maxTemperature') private maxTemperature) {
@@ -39,10 +38,19 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.getHomeData();
+    this.refreshHomeData();
   }
 
+  // update data for each snapshot card every minute
+  refreshHomeData() {
+    setInterval(() => {
+      console.log("Updating home data");
+      this.getHomeData();
+    }, (60 * 1000));
+  }
+
+  // get data for each page summary
   getHomeData() {
-    console.log("Getting home page data");
     this.climateservice.getCurrentClimateData()
       .subscribe(climate => {
         this.desiredTemperature = climate.targetTemperature;
@@ -61,11 +69,17 @@ export class HomePage implements OnInit {
         err => this.climateErrMsg = err);
   }
 
+  /*
+    target temperature selection slider - will stop any active programs
+    and set new target temperature - other parameters will be unchanged
+    unless thermostat status changes
+  */
   onSliderChangeEnd() {
     console.log("Selected temperature: ", this.desiredTemperature);
-    this.updateDesiredTemperature();
+    this.updateTargetTemperature();
   }
 
+  // climate control action sheet: select program, create program, update program
   openClimateProgramActionSheet() {
     console.log("Open Action Sheet");
     const actionSheet = this.actionsheetCtrl.create({
@@ -128,7 +142,8 @@ export class HomePage implements OnInit {
     actionSheet.present();
   }
 
-  openLogin() {
+  // login modal if not authenticated, will refresh climate control page on login
+  openLoginModal() {
     const modal = this.modalCtrl.create(LoginPage);
     modal.onDidDismiss(data => {
       if (data !== undefined) {
@@ -138,11 +153,13 @@ export class HomePage implements OnInit {
     modal.present();
   }
 
+  // set html unicode for degrees fahrenheit or celsius
   getTemperatureSymbol() {
     return (this.unitType === 'm') ? "&#8451": "&#8457";
   }
 
-  updateDesiredTemperature() {
+  // override set temperature, any active program will be set to inactive
+  updateTargetTemperature() {
     this.climateservice.updateClimateParameters(this.desiredTemperature)
     .subscribe(update => {
       console.log("Updated", update);

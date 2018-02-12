@@ -3,7 +3,9 @@ import { IonicPage, NavController, NavParams, ViewController, ModalController } 
 import { Validators, FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 
 import { ClimateProgram } from '../../../shared/climateprogram';
+
 import { ClimateProvider } from '../../../providers/climate/climate';
+
 import { SchedulerPage } from '../../scheduler/scheduler';
 
 @IonicPage()
@@ -53,6 +55,11 @@ export class UpdateProgramPage implements OnInit {
     this.selectedProgram = selected;
   }
 
+  /*
+    open modal to select day/time breaks/zone/temperature settings
+    all data points required to submit new program
+    schedule initializes values to selected program's values
+  */
   openUpdateScheduleModal() {
     const modal = this.modalCtrl.create(SchedulerPage, {program: this.selectedProgram});
     modal.onDidDismiss(data => {

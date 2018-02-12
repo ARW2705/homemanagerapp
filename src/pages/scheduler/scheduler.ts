@@ -45,14 +45,7 @@ export class SchedulerPage {
     console.log('ionViewDidLoad SchedulerPage');
   }
 
-  tester() {
-    console.log(this.days);
-    console.log(this.hour);
-    console.log(this.minute);
-    console.log(this.temp);
-    console.log(this.zone);
-  }
-
+  // reset schedule values to default
   clearModal() {
     this.days = [];
     this.hour = this.hour.map(i => this.defaultHour);
@@ -61,6 +54,8 @@ export class SchedulerPage {
     this.zone = this.zone.map(i => this.defaultZone);
   }
 
+  // add selected data points to program schedule array,
+  // must have at least one day selected
   pushScheduleValues() {
     if (!this.days) {
       console.log("No day(s) selected");
@@ -85,10 +80,12 @@ export class SchedulerPage {
     }
   }
 
+  // toggle between schedule selection view and current selected values review
   toggleDisplaySchedule() {
     this.viewReview = (this.viewReview) ? false: true;
   }
 
+  // return true if all values have been assigned
   isScheduleValid() {
     return (this.schedule.indexOf(-1) === -1) ? true: false;
   }
