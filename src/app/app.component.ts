@@ -4,6 +4,8 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { AuthenticationProvider } from '../providers/authentication/authentication';
+import { WebsocketProvider } from '../providers/websocket/websocket';
+import { WebsocketAdapterProvider } from '../providers/websocket-adapter/websocket-adapter';
 
 import { BrewingPage } from '../pages/brewing/brewing';
 import { ClimatecontrolPage } from '../pages/climatecontrol/climatecontrol';
@@ -29,7 +31,12 @@ export class MyApp {
     public splashScreen: SplashScreen,
     public modalCtrl: ModalController,
     private authService: AuthenticationProvider,
-    public events: Events) {
+    public events: Events,
+    private wsAdapter: WebsocketAdapterProvider) {
+
+    wsAdapter.messages.subscribe(msg => {
+      console.log(`Response from websocket: ${msg}`);
+    });
 
     this.initializeApp();
 
@@ -72,6 +79,10 @@ export class MyApp {
     });
   }
 
+  sendMsg() {
+    console.log("New message from client");
+  }
+
   openPage(page) {
     // Reset the content nav to have just this page
     // we wouldn't want the back button to show in this scenario
@@ -79,6 +90,7 @@ export class MyApp {
   }
 
   openLogin() {
+    console.log("App modal");
     const modal = this.modalCtrl.create(LoginPage);
     modal.onDidDismiss(data => {
       this.openPage(this.pages[0]);

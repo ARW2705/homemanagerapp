@@ -212,6 +212,7 @@ export class ClimatecontrolPage implements OnInit {
 
   // login modal if not authenticated, will refresh climate control page on login
   openLoginModal() {
+    console.log("Climate control modal");
     const modal = this.modalCtrl.create(LoginPage);
     modal.onDidDismiss(data => {
       if (data !== undefined) {

@@ -32,7 +32,7 @@ export class SelectProgramPage implements OnInit {
     console.log('ionViewDidLoad SelectProgramPage');
   }
 
-  // select program to become active by its database id
+  // select program from index number in list
   selectProgram(index: number) {
     this.selectedProgram = this.programs[index];
     this.dismiss();
