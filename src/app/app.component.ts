@@ -4,8 +4,6 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { AuthenticationProvider } from '../providers/authentication/authentication';
-import { WebsocketProvider } from '../providers/websocket/websocket';
-import { WebsocketAdapterProvider } from '../providers/websocket-adapter/websocket-adapter';
 
 import { BrewingPage } from '../pages/brewing/brewing';
 import { ClimatecontrolPage } from '../pages/climatecontrol/climatecontrol';
@@ -31,12 +29,7 @@ export class MyApp {
     public splashScreen: SplashScreen,
     public modalCtrl: ModalController,
     private authService: AuthenticationProvider,
-    public events: Events,
-    private wsAdapter: WebsocketAdapterProvider) {
-
-    wsAdapter.messages.subscribe(msg => {
-      console.log(`Response from websocket: ${msg}`);
-    });
+    public events: Events) {
 
     this.initializeApp();
 
@@ -77,10 +70,6 @@ export class MyApp {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
     });
-  }
-
-  sendMsg() {
-    console.log("New message from client");
   }
 
   openPage(page) {

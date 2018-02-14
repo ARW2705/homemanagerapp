@@ -25,8 +25,6 @@ import { baseURL } from '../shared/baseurl';
 import { minTemperature, maxTemperature } from '../shared/temperatureconst';
 import { AuthenticationProvider } from '../providers/authentication/authentication';
 import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/interceptor/interceptor';
-import { WebsocketProvider } from '../providers/websocket/websocket';
-import { WebsocketAdapterProvider } from '../providers/websocket-adapter/websocket-adapter';
 
 @NgModule({
   declarations: [
@@ -81,9 +79,7 @@ import { WebsocketAdapterProvider } from '../providers/websocket-adapter/websock
       provide: HTTP_INTERCEPTORS,
       useClass: UnauthorizedInterceptor,
       multi: true
-    },
-    WebsocketProvider,
-    WebsocketAdapterProvider
+    }
   ]
 })
 export class AppModule {}
