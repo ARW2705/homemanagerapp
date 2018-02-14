@@ -11,7 +11,24 @@
   <ion-grid>
     <ion-row>
 
-      <ion-col col-12 col-lg-8 *ngIf="climate && program">
+      <ion-col *ngIf="garageDoor">
+        <ion-card color="light-gray">
+          <ion-card-header>
+            <span>Garage Door Controller</span>
+          </ion-card-header>
+          <ion-card-content padding>
+            <button ion-button block large class="btn in-position" (click)="operateGarageDoor()">
+              <ion-icon name="car"></ion-icon>
+              <span>OPEN</span>
+            </button>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+    </ion-row>
+    <ion-row>
+
+      <ion-col col-12 col-lg-6 *ngIf="climate && program">
         <ion-card color="light-gray">
           <ion-card-header>
             <span>Climate Control</span>
@@ -76,15 +93,15 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <div *ngIf="!climate && !program && !climateErrMsg">
+  <div *ngIf="!climate && !program && !errMsg">
     <ion-spinner></ion-spinner>
     <h4>Loading...</h4>
   </div>
-  <div *ngIf="climateErrMsg">
+  <div *ngIf="errMsg">
     <h2>Error</h2>
-    <h4>{{ climateErrMsg }}</h4>
+    <h4>{{ errMsg }}</h4>
   </div>
-  <div *ngIf="climateErrMsg == '401 - Unauthorized'">
+  <div *ngIf="errMsg == '401 - Unauthorized'">
     <h4>You must be logged in to view this content</h4>
     <button ion-button color="light-green" (click)="openLoginModal()">
       Log In

@@ -2,11 +2,11 @@ import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { NavController, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 
 import { Climate } from '../../shared/climate';
-import { ClimateProgram } from '../../shared/climateprogram';
+import { GarageDoor } from '../../shared/garagedoor';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
-import { Sensor } from '../../shared/sensor';
 
 import { ClimateProvider } from '../../providers/climate/climate';
+import { GarageDoorProvider } from '../../providers/garage-door/garage-door';
 
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
 import { LoginPage } from '../login/login';
@@ -20,15 +20,17 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
 export class HomePage implements OnInit, OnDestroy {
 
   climate: Climate;
-  climateErrMsg: string;
+  errMsg: string;
+  garageDoor: GarageDoor;
   unitType: string = 'e';
   desiredTemperature: number;
   updateTimer: any = null;
+  garageTimer: any = null;
   program: string;
-  errMsg: string;
 
   constructor(public navCtrl: NavController,
     private climateservice: ClimateProvider,
+    private garageDoorService: GarageDoorProvider,
     private actionsheetCtrl: ActionSheetController,
     private toastCtrl: ToastController,
     public modalCtrl: ModalController,
@@ -46,6 +48,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    if (this.updateTimer != null) clearInterval(this.updateTimer);
     clearInterval(this.updateTimer);
   }
 
@@ -54,9 +57,9 @@ export class HomePage implements OnInit, OnDestroy {
     this.climateservice.getCurrentClimateData()
       .subscribe(climate => {
         this.desiredTemperature = climate.targetTemperature;
-        return this.climate = climate;
+        this.climate = climate;
         },
-        err => this.climateErrMsg = err);
+        err => this.errMsg = err);
     this.climateservice.getClimatePrograms()
       .subscribe(programs => {
         const active = programs.filter(program => program.isActive);
@@ -66,7 +69,15 @@ export class HomePage implements OnInit, OnDestroy {
           this.program = "NONE SELECTED";
         }
       },
-        err => this.climateErrMsg = err);
+        err => this.errMsg = err);
+    this.garageDoorService.getGarageDoorStatus()
+      .subscribe(status => {
+        if (!status.inMotion && status.position == status.targetPosition) {
+          if (this.garageTimer != null) clearInterval(this.garageTimer);
+        }
+        this.garageDoor = status;
+      },
+      err => this.errMsg = err);
   }
 
   /*
@@ -165,6 +176,18 @@ export class HomePage implements OnInit, OnDestroy {
     .subscribe(update => {
       console.log("Updated", update);
     }, err => this.errMsg = err);
+  }
+
+  operateGarageDoor() {
+    const action = (this.garageDoor.targetPosition == "OPEN")? "CLOSED": "OPEN";
+    this.garageDoorService.operateGarageDoor(action)
+      .subscribe(status => {
+        console.log("Garage door activating...");
+        this.garageTimer = setInterval(() => {
+              console.log("Checking garage door status");
+              this.getHomeData();
+            }, (1000));
+      });
   }
 
 }

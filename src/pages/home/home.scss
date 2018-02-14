@@ -26,4 +26,15 @@ page-home {
   .program-card {
     text-align: center;
   }
+
+  .btn {
+    color: $dark-gray;
+    background-color: $light-green;
+    border-radius: 5px;
+    border: 3px solid $dark-gray;
+  }
+
+  .button-inner {
+    height: 70% !important;
+  }
 }
