@@ -12,7 +12,7 @@ export class ProcessHttpmsgProvider {
 
   public handleError(error: HttpErrorResponse | any) {
     let errMsg: string;
-
+    console.log("Error", error);
     if (error instanceof HttpErrorResponse) {
       const errStatus = (error.status) ? error.status: 503;
       const errStatusText = (error.status) ? error.statusText: 'Service Unavailable';

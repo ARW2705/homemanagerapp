@@ -49,7 +49,7 @@ export class ClimatecontrolPage implements OnInit {
   // update climate control data every minute
   refreshClimateControlData() {
     setInterval(() => {
-      console.log("Updating home data");
+      console.log("Updating climate control data");
       this.getClimateControlData();
     }, (60 * 1000));
   }
