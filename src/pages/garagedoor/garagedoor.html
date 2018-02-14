@@ -17,7 +17,68 @@
 
 
 <ion-content padding>
-  <h1 class="warning">Coming Soon</h1>
+
+  <ion-card color="light-gray" *ngIf="doorStatus">
+    <ion-card-header>
+      <span>Garage Door Control</span>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col padding>
+            <button ion-button block large class="btn in-position" (click)="operateGarageDoor()">
+              <ion-icon name="car"></ion-icon>
+              <span>OPEN</span>
+            </button>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col col-12 col-md-6>
+            <ion-card>
+              <ion-card-header>
+                <span>Current State</span>
+              </ion-card-header>
+              <ion-card-content class="door-status">
+                <ion-grid>
+                  <ion-row>
+                    <ion-col>
+                      Position: <span class="status-value">CLOSED</span>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col>
+                      Motion: <span class="status-value">AT REST</span>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          <ion-col col-12 col-md-6>
+            <ion-card>
+              <ion-card-header>
+                <span>Requested State</span>
+              </ion-card-header>
+              <ion-card-content class="door-status">
+                <ion-grid>
+                  <ion-row>
+                    <ion-col>
+                      Previous Position: <span class="status-value">OPEN</span>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col>
+                      Target Position: <span class="status-value">CLOSED</span>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
   <div *ngIf="errMsg == '401 - Unauthorized'">
     <button ion-button color="light-green" (click)="openLogin()">
       Log In

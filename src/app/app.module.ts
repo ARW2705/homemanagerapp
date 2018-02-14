@@ -25,6 +25,7 @@ import { baseURL } from '../shared/baseurl';
 import { minTemperature, maxTemperature } from '../shared/temperatureconst';
 import { AuthenticationProvider } from '../providers/authentication/authentication';
 import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/interceptor/interceptor';
+import { GarageDoorProvider } from '../providers/garage-door/garage-door';
 
 @NgModule({
   declarations: [
@@ -79,7 +80,8 @@ import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/int
       provide: HTTP_INTERCEPTORS,
       useClass: UnauthorizedInterceptor,
       multi: true
-    }
+    },
+    GarageDoorProvider
   ]
 })
 export class AppModule {}

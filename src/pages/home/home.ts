@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { NavController, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 
 import { Climate } from '../../shared/climate';
@@ -17,12 +17,13 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
   selector: 'page-home',
   templateUrl: 'home.html'
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
 
   climate: Climate;
   climateErrMsg: string;
   unitType: string = 'e';
   desiredTemperature: number;
+  updateTimer: any = null;
   program: string;
   errMsg: string;
 
@@ -38,15 +39,14 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.getHomeData();
-    this.refreshHomeData();
+    this.updateTimer = setInterval(() => {
+          console.log("Updating home data");
+          this.getHomeData();
+        }, (60 * 1000));
   }
 
-  // update data for each snapshot card every minute
-  refreshHomeData() {
-    setInterval(() => {
-      console.log("Updating home data");
-      this.getHomeData();
-    }, (60 * 1000));
+  ngOnDestroy() {
+    clearInterval(this.updateTimer);
   }
 
   // get data for each page summary

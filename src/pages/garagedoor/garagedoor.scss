@@ -1,7 +1,47 @@
-$warning: #ffc107;
-
 page-garagedoor {
   .warning {
     color: $warning;
+  }
+
+  ion-content {
+    background-color: $light-gray;
+  }
+
+  ion-card-header {
+    span {
+      color: $light-green !important;
+      font-size: 1.5em !important;
+    }
+    background-color: $dark-gray;
+  }
+
+  .btn {
+    color: $dark-gray;
+    background-color: $light-green;
+    border-radius: 5px;
+    border: 3px solid $dark-gray;
+  }
+
+  .button-inner {
+    height: 70% !important;
+  }
+
+  .in-motion {
+
+  }
+
+  .in-position {
+
+  }
+
+  .door-status {
+    font-size: 1.4em;
+    text-align: center;
+  }
+
+  .status-value {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: $dark-gray;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 import { Slides } from 'ionic-angular';
 
@@ -18,7 +18,7 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
   selector: 'page-climatecontrol',
   templateUrl: 'climatecontrol.html',
 })
-export class ClimatecontrolPage implements OnInit {
+export class ClimatecontrolPage implements OnInit, OnDestroy {
 
   @ViewChild('climateSlide') slides: Slides;
   climate: Climate;
@@ -26,6 +26,7 @@ export class ClimatecontrolPage implements OnInit {
   programs: ClimateProgram[];
   selectedProgram: ClimateProgram;
   errMsg: string;
+  updateTimer: any = null;
   selectedZone: number = 0;
   unitType: string = "e";
   targetTemperature: number;
@@ -43,15 +44,14 @@ export class ClimatecontrolPage implements OnInit {
 
   ngOnInit() {
     this.getClimateControlData();
-    this.refreshClimateControlData();
+    this.updateTimer = setInterval(() => {
+          console.log("Updating home data");
+          this.getClimateControlData();
+        }, (60 * 1000));
   }
 
-  // update climate control data every minute
-  refreshClimateControlData() {
-    setInterval(() => {
-      console.log("Updating climate control data");
-      this.getClimateControlData();
-    }, (60 * 1000));
+  ngOnDestroy() {
+    clearInterval(this.updateTimer);
   }
 
   // get climate and climate program data
