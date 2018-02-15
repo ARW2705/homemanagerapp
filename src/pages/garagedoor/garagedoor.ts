@@ -25,7 +25,8 @@ export class GaragedoorPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.updateTimer != null) clearInterval(this.updateTimer);
+    clearInterval(this.updateTimer);
+    this.updateTimer = null;
   }
 
   ionViewDidLoad() {
@@ -36,7 +37,8 @@ export class GaragedoorPage implements OnInit, OnDestroy {
     this.garageDoorService.getGarageDoorStatus()
       .subscribe(status => {
         if (!status.inMotion && status.position == status.targetPosition) {
-          if (this.updateTimer != null) clearInterval(this.updateTimer);
+          clearInterval(this.updateTimer);
+          this.updateTimer = null;
         }
         this.doorStatus = status;
       },
@@ -48,10 +50,12 @@ export class GaragedoorPage implements OnInit, OnDestroy {
     this.garageDoorService.operateGarageDoor(action)
       .subscribe(status => {
         console.log("Garage door activating...");
-        this.updateTimer = setInterval(() => {
-              console.log("Checking garage door status");
-              this.getGarageDoorStatus();
-            }, (1000));
+        if (this.updateTimer == null) {
+          this.updateTimer = setInterval(() => {
+            console.log("Checking garage door status");
+            this.getGarageDoorStatus();
+          }, (1000));
+        }
       });
   }
 

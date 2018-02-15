@@ -48,8 +48,10 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.updateTimer != null) clearInterval(this.updateTimer);
+    clearInterval(this.garageTimer);
     clearInterval(this.updateTimer);
+    this.garageTimer = null;
+    this.updateTimer = null;
   }
 
   // get data for each page summary
@@ -73,7 +75,8 @@ export class HomePage implements OnInit, OnDestroy {
     this.garageDoorService.getGarageDoorStatus()
       .subscribe(status => {
         if (!status.inMotion && status.position == status.targetPosition) {
-          if (this.garageTimer != null) clearInterval(this.garageTimer);
+          clearInterval(this.garageTimer);
+          this.garageTimer = null;
         }
         this.garageDoor = status;
       },
@@ -183,10 +186,12 @@ export class HomePage implements OnInit, OnDestroy {
     this.garageDoorService.operateGarageDoor(action)
       .subscribe(status => {
         console.log("Garage door activating...");
-        this.garageTimer = setInterval(() => {
-              console.log("Checking garage door status");
-              this.getHomeData();
-            }, (1000));
+        if (this.garageTimer == null) {
+          this.garageTimer = setInterval(() => {
+            console.log("Checking garage door status");
+            this.getHomeData();
+          }, (1000));
+        }
       });
   }
 

@@ -28,7 +28,7 @@
           <ion-col padding>
             <button ion-button block large class="btn in-position" (click)="operateGarageDoor()">
               <ion-icon name="car"></ion-icon>
-              <span>OPEN</span>
+              <span>{{ doorStatus.targetPosition == "OPEN" ? "CLOSE": "OPEN" }}</span>
             </button>
           </ion-col>
         </ion-row>
@@ -42,12 +42,12 @@
                 <ion-grid>
                   <ion-row>
                     <ion-col>
-                      Position: <span class="status-value">CLOSED</span>
+                      Position: <span class="status-value">{{ doorStatus.position }}</span>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col>
-                      Motion: <span class="status-value">AT REST</span>
+                      Motion: <span class="status-value">{{ doorStatus.inMotion ? "IN MOTION": "AT REST" }}</span>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -57,18 +57,18 @@
           <ion-col col-12 col-md-6>
             <ion-card>
               <ion-card-header>
-                <span>Requested State</span>
+                <span>Set State</span>
               </ion-card-header>
               <ion-card-content class="door-status">
                 <ion-grid>
                   <ion-row>
                     <ion-col>
-                      Previous Position: <span class="status-value">OPEN</span>
+                      Target Position: <span class="status-value">{{ doorStatus.targetPosition }}</span>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col>
-                      Target Position: <span class="status-value">CLOSED</span>
+                      Last Operated: <span class="status-value">{{ doorStatus.updatedAt | date }}</span>
                     </ion-col>
                   </ion-row>
                 </ion-grid>

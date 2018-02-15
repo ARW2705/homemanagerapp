@@ -11,15 +11,15 @@
   <ion-grid>
     <ion-row>
 
-      <ion-col *ngIf="garageDoor">
+      <ion-col class="no-padding no-margin" *ngIf="garageDoor">
         <ion-card color="light-gray">
           <ion-card-header>
             <span>Garage Door Controller</span>
           </ion-card-header>
-          <ion-card-content padding>
+          <ion-card-content>
             <button ion-button block large class="btn in-position" (click)="operateGarageDoor()">
               <ion-icon name="car"></ion-icon>
-              <span>OPEN</span>
+              <span>{{ garageDoor.targetPosition == "OPEN" ? "CLOSE": "OPEN"}}</span>
             </button>
           </ion-card-content>
         </ion-card>
@@ -28,7 +28,7 @@
     </ion-row>
     <ion-row>
 
-      <ion-col col-12 col-lg-6 *ngIf="climate && program">
+      <ion-col col-12 col-lg-6 class="no-padding no-margin" *ngIf="climate && program">
         <ion-card color="light-gray">
           <ion-card-header>
             <span>Climate Control</span>
