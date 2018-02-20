@@ -14,6 +14,9 @@
 
 <ion-content padding>
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div *ngIf="errMsg">
+      <h4 class="danger">Username and/or password incorrect</h4>
+    </div>
     <ion-item>
       <ion-label floating>Username</ion-label>
       <ion-input type="text" formControlName="username"></ion-input>

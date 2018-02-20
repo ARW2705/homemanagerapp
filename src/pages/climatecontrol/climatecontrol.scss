@@ -23,19 +23,27 @@ page-climatecontrol {
     padding: 0 !important;
   }
 
+  .data {
+    padding: 12px;
+    font-size: 1.2em !important;
+  }
+
   .inner-card {
     font-size: 1em !important;
   }
 
   .card-btn {
-    cursor: pointer;
-  }
-
-  .mode-btn {
+    font-size: 1.4em;
+    font-weight: 600;
     color: $light-green;
     background-color: $dark-gray;
-    padding-top: 3px !important;
+    padding-top: 4px !important;
     border-radius: 5px;
+  }
+
+  .card-btn:hover {
+    color: $dark-gray;
+    background-color: $light-green;
   }
 
   .conditions {
@@ -47,6 +55,8 @@ page-climatecontrol {
 
   .program-card {
     text-align: center;
+    font-size: 1.4em;
+    font-weight: 600;
   }
 
   .no-margin-bottom {
@@ -64,6 +74,16 @@ page-climatecontrol {
 
   .adjust-down {
     margin-bottom: 1.5% !important;
+  }
+
+  .align-right {
+    text-align: right;
+  }
+
+  .status-value {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: $dark-gray;
   }
 
 }

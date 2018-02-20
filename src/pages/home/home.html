@@ -16,7 +16,7 @@
           <ion-card-header>
             <span>Garage Door Controller</span>
           </ion-card-header>
-          <ion-card-content>
+          <ion-card-content padding>
             <button ion-button block large class="btn in-position" (click)="operateGarageDoor()">
               <ion-icon name="car"></ion-icon>
               <span>{{ garageDoor.targetPosition == "OPEN" ? "CLOSE": "OPEN"}}</span>

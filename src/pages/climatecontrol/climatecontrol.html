@@ -99,33 +99,45 @@
           </ion-card-header>
           <ion-card-content class="no-padding no-margin">
             <ion-grid>
-              <ion-row>
-                <ion-col col-12 col-md-6>
+              <ion-row justify-content-between class="data">
+                <ion-col col-6>
                   Target Temperature:<br>
-                  {{ targetTemperature }}
-                  <span [innerHtml]="getTemperatureSymbol()"></span>
+                  <div class="status-value">
+                    {{ targetTemperature }}
+                    <span [innerHtml]="getTemperatureSymbol()"></span>
+                  </div>
                 </ion-col>
-                <ion-col col-12 col-md-6>
-                    Program Status:<br>
+                <ion-col col-6 class="align-right">
+                  Program Status:<br>
+                  <div class="status-value">
                     {{ selectedProgram.isActive ? 'RUNNING': 'INACTIVE' }}
+                  </div>
                 </ion-col>
-                <ion-col col-12 col-md-6>
-                  Operation Mode:
-                  <button class="mode-btn card-btn" (click)="openModeActionSheet()">
-                    {{ climate.selectedMode | uppercase }}
-                  </button>
+                <ion-col col-6>
+                  Home System:<br>
+                  <div class="status-value">
+                    {{ climate.operatingStatus | uppercase }}
+                  </div>
                 </ion-col>
-                <ion-col col-12 col-md-6>
-                  Home System {{ climate.operatingStatus | uppercase }}
+                <ion-col col-6 class="align-right">
+                  Monitoring Zone:<br>
+                  <div class="status-value">
+                    {{ zones[selectedZone].locationName | uppercase }}
+                  </div>
                 </ion-col>
               </ion-row>
-              <ion-row>
-                <ion-col>
-                  <ion-card color="dark-gray" (click)="openClimateProgramActionSheet()">
-                    <ion-card-content class="program-card" color="light-green">
-                      Selected Program: {{ selectedProgram.name | uppercase }}
-                    </ion-card-content>
-                  </ion-card>
+              <ion-row justify-content-center>
+                <ion-col col-12 col-lg-10>
+                  <button ion-button block class="card-btn" (click)="openModeActionSheet()">
+                    Operation Mode: {{ climate.selectedMode }}
+                  </button>
+                </ion-col>
+              </ion-row>
+              <ion-row justify-content-center>
+                <ion-col col-12 col-lg-10>
+                  <button ion-button block class="card-btn" (click)="openClimateProgramActionSheet()">
+                    Program: {{ selectedProgram.name }}
+                  </button>
                 </ion-col>
               </ion-row>
               <ion-row>
