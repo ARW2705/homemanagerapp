@@ -12,8 +12,22 @@ page-home {
     background-color: $dark-gray;
   }
 
+  ion-icon {
+    padding-right: 0.2em;
+  }
+
   .card-btn {
-    cursor: pointer;
+    font-size: 1.4em;
+    font-weight: 600;
+    color: $light-green;
+    background-color: $dark-gray;
+    padding-top: 4px !important;
+    border-radius: 5px;
+  }
+
+  .card-btn:hover {
+    color: $dark-gray;
+    background-color: $light-green;
   }
 
   .conditions {

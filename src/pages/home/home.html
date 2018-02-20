@@ -78,13 +78,11 @@
                 </ion-col>
 
               </ion-row>
-              <ion-row>
-                <ion-col>
-                  <ion-card class="no-margin-bottom card-btn" color="dark-gray" (click)="openClimateProgramActionSheet()">
-                    <ion-card-content class="program-card" color="light-green">
-                      Selected Program: {{ program | uppercase }}
-                    </ion-card-content>
-                  </ion-card>
+              <ion-row justify-content-center>
+                <ion-col col-12 col-lg-10>
+                  <button ion-button block class="card-btn" (click)="openClimateProgramActionSheet()">
+                    Program: {{ program }}
+                  </button>
                 </ion-col>
               </ion-row>
             </ion-grid>

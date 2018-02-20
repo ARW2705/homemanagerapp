@@ -6,8 +6,9 @@ page-climatecontrol {
 
   ion-card-header {
     span {
-      color: $light-green !important;
-      font-size: 1.5em !important;
+      color: $light-green;
+      font-size: 1.5em;
+      font-weight: 600;
     }
     button {
       color: $light-green !important;
