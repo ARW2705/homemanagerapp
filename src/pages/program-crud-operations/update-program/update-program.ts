@@ -77,7 +77,7 @@ export class UpdateProgramPage implements OnInit {
       this.programUpdateForm.value.program = this.selectedProgram.program;
     }
     console.log('submiting...', this.programUpdateForm.value);
-    this.viewCtrl.dismiss();
+    this.viewCtrl.dismiss(this.programUpdateForm.value);
   }
 
   dismiss() {

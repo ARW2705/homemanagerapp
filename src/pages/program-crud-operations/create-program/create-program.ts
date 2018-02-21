@@ -53,7 +53,7 @@ export class CreateProgramPage {
 
   onSubmit() {
     console.log("Submitting...", this.programForm.value);
-    this.viewCtrl.dismiss(this.programForm);
+    this.viewCtrl.dismiss(this.programForm.value);
   }
 
   dismiss() {

@@ -119,6 +119,7 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
             // start selection modal
             const modal = this.modalCtrl.create(SelectProgramPage);
             modal.onDidDismiss(data => {
+              // set _id to 0 if no programs are being set to active
               const id = (data) ? data._id: 0;
               this.climateservice.selectPreProgrammed(id)
                 .subscribe(update => {
@@ -133,14 +134,21 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
           text: 'Create a New Program',
           handler: () => {
             console.log("Create a New Program");
-            // start creation modal
-            const modal = this.modalCtrl.create(CreateProgramPage);
-            modal.onDidDismiss(data => {
-              if (data) {
-                console.log("Valid", data);
-              }
-            });
-            modal.present();
+            if (this.climateservice.isMaxPrograms(this.programs.length)) {
+              // start creation modal
+              const modal = this.modalCtrl.create(CreateProgramPage);
+              modal.onDidDismiss(data => {
+                if (data) {
+                  console.log("Valid", data);
+                  this.climateservice.addProgram(data)
+                    .subscribe(program => {
+                      console.log("Added program", program);
+                      this.getClimateControlData();
+                    }, err => this.errMsg = err);
+                }
+              });
+              modal.present();
+            }
           }
         },
         {
@@ -151,7 +159,12 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
             const modal = this.modalCtrl.create(UpdateProgramPage);
             modal.onDidDismiss(data => {
               if (data) {
-                console.log(data);
+                console.log("Valid", data);
+                this.climateservice.updateSelectedProgram(data)
+                  .subscribe(program => {
+                    console.log("Updated program", program);
+                    this.getClimateControlData();
+                  }, err => this.errMsg = err);
               }
             });
             modal.present();

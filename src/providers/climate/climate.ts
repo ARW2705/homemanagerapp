@@ -12,6 +12,7 @@ import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
 export class ClimateProvider {
 
   desiredTemperature: number;
+  maxPrograms: number = 10;
 
   constructor(private http: HttpClient,
     private processHttpmsgservice: ProcessHttpmsgProvider) {
@@ -32,6 +33,11 @@ export class ClimateProvider {
   getClimatePrograms(): Observable<any> {
     return this.http.get(baseURL + 'climate/programs')
       .catch(err => this.processHttpmsgservice.handleError(err));
+  }
+
+  // return max number of programs
+  isMaxPrograms(currentNumberOfPrograms: number): boolean {
+    return currentNumberOfPrograms < this.maxPrograms;
   }
 
   // send override target temperature and/or mode
@@ -58,6 +64,12 @@ export class ClimateProvider {
   // select active pre-programmed
   selectPreProgrammed(id: string): Observable<any> {
     return this.http.patch(`${baseURL}climate/programs/${id}`, {isActive: true})
+      .catch(err => this.processHttpmsgservice.handleError(err));
+  }
+
+  // add program to list of climate programs
+  addProgram(program: ClimateProgram): Observable<any> {
+    return this.http.post(`${baseURL}climate/programs/`, program)
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
