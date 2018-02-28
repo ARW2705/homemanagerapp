@@ -13,7 +13,7 @@ import { User } from '../../shared/user';
 export class LoginPage {
 
   loginForm: FormGroup;
-  user: User = {username: '', password: '', remember: false};
+  user: User = {_id: '', username: '', password: '', remember: false};
   errMsg: string;
 
   constructor(public navCtrl: NavController,

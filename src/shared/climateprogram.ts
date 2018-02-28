@@ -1,5 +1,5 @@
 export interface ClimateProgram {
-  id: number;
+  _id: string;
   name: string;
   listIndex: number;
   program: Array<number>;

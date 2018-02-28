@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 
 import { baseURL } from '../../shared/baseurl';
+import { httpsPort } from '../../shared/https-port';
 import { GarageDoor } from '../../shared/garagedoor';
 
 import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
@@ -17,12 +18,12 @@ export class GarageDoorProvider {
   }
 
   getGarageDoorStatus(): Observable<any> {
-    return this.http.get(baseURL + 'garagedoor')
+    return this.http.get(baseURL + httpsPort + 'garagedoor')
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
   operateGarageDoor(action: string) {
-    return this.http.patch(baseURL + 'garagedoor', {targetPosition: action})
+    return this.http.patch(baseURL + httpsPort + 'garagedoor', {targetPosition: action})
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 

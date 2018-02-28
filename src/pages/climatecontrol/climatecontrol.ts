@@ -24,13 +24,14 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
   climate: Climate;
   zones: Array<Sensor>;
   programs: ClimateProgram[];
-  selectedProgram: ClimateProgram;
+  selectedProgram: ClimateProgram | any;
   errMsg: string;
-  updateTimer: any = null;
+  // updateTimer: any = null;
   selectedZone: number = 0;
   unitType: string = "e";
   targetTemperature: number;
   currentTemperature: number;
+  private socket;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -42,54 +43,120 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
     @Inject('maxTemperature') private maxTemperature) {
   }
 
+  ionViewDidLoad() {
+    console.log('ionViewDidLoad ClimatecontrolPage');
+  }
+
   ngOnInit() {
-    this.getClimateControlData();
-    this.updateTimer = setInterval(() => {
-          console.log("Updating home data");
-          this.getClimateControlData();
-        }, (60 * 1000));
+    this.getInitialClimateData();
+    this.socket = this.climateservice.listenForClimateData()
+      .subscribe(data => {
+        console.log('Incoming data from server', data);
+        this.handleWebsocketData(data);
+      });
+
+    // this.getClimateControlData();
+    // this.updateTimer = setInterval(() => {
+    //       console.log("Updating home data");
+    //       this.getClimateControlData();
+    //     }, (60 * 1000));
   }
 
   ngOnDestroy() {
-    clearInterval(this.updateTimer);
+    this.socket.unsubscribe();
+    // clearInterval(this.updateTimer);
   }
 
   // get climate and climate program data
-  getClimateControlData() {
-    this.climateservice.getCurrentClimateData()
+  getInitialClimateData() {
+    this.climateservice.getInitialClimateData()
       .subscribe(climate => {
         console.log(climate);
         this.targetTemperature = climate.targetTemperature;
         this.zones = climate.zoneData;
         return this.climate = climate;
-        },
-        err => this.errMsg = err);
+        }, err => this.errMsg = err);
     this.climateservice.getClimatePrograms()
       .subscribe(programs => {
-          console.log(programs);
-          this.programs = programs;
-          return this.selectedProgram = programs.filter(program => program.isActive)[0]
-            || {name: "None Selected", isActive: false};
-        },
-        err => this.errMsg = err);
+        console.log(programs);
+        this.programs = programs;
+        return this.selectedProgram = programs.filter(program => program.isActive)[0]
+          || {name: "None Selected", isActive: false};
+        }, err => this.errMsg = err);
   }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad ClimatecontrolPage');
+  handleWebsocketData(data: any) {
+    const method = data.type;
+    const result = data.data;
+    switch (method) {
+      case 'climate-data':
+        this.targetTemperature = result.targetTemperature;
+        this.zones = result.zoneData;
+        this.climate = result;
+        console.log('New climate data posted');
+        break;
+      case 'new-program':
+        this.programs.push(result);
+        this.selectedProgram = this.programs.filter(program => program.isActive)[0]
+          || {name: 'None Selected', isActive: false};
+        console.log('New climate program created');
+        break;
+      case 'select-program':
+        this.selectedProgram = result || {name: "None Selected", isActive: false};
+        console.log('Selected program id:');
+        break;
+      case 'program-update':
+        for (let i=0; i<this.programs.length; i++) {
+          if (this.programs[i]._id === result._id) {
+            this.programs.splice(i, 1, result);
+            console.log('Program has been updated');
+            break;
+          }
+        }
+        console.log('Program was not found');
+        break;
+      case 'delete-program':
+        // TODO implement program deletion handler
+        console.log('Program has been deleted');
+        break;
+      case 'error':
+        // this.errMsg = result;
+        console.log('Encountered an error');
+        break;
+      default:
+        console.log('Supplied method is not valid');
+        break;
+    }
   }
 
-  // show updating messages while GET request is in progress
-  displayLoading() {
-    this.climate.operatingStatus = "UPDATING";
-    this.climate.selectedMode = "UPDATING";
-    this.selectedProgram.isActive = false;
+  // override set temperature, any active program will be set to inactive
+  updateTargetTemperature() {
+    this.climateservice.updateClimateParameters(this.targetTemperature);
+    // this.climateservice.updateClimateParameters(this.targetTemperature)
+    //   .subscribe(update => {
+    //     console.log("Updated", update);
+    //     this.getClimateControlData();
+    //   }, err => this.errMsg = err);
   }
 
-  /*
-    target temperature selection slider - will stop any active programs
+  // override set mode, any active program will be set to inactive
+  updateTargetMode(mode: string) {
+    this.climateservice.updateClimateParameters(null, mode);
+    // this.climateservice.updateClimateParameters(null, mode)
+    //   .subscribe(update => {
+    //     console.log("Updated", update);
+    //     this.getClimateControlData();
+    //   }, err => this.errMsg = err);
+  }
+
+  // set html unicode for degrees fahrenheit or celsius
+  getTemperatureSymbol() {
+    return (this.unitType === 'm') ? "&#8451": "&#8457";
+  }
+
+  /* target temperature selection slider - will stop any active programs
     and set new target temperature - other parameters will be unchanged
-    unless thermostat status changes
-  */
+    unless thermostat status changes */
   onSliderChangeEnd() {
     console.log(this.targetTemperature);
     this.displayLoading();
@@ -104,6 +171,13 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
   // change to next climate zone location card
   slideToRight(index: number) {
     this.slides.slideTo(index+1);
+  }
+
+  // show updating messages while GET request is in progress
+  displayLoading() {
+    this.climate.operatingStatus = "UPDATING";
+    this.climate.selectedMode = "UPDATING";
+    this.selectedProgram.isActive = false;
   }
 
   // climate control action sheet: select program, create program, update program
@@ -121,11 +195,12 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
             modal.onDidDismiss(data => {
               // set _id to 0 if no programs are being set to active
               const id = (data) ? data._id: 0;
-              this.climateservice.selectPreProgrammed(id)
-                .subscribe(update => {
-                  console.log("Updated", update);
-                  this.getClimateControlData();
-                }, err => this.errMsg = err);
+              this.climateservice.selectProgram(id);
+              // this.climateservice.selectPreProgrammed(id)
+              //   .subscribe(update => {
+              //     console.log("Updated", update);
+              //     this.getClimateControlData();
+              //   }, err => this.errMsg = err);
             });
             modal.present();
           }
@@ -140,11 +215,12 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
               modal.onDidDismiss(data => {
                 if (data) {
                   console.log("Valid", data);
-                  this.climateservice.addProgram(data)
-                    .subscribe(program => {
-                      console.log("Added program", program);
-                      this.getClimateControlData();
-                    }, err => this.errMsg = err);
+                  this.climateservice.addNewProgram(data);
+                  // this.climateservice.addProgram(data)
+                  //   .subscribe(program => {
+                  //     console.log("Added program", program);
+                  //     this.getClimateControlData();
+                  //   }, err => this.errMsg = err);
                 }
               });
               modal.present();
@@ -160,11 +236,12 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
             modal.onDidDismiss(data => {
               if (data) {
                 console.log("Valid", data);
-                this.climateservice.updateSelectedProgram(data)
-                  .subscribe(program => {
-                    console.log("Updated program", program);
-                    this.getClimateControlData();
-                  }, err => this.errMsg = err);
+                this.climateservice.updateSelectedProgram(data);
+                // this.climateservice.updateSelectedProgram(data)
+                //   .subscribe(program => {
+                //     console.log("Updated program", program);
+                //     this.getClimateControlData();
+                //   }, err => this.errMsg = err);
               }
             });
             modal.present();
@@ -233,29 +310,6 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
       }
     });
     modal.present();
-  }
-
-  // set html unicode for degrees fahrenheit or celsius
-  getTemperatureSymbol() {
-    return (this.unitType === 'm') ? "&#8451": "&#8457";
-  }
-
-  // override set temperature, any active program will be set to inactive
-  updateTargetTemperature() {
-    this.climateservice.updateClimateParameters(this.targetTemperature)
-      .subscribe(update => {
-        console.log("Updated", update);
-        this.getClimateControlData();
-      }, err => this.errMsg = err);
-  }
-
-  // override set mode, any active program will be set to inactive
-  updateTargetMode(mode: string) {
-    this.climateservice.updateClimateParameters(null, mode)
-      .subscribe(update => {
-        console.log("Updated", update);
-        this.getClimateControlData();
-      }, err => this.errMsg = err);
   }
 
 }

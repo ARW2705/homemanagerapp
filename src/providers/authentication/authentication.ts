@@ -9,6 +9,7 @@ import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/catch';
 
 import { baseURL } from '../../shared/baseurl';
+import { httpsPort } from '../../shared/https-port';
 
 import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
 
@@ -43,7 +44,7 @@ export class AuthenticationProvider {
 
   // verify valid jsonwebtoken with server
   checkJWTtoken() {
-    this.http.get<JWTResponse>(baseURL + 'users/checkJWTtoken')
+    this.http.get<JWTResponse>(baseURL + httpsPort + 'users/checkJWTtoken')
       .subscribe(res => {
         console.log("JWT Token Valid: ", res);
         this.sendUsername(res.user.username);
@@ -111,7 +112,7 @@ export class AuthenticationProvider {
   }
 
   logIn(user: any): Observable<any> {
-    return this.http.post<AuthResponse>(baseURL + 'users/login',
+    return this.http.post<AuthResponse>(baseURL + httpsPort + 'users/login',
       {"username": user.username, "password": user.password})
       .map(res => {
         const credentials = {username: user.username, token: res.token};

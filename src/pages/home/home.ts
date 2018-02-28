@@ -24,9 +24,10 @@ export class HomePage implements OnInit, OnDestroy {
   garageDoor: GarageDoor;
   unitType: string = 'e';
   desiredTemperature: number;
-  updateTimer: any = null;
+  // updateTimer: any = null;
   garageTimer: any = null;
   program: string;
+  private climateSocket;
 
   constructor(public navCtrl: NavController,
     private climateservice: ClimateProvider,
@@ -40,23 +41,29 @@ export class HomePage implements OnInit, OnDestroy {
     }
 
   ngOnInit() {
-    this.getHomeData();
-    this.updateTimer = setInterval(() => {
-          console.log("Updating home data");
-          this.getHomeData();
-        }, (60 * 1000));
+    this.getInitialHomeData();
+    this.climateSocket = this.climateservice.listenForClimateData()
+      .subscribe(data => {
+        console.log('Incoming data from server', data);
+        this.handleWebsocketData(data);
+      });
+    // this.updateTimer = setInterval(() => {
+    //       console.log("Updating home data");
+    //       this.getHomeData();
+    //     }, (60 * 1000));
   }
 
   ngOnDestroy() {
+    this.climateSocket.unsubscribe();
     clearInterval(this.garageTimer);
-    clearInterval(this.updateTimer);
+    // clearInterval(this.updateTimer);
     this.garageTimer = null;
-    this.updateTimer = null;
+    // this.updateTimer = null;
   }
 
   // get data for each page summary
-  getHomeData() {
-    this.climateservice.getCurrentClimateData()
+  getInitialHomeData() {
+    this.climateservice.getInitialClimateData()
       .subscribe(climate => {
         this.desiredTemperature = climate.targetTemperature;
         this.climate = climate;
@@ -83,11 +90,32 @@ export class HomePage implements OnInit, OnDestroy {
       err => this.errMsg = err);
   }
 
-  /*
-    target temperature selection slider - will stop any active programs
+  handleWebsocketData(data: any) {
+    const method = data.type;
+    const result = data.data;
+    switch (method) {
+      case 'climate-data':
+        this.desiredTemperature = result.targetTemperature;
+        this.climate = result;
+        console.log('New climate data posted');
+        break;
+      case 'select-program':
+        this.program = (result != null) ? result.name: "None Selected";
+        console.log('Selected program:', result);
+        break;
+      case 'error':
+        // this.errMsg = result;
+        console.log('Encountered an error', result);
+        break;
+      default:
+        console.log('Supplied method is not valid');
+        break;
+    }
+  }
+
+  /* target temperature selection slider - will stop any active programs
     and set new target temperature - other parameters will be unchanged
-    unless thermostat status changes
-  */
+    unless thermostat status changes */
   onSliderChangeEnd() {
     console.log("Selected temperature: ", this.desiredTemperature);
     this.updateTargetTemperature();
@@ -108,11 +136,12 @@ export class HomePage implements OnInit, OnDestroy {
             modal.onDidDismiss(data => {
               // set _id to 0 if no programs are being set to active
               const id = (data) ? data._id: 0;
-              this.climateservice.selectPreProgrammed(id)
-                .subscribe(update => {
-                  console.log("Updated", update);
-                  this.getHomeData();
-                }, err => this.errMsg = err);
+              this.climateservice.selectProgram(id);
+              // this.climateservice.selectProgrammed(id)
+              //   .subscribe(update => {
+              //     console.log("Updated", update);
+              //     this.getHomeData();
+              //   }, err => this.errMsg = err);
             });
             modal.present();
           }
@@ -129,11 +158,12 @@ export class HomePage implements OnInit, OnDestroy {
                   modal.onDidDismiss(data => {
                     if (data) {
                       console.log("Valid", data);
-                      this.climateservice.addProgram(data)
-                        .subscribe(program => {
-                          console.log("Added program", program);
-                          this.getHomeData();
-                        }, err => this.errMsg = err);
+                      this.climateservice.addNewProgram(data);
+                      // this.climateservice.addProgram(data)
+                      //   .subscribe(program => {
+                      //     console.log("Added program", program);
+                      //     this.getHomeData();
+                      //   }, err => this.errMsg = err);
                     }
                   });
                   modal.present();
@@ -150,11 +180,12 @@ export class HomePage implements OnInit, OnDestroy {
             modal.onDidDismiss(data => {
               if (data) {
                 console.log("Valid", data);
-                this.climateservice.updateSelectedProgram(data)
-                  .subscribe(program => {
-                    console.log("Updated program", program);
-                    this.getHomeData();
-                  }, err => this.errMsg = err);
+                this.climateservice.updateSelectedProgram(data);
+                // this.climateservice.updateSelectedProgram(data)
+                //   .subscribe(program => {
+                //     console.log("Updated program", program);
+                //     this.getHomeData();
+                //   }, err => this.errMsg = err);
               }
             });
             modal.present();
@@ -191,10 +222,11 @@ export class HomePage implements OnInit, OnDestroy {
 
   // override set temperature, any active program will be set to inactive
   updateTargetTemperature() {
-    this.climateservice.updateClimateParameters(this.desiredTemperature)
-    .subscribe(update => {
-      console.log("Updated", update);
-    }, err => this.errMsg = err);
+    this.climateservice.updateClimateParameters(this.desiredTemperature);
+    // this.climateservice.updateClimateParameters(this.desiredTemperature)
+    // .subscribe(update => {
+    //   console.log("Updated", update);
+    // }, err => this.errMsg = err);
   }
 
   operateGarageDoor() {
@@ -205,7 +237,7 @@ export class HomePage implements OnInit, OnDestroy {
         if (this.garageTimer == null) {
           this.garageTimer = setInterval(() => {
             console.log("Checking garage door status");
-            this.getHomeData();
+            this.getInitialHomeData();
           }, (1000));
         }
       });
