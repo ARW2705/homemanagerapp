@@ -26,6 +26,7 @@ import { minTemperature, maxTemperature } from '../shared/temperatureconst';
 import { AuthenticationProvider } from '../providers/authentication/authentication';
 import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/interceptor/interceptor';
 import { GarageDoorProvider } from '../providers/garage-door/garage-door';
+import { WebsocketConnectionProvider } from '../providers/websocket-connection/websocket-connection';
 
 @NgModule({
   declarations: [
@@ -81,7 +82,8 @@ import { GarageDoorProvider } from '../providers/garage-door/garage-door';
       useClass: UnauthorizedInterceptor,
       multi: true
     },
-    GarageDoorProvider
+    GarageDoorProvider,
+    WebsocketConnectionProvider
   ]
 })
 export class AppModule {}

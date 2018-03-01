@@ -7,9 +7,7 @@ import 'rxjs/add/operator/catch';
 import { ClimateProgram } from '../../shared/climateprogram';
 import { baseURL } from '../../shared/baseurl';
 import { httpsPort } from '../../shared/https-port';
-import { wssPort } from '../../shared/wss-port';
 
-import { AuthenticationProvider } from '../authentication/authentication';
 import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
 
 @Injectable()
@@ -17,11 +15,10 @@ export class ClimateProvider {
 
   desiredTemperature: number;
   maxPrograms: number = 10;
-  payload = {type: '', data: ''};
+  payload = {type: null, data: null};
   private socket;
 
   constructor(private http: HttpClient,
-    private authService: AuthenticationProvider,
     private processHttpmsgservice: ProcessHttpmsgProvider) {
       console.log('Hello ClimateProvider Provider');
   }
@@ -29,10 +26,10 @@ export class ClimateProvider {
   /* Websocket handlers */
 
   // listen on websocket for events
-  listenForClimateData() {
+  listenForClimateData(socket) {
+    this.socket = socket;
+    console.log('Listening for climate data');
     return new Observable(obs => {
-      const token = this.authService.getToken();
-      this.socket = io(baseURL + wssPort, {query: {token: token}});
       this.socket.on('new-climate-data', data => {
         this.payload.type = 'climate-data';
         this.payload.data = data.data;
@@ -70,9 +67,10 @@ export class ClimateProvider {
         obs.next(this.payload);
       });
       this.socket.on('disconnect', notification => {
-        console.log("Client disconnect", notification);
+        console.log('Client disconnected from socket');
       });
       return () => {
+        console.log('Socket disconnected');
         this.socket.disconnect();
       };
     });
@@ -135,43 +133,5 @@ export class ClimateProvider {
   getDesiredTemperature(): number {
     return this.desiredTemperature;
   }
-
-  // return max number of programs
-  isMaxPrograms(currentNumberOfPrograms: number): boolean {
-    return currentNumberOfPrograms < this.maxPrograms;
-  }
-
-  // send override target temperature and/or mode
-  // updateClimateParameters(temperature: number = null,
-  //   selectedMode: string = null): Observable<any> {
-  //   this.desiredTemperature = temperature;
-  //   const payload:any = {};
-  //   if (temperature) {
-  //     payload.targetTemperature = temperature;
-  //   } else if (selectedMode) {
-  //     payload.selectedMode = selectedMode;
-  //   }
-  //   console.log(payload);
-  //   return this.http.patch(`${baseURL}climate`, payload)
-  //     .catch(err => this.processHttpmsgservice.handleError(err));
-  // }
-
-  // update selected program
-  // updateSelectedProgram(update: ClimateProgram): Observable<any> {
-  //   return this.http.patch(baseURL + httpsPort + `climate/programs/${update.id}`, update)
-  //     .catch(err => this.processHttpmsgservice.handleError(err));
-  // }
-
-  // select active pre-programmed
-  // selectPreProgrammed(id: string): Observable<any> {
-  //   return this.http.patch(`${baseURL}climate/programs/${id}`, {isActive: true})
-  //     .catch(err => this.processHttpmsgservice.handleError(err));
-  // }
-
-  // add program to list of climate programs
-  // addProgram(program: ClimateProgram): Observable<any> {
-  //   return this.http.post(`${baseURL}climate/programs/`, program)
-  //     .catch(err => this.processHttpmsgservice.handleError(err));
-  // }
 
 }

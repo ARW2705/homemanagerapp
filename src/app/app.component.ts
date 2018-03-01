@@ -1,9 +1,10 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { Nav, Platform, ModalController, Events } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
 import { AuthenticationProvider } from '../providers/authentication/authentication';
+import { WebsocketConnectionProvider } from '../providers/websocket-connection/websocket-connection';
 
 import { BrewingPage } from '../pages/brewing/brewing';
 import { ClimatecontrolPage } from '../pages/climatecontrol/climatecontrol';
@@ -29,6 +30,7 @@ export class MyApp {
     public splashScreen: SplashScreen,
     public modalCtrl: ModalController,
     private authService: AuthenticationProvider,
+    private wssConnection: WebsocketConnectionProvider,
     public events: Events) {
 
     this.initializeApp();
@@ -51,7 +53,7 @@ export class MyApp {
       console.log("Log In Successful");
       this.loggedIn = this.authService.isLoggedIn();
       this.authChecked = true;
-    })
+    });
 
     // used for an example of ngFor and navigation
     this.pages = [
@@ -91,6 +93,7 @@ export class MyApp {
   }
 
   logOut() {
+    this.wssConnection.disconnectSocket();
     this.loggedIn = false;
     this.authService.logOut();
     this.openLogin();

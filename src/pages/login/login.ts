@@ -3,6 +3,7 @@ import { IonicPage, NavController, NavParams, ViewController, ModalController } 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { AuthenticationProvider } from '../../providers/authentication/authentication';
+import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
 import { User } from '../../shared/user';
 
 @IonicPage()
@@ -19,6 +20,7 @@ export class LoginPage {
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private authService: AuthenticationProvider,
+    private wssConnection: WebsocketConnectionProvider,
     public viewCtrl: ViewController,
     public modalCtrl: ModalController,
     private formBuilder: FormBuilder) {
@@ -40,8 +42,11 @@ export class LoginPage {
     this.authService.logIn(this.user)
       .subscribe(res => {
         if (res.success) {
-          console.log("Logged In", res);
-          this.viewCtrl.dismiss(res.success);
+          this.wssConnection.connectSocket()
+            .subscribe(socket => {
+              console.log("Logged In", res);
+              this.viewCtrl.dismiss(res.success);
+            });
         } else {
           console.log(res);
         }

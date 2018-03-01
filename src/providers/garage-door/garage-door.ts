@@ -12,9 +12,34 @@ import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
 @Injectable()
 export class GarageDoorProvider {
 
+  private socket;
+
   constructor(public http: HttpClient,
     private processHttpmsgservice: ProcessHttpmsgProvider) {
     console.log('Hello GarageDoorProvider Provider');
+  }
+
+  listenForGarageDoorData(socket) {
+    this.socket = socket;
+    console.log('Listening for garage door data');
+    return new Observable(obs => {
+      this.socket.on('garage-door-status-changed', data => {
+        console.log('New garage door status from server');
+        obs.next(data);
+      });
+      this.socket.on('disconnect', notification => {
+        console.log('Client disconnected from socket');
+      });
+      return () => {
+        console.log('Socket disconnected');
+        this.socket.disconnect();
+      };
+    });
+  }
+
+  operateGarageDoor(action: string) {
+    console.log('Request garage door:', action);
+    this.socket.emit('operate-garage-door', {targetPosition: action});
   }
 
   getGarageDoorStatus(): Observable<any> {
@@ -22,9 +47,9 @@ export class GarageDoorProvider {
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
-  operateGarageDoor(action: string) {
-    return this.http.patch(baseURL + httpsPort + 'garagedoor', {targetPosition: action})
-      .catch(err => this.processHttpmsgservice.handleError(err));
-  }
+  // operateGarageDoor(action: string) {
+  //   return this.http.patch(baseURL + httpsPort + 'garagedoor', {targetPosition: action})
+  //     .catch(err => this.processHttpmsgservice.handleError(err));
+  // }
 
 }

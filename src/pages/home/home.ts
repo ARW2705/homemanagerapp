@@ -7,6 +7,7 @@ import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 
 import { ClimateProvider } from '../../providers/climate/climate';
 import { GarageDoorProvider } from '../../providers/garage-door/garage-door';
+import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
 
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
 import { LoginPage } from '../login/login';
@@ -24,10 +25,9 @@ export class HomePage implements OnInit, OnDestroy {
   garageDoor: GarageDoor;
   unitType: string = 'e';
   desiredTemperature: number;
-  // updateTimer: any = null;
   garageTimer: any = null;
   program: string;
-  private climateSocket;
+  private socket;
 
   constructor(public navCtrl: NavController,
     private climateservice: ClimateProvider,
@@ -35,6 +35,7 @@ export class HomePage implements OnInit, OnDestroy {
     private actionsheetCtrl: ActionSheetController,
     private toastCtrl: ToastController,
     public modalCtrl: ModalController,
+    private wssConnection: WebsocketConnectionProvider,
     @Inject('baseURL') private baseURL,
     @Inject('minTemperature') private minTemperature,
     @Inject('maxTemperature') private maxTemperature) {
@@ -42,23 +43,26 @@ export class HomePage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getInitialHomeData();
-    this.climateSocket = this.climateservice.listenForClimateData()
-      .subscribe(data => {
-        console.log('Incoming data from server', data);
-        this.handleWebsocketData(data);
+    this.wssConnection.getSocket()
+      .subscribe(socket => {
+        console.log('Home connection to socket established', socket);
+        this.socket = socket;
+        this.climateservice.listenForClimateData(socket)
+          .subscribe(data => {
+            console.log('Incoming climate data from server', data);
+            this.handleWebsocketData(data);
+          });
+        this.garageDoorService.listenForGarageDoorData(socket)
+          .subscribe(data => {
+            console.log('Incoming garage door data from server', data);
+            this.handleWebsocketData(data);
+          })
       });
-    // this.updateTimer = setInterval(() => {
-    //       console.log("Updating home data");
-    //       this.getHomeData();
-    //     }, (60 * 1000));
   }
 
   ngOnDestroy() {
-    this.climateSocket.unsubscribe();
     clearInterval(this.garageTimer);
-    // clearInterval(this.updateTimer);
     this.garageTimer = null;
-    // this.updateTimer = null;
   }
 
   // get data for each page summary
@@ -137,11 +141,6 @@ export class HomePage implements OnInit, OnDestroy {
               // set _id to 0 if no programs are being set to active
               const id = (data) ? data._id: 0;
               this.climateservice.selectProgram(id);
-              // this.climateservice.selectProgrammed(id)
-              //   .subscribe(update => {
-              //     console.log("Updated", update);
-              //     this.getHomeData();
-              //   }, err => this.errMsg = err);
             });
             modal.present();
           }
@@ -152,22 +151,15 @@ export class HomePage implements OnInit, OnDestroy {
             console.log("Create a New Program");
             this.climateservice.getClimatePrograms()
               .subscribe(programs => {
-                if (this.climateservice.isMaxPrograms(programs.length)) {
-                  // start creation modal
-                  const modal = this.modalCtrl.create(CreateProgramPage);
-                  modal.onDidDismiss(data => {
-                    if (data) {
-                      console.log("Valid", data);
-                      this.climateservice.addNewProgram(data);
-                      // this.climateservice.addProgram(data)
-                      //   .subscribe(program => {
-                      //     console.log("Added program", program);
-                      //     this.getHomeData();
-                      //   }, err => this.errMsg = err);
-                    }
-                  });
-                  modal.present();
-                }
+                // start creation modal
+                const modal = this.modalCtrl.create(CreateProgramPage);
+                modal.onDidDismiss(data => {
+                  if (data) {
+                    console.log("Valid", data);
+                    this.climateservice.addNewProgram(data);
+                  }
+                });
+                modal.present();
               });
           }
         },
@@ -181,11 +173,6 @@ export class HomePage implements OnInit, OnDestroy {
               if (data) {
                 console.log("Valid", data);
                 this.climateservice.updateSelectedProgram(data);
-                // this.climateservice.updateSelectedProgram(data)
-                //   .subscribe(program => {
-                //     console.log("Updated program", program);
-                //     this.getHomeData();
-                //   }, err => this.errMsg = err);
               }
             });
             modal.present();
@@ -223,24 +210,11 @@ export class HomePage implements OnInit, OnDestroy {
   // override set temperature, any active program will be set to inactive
   updateTargetTemperature() {
     this.climateservice.updateClimateParameters(this.desiredTemperature);
-    // this.climateservice.updateClimateParameters(this.desiredTemperature)
-    // .subscribe(update => {
-    //   console.log("Updated", update);
-    // }, err => this.errMsg = err);
   }
 
   operateGarageDoor() {
-    const action = (this.garageDoor.targetPosition == "OPEN")? "CLOSED": "OPEN";
-    this.garageDoorService.operateGarageDoor(action)
-      .subscribe(status => {
-        console.log("Garage door activating...");
-        if (this.garageTimer == null) {
-          this.garageTimer = setInterval(() => {
-            console.log("Checking garage door status");
-            this.getInitialHomeData();
-          }, (1000));
-        }
-      });
+    const action = (this.garageDoor.targetPosition == "OPEN") ? "CLOSED": "OPEN";
+    this.garageDoorService.operateGarageDoor(action);
   }
 
 }

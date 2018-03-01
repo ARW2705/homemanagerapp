@@ -3,6 +3,7 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
 
 import { GarageDoor } from '../../shared/garagedoor';
 import { GarageDoorProvider } from '../../providers/garage-door/garage-door';
+import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
 
 @IonicPage()
 @Component({
@@ -14,23 +15,39 @@ export class GaragedoorPage implements OnInit, OnDestroy {
   doorStatus: GarageDoor;
   updateTimer: any = null;
   errMsg: string;
+  private socket;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
-    private garageDoorService: GarageDoorProvider) {
+    private garageDoorService: GarageDoorProvider,
+    private wssConnection: WebsocketConnectionProvider) {
   }
 
   ngOnInit() {
     this.getGarageDoorStatus();
+    this.wssConnection.getSocket()
+      .subscribe(socket => {
+        console.log('Climate control connection to socket established', socket);
+        this.socket = socket;
+        this.garageDoorService.listenForGarageDoorData(socket)
+          .subscribe(data => {
+            console.log('Incoming data from server', data);
+            this.handleWebsocketData(data);
+          });
+      });
   }
 
   ngOnDestroy() {
-    clearInterval(this.updateTimer);
-    this.updateTimer = null;
+
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad GaragedoorPage');
+  }
+
+  handleWebsocketData(data: any) {
+    console.log('New garage status');
+    this.doorStatus = data.data;
   }
 
   getGarageDoorStatus() {
@@ -47,16 +64,7 @@ export class GaragedoorPage implements OnInit, OnDestroy {
 
   operateGarageDoor() {
     const action = (this.doorStatus.targetPosition == "OPEN")? "CLOSED": "OPEN";
-    this.garageDoorService.operateGarageDoor(action)
-      .subscribe(status => {
-        console.log("Garage door activating...");
-        if (this.updateTimer == null) {
-          this.updateTimer = setInterval(() => {
-            console.log("Checking garage door status");
-            this.getGarageDoorStatus();
-          }, (1000));
-        }
-      });
+    this.garageDoorService.operateGarageDoor(action);
   }
 
 }

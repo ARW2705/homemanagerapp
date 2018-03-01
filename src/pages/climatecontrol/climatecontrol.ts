@@ -7,6 +7,7 @@ import { ClimateProgram } from '../../shared/climateprogram';
 import { Sensor } from '../../shared/sensor';
 
 import { ClimateProvider } from '../../providers/climate/climate';
+import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
 
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
 import { LoginPage } from '../login/login';
@@ -26,7 +27,6 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
   programs: ClimateProgram[];
   selectedProgram: ClimateProgram | any;
   errMsg: string;
-  // updateTimer: any = null;
   selectedZone: number = 0;
   unitType: string = "e";
   targetTemperature: number;
@@ -39,6 +39,7 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
     private toastCtrl: ToastController,
     private actionsheetCtrl: ActionSheetController,
     public modalCtrl: ModalController,
+    private wssConnection: WebsocketConnectionProvider,
     @Inject('minTemperature') private minTemperature,
     @Inject('maxTemperature') private maxTemperature) {
   }
@@ -49,22 +50,20 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getInitialClimateData();
-    this.socket = this.climateservice.listenForClimateData()
-      .subscribe(data => {
-        console.log('Incoming data from server', data);
-        this.handleWebsocketData(data);
+    this.wssConnection.getSocket()
+      .subscribe(socket => {
+        console.log('Climate control connection to socket established', socket);
+        this.socket = socket;
+        this.climateservice.listenForClimateData(socket)
+          .subscribe(data => {
+            console.log('Incoming data from server', data);
+            this.handleWebsocketData(data);
+          });
       });
-
-    // this.getClimateControlData();
-    // this.updateTimer = setInterval(() => {
-    //       console.log("Updating home data");
-    //       this.getClimateControlData();
-    //     }, (60 * 1000));
   }
 
   ngOnDestroy() {
-    this.socket.unsubscribe();
-    // clearInterval(this.updateTimer);
+
   }
 
   // get climate and climate program data
@@ -131,22 +130,13 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
 
   // override set temperature, any active program will be set to inactive
   updateTargetTemperature() {
+    console.log('socket', this.socket);
     this.climateservice.updateClimateParameters(this.targetTemperature);
-    // this.climateservice.updateClimateParameters(this.targetTemperature)
-    //   .subscribe(update => {
-    //     console.log("Updated", update);
-    //     this.getClimateControlData();
-    //   }, err => this.errMsg = err);
   }
 
   // override set mode, any active program will be set to inactive
   updateTargetMode(mode: string) {
     this.climateservice.updateClimateParameters(null, mode);
-    // this.climateservice.updateClimateParameters(null, mode)
-    //   .subscribe(update => {
-    //     console.log("Updated", update);
-    //     this.getClimateControlData();
-    //   }, err => this.errMsg = err);
   }
 
   // set html unicode for degrees fahrenheit or celsius
@@ -196,11 +186,6 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
               // set _id to 0 if no programs are being set to active
               const id = (data) ? data._id: 0;
               this.climateservice.selectProgram(id);
-              // this.climateservice.selectPreProgrammed(id)
-              //   .subscribe(update => {
-              //     console.log("Updated", update);
-              //     this.getClimateControlData();
-              //   }, err => this.errMsg = err);
             });
             modal.present();
           }
@@ -216,11 +201,6 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
                 if (data) {
                   console.log("Valid", data);
                   this.climateservice.addNewProgram(data);
-                  // this.climateservice.addProgram(data)
-                  //   .subscribe(program => {
-                  //     console.log("Added program", program);
-                  //     this.getClimateControlData();
-                  //   }, err => this.errMsg = err);
                 }
               });
               modal.present();
@@ -237,11 +217,6 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
               if (data) {
                 console.log("Valid", data);
                 this.climateservice.updateSelectedProgram(data);
-                // this.climateservice.updateSelectedProgram(data)
-                //   .subscribe(program => {
-                //     console.log("Updated program", program);
-                //     this.getClimateControlData();
-                //   }, err => this.errMsg = err);
               }
             });
             modal.present();
