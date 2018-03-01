@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { NavController, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 
 import { Climate } from '../../shared/climate';
@@ -18,14 +18,13 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
   selector: 'page-home',
   templateUrl: 'home.html'
 })
-export class HomePage implements OnInit, OnDestroy {
+export class HomePage implements OnInit {
 
   climate: Climate;
   errMsg: string;
   garageDoor: GarageDoor;
   unitType: string = 'e';
   desiredTemperature: number;
-  garageTimer: any = null;
   program: string;
   private socket;
 
@@ -60,19 +59,13 @@ export class HomePage implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy() {
-    clearInterval(this.garageTimer);
-    this.garageTimer = null;
-  }
-
   // get data for each page summary
   getInitialHomeData() {
     this.climateservice.getInitialClimateData()
       .subscribe(climate => {
         this.desiredTemperature = climate.targetTemperature;
         this.climate = climate;
-        },
-        err => this.errMsg = err);
+        }, err => this.errMsg = err);
     this.climateservice.getClimatePrograms()
       .subscribe(programs => {
         const active = programs.filter(program => program.isActive);
@@ -81,17 +74,11 @@ export class HomePage implements OnInit, OnDestroy {
         } else {
           this.program = "NONE SELECTED";
         }
-      },
-        err => this.errMsg = err);
+      }, err => this.errMsg = err);
     this.garageDoorService.getGarageDoorStatus()
       .subscribe(status => {
-        if (!status.inMotion && status.position == status.targetPosition) {
-          clearInterval(this.garageTimer);
-          this.garageTimer = null;
-        }
         this.garageDoor = status;
-      },
-      err => this.errMsg = err);
+      }, err => this.errMsg = err);
   }
 
   handleWebsocketData(data: any) {
@@ -106,6 +93,10 @@ export class HomePage implements OnInit, OnDestroy {
       case 'select-program':
         this.program = (result != null) ? result.name: "None Selected";
         console.log('Selected program:', result);
+        break;
+      case 'garage-door':
+        this.garageDoor = result;
+        console.log('New door status', result);
         break;
       case 'error':
         // this.errMsg = result;

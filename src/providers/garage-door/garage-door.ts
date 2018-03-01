@@ -12,6 +12,7 @@ import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
 @Injectable()
 export class GarageDoorProvider {
 
+  payload = {type: null, data: null};
   private socket;
 
   constructor(public http: HttpClient,
@@ -24,8 +25,10 @@ export class GarageDoorProvider {
     console.log('Listening for garage door data');
     return new Observable(obs => {
       this.socket.on('garage-door-status-changed', data => {
-        console.log('New garage door status from server');
-        obs.next(data);
+        this.payload.type = 'garage-door';
+        this.payload.data = data.data;
+        console.log('New garage door status from server', this.payload);
+        obs.next(this.payload);
       });
       this.socket.on('disconnect', notification => {
         console.log('Client disconnected from socket');

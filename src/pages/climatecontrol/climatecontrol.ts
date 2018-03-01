@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 import { Slides } from 'ionic-angular';
 
@@ -19,7 +19,7 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
   selector: 'page-climatecontrol',
   templateUrl: 'climatecontrol.html',
 })
-export class ClimatecontrolPage implements OnInit, OnDestroy {
+export class ClimatecontrolPage implements OnInit {
 
   @ViewChild('climateSlide') slides: Slides;
   climate: Climate;
@@ -62,10 +62,6 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy() {
-
-  }
-
   // get climate and climate program data
   getInitialClimateData() {
     this.climateservice.getInitialClimateData()
@@ -102,7 +98,7 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
         break;
       case 'select-program':
         this.selectedProgram = result || {name: "None Selected", isActive: false};
-        console.log('Selected program id:');
+        console.log('Selected program');
         break;
       case 'program-update':
         for (let i=0; i<this.programs.length; i++) {
@@ -194,17 +190,15 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
           text: 'Create a New Program',
           handler: () => {
             console.log("Create a New Program");
-            if (this.climateservice.isMaxPrograms(this.programs.length)) {
-              // start creation modal
-              const modal = this.modalCtrl.create(CreateProgramPage);
-              modal.onDidDismiss(data => {
-                if (data) {
-                  console.log("Valid", data);
-                  this.climateservice.addNewProgram(data);
-                }
-              });
-              modal.present();
-            }
+            // start creation modal
+            const modal = this.modalCtrl.create(CreateProgramPage);
+            modal.onDidDismiss(data => {
+              if (data) {
+                console.log("Valid", data);
+                this.climateservice.addNewProgram(data);
+              }
+            });
+            modal.present();
           }
         },
         {

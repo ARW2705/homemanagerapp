@@ -16,7 +16,7 @@
 </ion-header>
 
 
-<ion-content padding>
+<ion-content>
 
   <ion-card color="light-gray" *ngIf="doorStatus">
     <ion-card-header>
@@ -25,7 +25,7 @@
     <ion-card-content>
       <ion-grid>
         <ion-row>
-          <ion-col padding>
+          <ion-col>
             <button ion-button block large class="btn in-position" (click)="operateGarageDoor()">
               <ion-icon name="car"></ion-icon>
               <span>{{ doorStatus.targetPosition == "OPEN" ? "CLOSE": "OPEN" }}</span>
@@ -68,7 +68,7 @@
                   </ion-row>
                   <ion-row>
                     <ion-col>
-                      Last Operated: <span class="status-value">{{ doorStatus.updatedAt | date:'M/d, h:mm a' }}</span>
+                      Last Operated: <span class="status-value">{{ doorStatus.updatedAt | date:'M/d h:mm a' }}</span>
                     </ion-col>
                   </ion-row>
                 </ion-grid>

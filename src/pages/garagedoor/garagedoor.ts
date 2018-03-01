@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { IonicPage, NavController, NavParams } from 'ionic-angular';
 
 import { GarageDoor } from '../../shared/garagedoor';
@@ -10,10 +10,9 @@ import { WebsocketConnectionProvider } from '../../providers/websocket-connectio
   selector: 'page-garagedoor',
   templateUrl: 'garagedoor.html',
 })
-export class GaragedoorPage implements OnInit, OnDestroy {
+export class GaragedoorPage implements OnInit {
 
   doorStatus: GarageDoor;
-  updateTimer: any = null;
   errMsg: string;
   private socket;
 
@@ -37,10 +36,6 @@ export class GaragedoorPage implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy() {
-
-  }
-
   ionViewDidLoad() {
     console.log('ionViewDidLoad GaragedoorPage');
   }
@@ -53,10 +48,6 @@ export class GaragedoorPage implements OnInit, OnDestroy {
   getGarageDoorStatus() {
     this.garageDoorService.getGarageDoorStatus()
       .subscribe(status => {
-        if (!status.inMotion && status.position == status.targetPosition) {
-          clearInterval(this.updateTimer);
-          this.updateTimer = null;
-        }
         this.doorStatus = status;
       },
       err => this.errMsg = err);
