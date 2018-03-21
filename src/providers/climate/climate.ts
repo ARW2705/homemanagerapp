@@ -36,6 +36,12 @@ export class ClimateProvider {
         console.log('New climate data from server', this.payload);
         obs.next(this.payload);
       });
+      this.socket.on('updated-climate-data', data => {
+        this.payload.type = 'climate-data';
+        this.payload.data = data.data;
+        console.log('New climate data from server', this.payload);
+        obs.next(this.payload);
+      });
       this.socket.on('new-climate-program', data => {
         this.payload.type = 'new-program';
         this.payload.data = data.data
