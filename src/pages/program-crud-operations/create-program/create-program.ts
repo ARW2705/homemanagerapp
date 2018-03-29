@@ -14,6 +14,7 @@ export class CreateProgramPage {
   programForm: FormGroup;
   name: AbstractControl;
   isValidSchedule: boolean = false;
+  scheduleArray: Array<number>;
   days: Array<string> = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   constructor(public navCtrl: NavController,
@@ -43,7 +44,7 @@ export class CreateProgramPage {
     modal.onDidDismiss(data => {
       if (data) {
         if (data.indexOf(-1) == -1) {
-          this.programForm.value.program = data;
+          this.scheduleArray = data;
           this.isValidSchedule = true;
         }
       }
@@ -52,6 +53,7 @@ export class CreateProgramPage {
   }
 
   onSubmit() {
+    this.programForm.value.program = this.scheduleArray;
     console.log("Submitting...", this.programForm.value);
     this.viewCtrl.dismiss(this.programForm.value);
   }

@@ -107,7 +107,7 @@ export class ClimateProvider {
   // add new program
   addNewProgram(program: ClimateProgram) {
     console.log('Submitting new program');
-    this.socket.emit('post-current-climate-data', program);
+    this.socket.emit('post-new-program', program);
   }
 
   // update existing program

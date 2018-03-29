@@ -103,7 +103,7 @@ export class HomePage implements OnInit {
         console.log('Encountered an error', result);
         break;
       default:
-        console.log('Supplied method is not valid');
+        console.log('Supplied method is not available for HOME');
         break;
     }
   }
