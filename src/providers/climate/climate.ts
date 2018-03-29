@@ -30,6 +30,9 @@ export class ClimateProvider {
     this.socket = socket;
     console.log('Listening for climate data');
     return new Observable(obs => {
+      this.socket.on('thermostat-verified', data => {
+        console.log('message from thermostat', data);
+      });
       this.socket.on('new-climate-data', data => {
         this.payload.type = 'climate-data';
         this.payload.data = data.data;
