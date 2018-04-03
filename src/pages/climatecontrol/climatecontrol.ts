@@ -60,24 +60,29 @@ export class ClimatecontrolPage implements OnInit {
             this.handleWebsocketData(data);
           });
       });
+    setTimeout(() => {
+      if (!this.climateservice.isThermostatConnected) {
+        console.log('Thermostat not verified, retrying...');
+        this.climateservice.pingThermostat();
+      }
+    }, 5000);
   }
 
   // get climate and climate program data
   getInitialClimateData() {
     this.climateservice.getInitialClimateData()
       .subscribe(climate => {
-        console.log(climate);
         this.targetTemperature = climate.targetTemperature;
         this.zones = climate.zoneData;
-        return this.climate = climate;
-        }, err => this.errMsg = err);
+        this.climate = climate;
+      }, err => this.errMsg = err);
     this.climateservice.getClimatePrograms()
       .subscribe(programs => {
         console.log(programs);
         this.programs = programs;
-        return this.selectedProgram = programs.filter(program => program.isActive)[0]
+        this.selectedProgram = programs.filter(program => program.isActive)[0]
           || {name: "None Selected", isActive: false};
-        }, err => this.errMsg = err);
+      }, err => this.errMsg = err);
   }
 
   handleWebsocketData(data: any) {

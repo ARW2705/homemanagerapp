@@ -6,4 +6,5 @@ export interface Climate {
   selectedMode: string;
   operatingStatus: string;
   targetTemperature: number;
+  updatedAt: string;
 }
