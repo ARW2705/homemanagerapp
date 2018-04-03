@@ -20,6 +20,17 @@ page-home {
     padding: 0;
   }
 
+  .tstat-disconnect-warning {
+    color: $danger;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 600;
+  }
+
+  .climate-card-warning {
+    color: $danger !important;
+  }
+
   .card-btn {
     font-size: 1.4em;
     font-weight: 600;

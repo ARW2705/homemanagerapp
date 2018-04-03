@@ -26,6 +26,7 @@ export class HomePage implements OnInit {
   unitType: string = 'e';
   desiredTemperature: number;
   program: string;
+  thermostatUptoDate: boolean = false;
   private socket;
 
   constructor(public navCtrl: NavController,
@@ -38,7 +39,7 @@ export class HomePage implements OnInit {
     @Inject('baseURL') private baseURL,
     @Inject('minTemperature') private minTemperature,
     @Inject('maxTemperature') private maxTemperature) {
-    }
+  }
 
   ngOnInit() {
     this.getInitialHomeData();
@@ -55,8 +56,14 @@ export class HomePage implements OnInit {
           .subscribe(data => {
             console.log('Incoming garage door data from server', data);
             this.handleWebsocketData(data);
-          })
+          });
       });
+    setTimeout(() => {
+      if (!this.climateservice.isThermostatConnected) {
+        console.log('Thermostat not verified, retrying...');
+        this.climateservice.pingThermostat();
+      }
+    }, 5000);
   }
 
   // get data for each page summary
@@ -65,7 +72,7 @@ export class HomePage implements OnInit {
       .subscribe(climate => {
         this.desiredTemperature = climate.targetTemperature;
         this.climate = climate;
-        }, err => this.errMsg = err);
+      }, err => this.errMsg = err);
     this.climateservice.getClimatePrograms()
       .subscribe(programs => {
         const active = programs.filter(program => program.isActive);
@@ -85,6 +92,9 @@ export class HomePage implements OnInit {
     const method = data.type;
     const result = data.data;
     switch (method) {
+      case 'thermostat-disconnected':
+        console.log('Thermostat disconnected from server at:', result.disconnectedAt);
+        break;
       case 'climate-data':
         this.desiredTemperature = result.targetTemperature;
         this.climate = result;
