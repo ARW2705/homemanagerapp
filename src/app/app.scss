@@ -50,6 +50,17 @@ ion-card-header {
   text-align: center;
 }
 
+ion-datetime {
+  color: $dark-gray;
+  font-weight: 500;
+}
+
+ion-select {
+  font-size: 1.3em;
+  font-weight: 500;
+  color: $dark-gray;
+}
+
 .toolbar-background {
   background-color: $dark-gray !important;
 }

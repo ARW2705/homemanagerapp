@@ -35,16 +35,17 @@ export class CreateProgramPage {
   }
 
   /*
-    open modal to select day/time breaks/zone/temperature settings
+    open modal to select day/time-breaks/zone/temperature settings
     all data points required to submit new program
     schedule initializes all values to -1 on load
   */
   openSchedulerModal() {
-    const modal = this.modalCtrl.create(SchedulerPage);
+    const modal = this.modalCtrl.create(SchedulerPage, {newSchedule: this.scheduleArray});
     modal.onDidDismiss(data => {
       if (data) {
         if (data.indexOf(-1) == -1) {
           this.scheduleArray = data;
+          console.log(this.scheduleArray);
           this.isValidSchedule = true;
         }
       }

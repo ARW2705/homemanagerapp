@@ -35,7 +35,7 @@
         <ion-option value="FAN">FAN</ion-option>
       </ion-select>
     </ion-item>
-    <ion-item type="" (click)="openSchedulerModal()">
+    <ion-item [ngClass]="(isValidSchedule) ? 'schedule-valid': 'schedule-pending'" type="" (click)="openSchedulerModal()">
       <ion-icon name="calendar"></ion-icon>
       Open Program Scheduler
     </ion-item>

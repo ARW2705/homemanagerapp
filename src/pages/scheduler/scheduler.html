@@ -20,9 +20,22 @@
   <!-- Selection View -->
 
   <div *ngIf="!viewReview">
-    <ion-item>
-      <ion-label>Select Day(s)</ion-label>
+    <ion-item *ngIf="!modify">
+      <ion-label>Select Day(s) to Apply</ion-label>
       <ion-select [(ngModel)]="days" multiple="true">
+        <ion-option value=0>Monday</ion-option>
+        <ion-option value=1>Tuesday</ion-option>
+        <ion-option value=2>Wednesday</ion-option>
+        <ion-option value=3>Thursday</ion-option>
+        <ion-option value=4>Friday</ion-option>
+        <ion-option value=5>Saturday</ion-option>
+        <ion-option value=6>Sunday</ion-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item *ngIf="modify">
+      <ion-label>Select Day to Modify</ion-label>
+      <ion-select [(ngModel)]="dayToModify" interface="popover">
         <ion-option value=0>Monday</ion-option>
         <ion-option value=1>Tuesday</ion-option>
         <ion-option value=2>Wednesday</ion-option>
@@ -38,31 +51,16 @@
       <ion-label>Time Section One</ion-label>
 
       <ion-row>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="clock"></ion-icon>
-              HOUR
-            </ion-label>
-            <ion-select [(ngModel)]="hour[0]">
-              <ion-option *ngFor="let hour of hours" [value]="hour">{{ hour }}</ion-option>
-            </ion-select>
+                TIME
+              </ion-label>
+            <ion-datetime displayFormat="hh:mm A" pickerFormat="hh mm A" [(ngModel)]="time[0]"></ion-datetime>
           </ion-item>
         </ion-col>
-        <ion-col col-12 col-lg-6>
-          <ion-item>
-            <ion-label>
-              <ion-icon name="clock"></ion-icon>
-              MINUTE
-            </ion-label>
-            <ion-select [(ngModel)]="minute[0]">
-              <ion-option *ngFor="let minute of minutes" [value]="minute">{{ minute }}</ion-option>
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="thermometer"></ion-icon>
@@ -73,13 +71,13 @@
             </ion-select>
           </ion-item>
         </ion-col>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="map"></ion-icon>
               ZONE
             </ion-label>
-            <ion-select [(ngModel)]="zone[0]">
+            <ion-select *ngIf="climate" [(ngModel)]="zone[0]">
               <ion-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</ion-option>
             </ion-select>
           </ion-item>
@@ -89,31 +87,16 @@
       <ion-label>Time Section Two</ion-label>
 
       <ion-row>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="clock"></ion-icon>
-              HOUR
-            </ion-label>
-            <ion-select [(ngModel)]="hour[1]">
-              <ion-option *ngFor="let hour of hours" [value]="hour">{{ hour }}</ion-option>
-            </ion-select>
+                TIME
+              </ion-label>
+            <ion-datetime displayFormat="hh:mm A" pickerFormat="hh mm A" [(ngModel)]="time[1]"></ion-datetime>
           </ion-item>
         </ion-col>
-        <ion-col col-12 col-lg-6>
-          <ion-item>
-            <ion-label>
-              <ion-icon name="clock"></ion-icon>
-              MINUTE
-            </ion-label>
-            <ion-select [(ngModel)]="minute[1]">
-              <ion-option *ngFor="let minute of minutes" [value]="minute">{{ minute }}</ion-option>
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="thermometer"></ion-icon>
@@ -124,13 +107,13 @@
             </ion-select>
           </ion-item>
         </ion-col>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="map"></ion-icon>
               ZONE
             </ion-label>
-            <ion-select [(ngModel)]="zone[1]">
+            <ion-select *ngIf="climate" [(ngModel)]="zone[1]">
               <ion-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</ion-option>
             </ion-select>
           </ion-item>
@@ -140,31 +123,16 @@
       <ion-label>Time Section Three</ion-label>
 
       <ion-row>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="clock"></ion-icon>
-              HOUR
-            </ion-label>
-            <ion-select [(ngModel)]="hour[2]">
-              <ion-option *ngFor="let hour of hours" [value]="hour">{{ hour }}</ion-option>
-            </ion-select>
+                TIME
+              </ion-label>
+            <ion-datetime displayFormat="hh:mm A" pickerFormat="hh mm A" [(ngModel)]="time[2]"></ion-datetime>
           </ion-item>
         </ion-col>
-        <ion-col col-12 col-lg-6>
-          <ion-item>
-            <ion-label>
-              <ion-icon name="clock"></ion-icon>
-              MINUTE
-            </ion-label>
-            <ion-select [(ngModel)]="minute[2]">
-              <ion-option *ngFor="let minute of minutes" [value]="minute">{{ minute }}</ion-option>
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="thermometer"></ion-icon>
@@ -175,13 +143,13 @@
             </ion-select>
           </ion-item>
         </ion-col>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="map"></ion-icon>
               ZONE
             </ion-label>
-            <ion-select [(ngModel)]="zone[2]">
+            <ion-select *ngIf="climate" [(ngModel)]="zone[2]">
               <ion-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</ion-option>
             </ion-select>
           </ion-item>
@@ -191,31 +159,16 @@
       <ion-label>Time Section Four</ion-label>
 
       <ion-row>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="clock"></ion-icon>
-              HOUR
-            </ion-label>
-            <ion-select [(ngModel)]="hour[3]">
-              <ion-option *ngFor="let hour of hours" [value]="hour">{{ hour }}</ion-option>
-            </ion-select>
+                TIME
+              </ion-label>
+            <ion-datetime displayFormat="hh:mm A" pickerFormat="hh mm A" [(ngModel)]="time[3]"></ion-datetime>
           </ion-item>
         </ion-col>
-        <ion-col col-12 col-lg-6>
-          <ion-item>
-            <ion-label>
-              <ion-icon name="clock"></ion-icon>
-              MINUTE
-            </ion-label>
-            <ion-select [(ngModel)]="minute[3]">
-              <ion-option *ngFor="let minute of minutes" [value]="minute">{{ minute }}</ion-option>
-            </ion-select>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="thermometer"></ion-icon>
@@ -226,31 +179,39 @@
             </ion-select>
           </ion-item>
         </ion-col>
-        <ion-col col-12 col-lg-6>
+        <ion-col col-12 col-lg-4>
           <ion-item>
             <ion-label>
               <ion-icon name="map"></ion-icon>
               ZONE
             </ion-label>
-            <ion-select [(ngModel)]="zone[3]">
+            <ion-select *ngIf="climate" [(ngModel)]="zone[3]">
               <ion-option *ngFor="let zone of zones" [value]="zone">{{ zone }}</ion-option>
             </ion-select>
           </ion-item>
         </ion-col>
       </ion-row>
     </ion-grid>
+
     <ion-item *ngIf="daysError">
       <p class="invalid">At least one day must be selected</p>
     </ion-item>
+
     <ion-grid>
       <ion-row>
-        <ion-col>
-          <ion-item (click)="pushScheduleValues()">
-            <ion-icon name="clipboard"></ion-icon>
-            Add Values
+        <ion-col *ngIf="modify">
+          <ion-item (click)="updateOneDay()">
+            <ion-icon name="git-commit"></ion-icon>
+            Update Day
           </ion-item>
         </ion-col>
-        <ion-col>
+        <ion-col *ngIf="!modify">
+          <ion-item (click)="pushScheduleValues()">
+            <ion-icon name="clipboard"></ion-icon>
+            Save Values to Schedule
+          </ion-item>
+        </ion-col>
+        <ion-col *ngIf="!modify">
           <ion-item (click)="toggleDisplaySchedule()">
             <ion-icon name="calendar"></ion-icon>
             View Current Schedule
@@ -265,37 +226,36 @@
   <div *ngIf="viewReview">
     <ion-grid>
       <ion-row *ngFor="let day of stringDays; index as i" class="review-day">
-        <ion-col col-12 align-self-center>
-          <ion-label class="review-label">{{ day }}</ion-label>
+        <ion-col col-10 align-self-center>
+          <ion-label [ngClass]="(schedule[i * 16] > -1) ? 'review-label complete': 'review-label day-pending'">
+            {{ day }}
+            <button ion-button class="adjust-btn" (click)="modifyOneDay(i)">EDIT<ion-icon name="git-branch"></ion-icon></button>
+          </ion-label>
         </ion-col>
-        <ion-col>
-          <ion-row *ngFor="let _ of hour; index as j" class="review">
-            <ion-col col-12 col-lg *ngIf="this.schedule[i * 16 + j * 4] != -1">
-              <ion-label>HOUR:</ion-label> {{ this.schedule[i * 16 + j * 4] }}
+        <ion-col col-12 align-self-center>
+          <p *ngIf="schedule[i * 16] == -1" class="day-pending no-padding">{{ day }} must be submitted to complete the schedule</p>
+        </ion-col>
+        <ion-col class="no-padding">
+          <ion-row *ngFor="let _ of time; index as j" class="review no-padding">
+            <ion-col col-12 col-lg *ngIf="getSchedulePointByIndex(i, j, 0) != -1 && getSchedulePointByIndex(i, j, 1) != -1">
+              <ion-label>TIME:</ion-label>{{ convertTime(i, j) | date:'h:mm a' }}
             </ion-col>
-            <ion-col col-12 col-lg *ngIf="this.schedule[i * 16 + j * 4 + 1] != -1">
-              <ion-label>MINUTE:</ion-label> {{ this.schedule[i * 16 + j * 4 + 1] }}
+            <ion-col col-12 col-lg *ngIf="getSchedulePointByIndex(i, j, 2) != -1">
+              <ion-label>TEMPERATURE:</ion-label>{{ getSchedulePointByIndex(i, j, 2) }}
             </ion-col>
-            <ion-col col-12 col-lg *ngIf="this.schedule[i * 16 + j * 4 + 2] != -1">
-              <ion-label>TEMPERATURE:</ion-label> {{ this.schedule[i * 16 + j * 4 + 2] }}
-            </ion-col>
-            <ion-col col-12 col-lg *ngIf="this.schedule[i * 16 + j * 4 + 3] != -1">
-              <ion-label>ZONE:</ion-label> {{ this.schedule[i * 16 + j * 4 + 3] }}
+            <ion-col col-12 col-lg *ngIf="getSchedulePointByIndex(i, j, 3) != -1">
+              <ion-label>ZONE:</ion-label>{{ getZoneName(getSchedulePointByIndex(i, j, 3)) }}
             </ion-col>
           </ion-row>
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col>
-          <button ion-button item-right color="dark-gray" class="btn-text-green" (click)="toggleDisplaySchedule()">
-            <ion-icon name="build"></ion-icon> Adjust
-          </button>
-        </ion-col>
-        <ion-col>
-          <button *ngIf="isScheduleValid()" ion-button color="dark-gray" class="btn-text-green" (click)="onSubmit()">
-            <ion-icon name="thumbs-up"></ion-icon> Accept
-          </button>
-        </ion-col>
+        <button *ngIf="!isScheduleValid()" ion-button item-right color="dark-gray" class="btn-text-green" (click)="toggleDisplaySchedule()">
+          <ion-icon name="build"></ion-icon> Add Day(s)
+        </button>
+        <button *ngIf="isScheduleValid()" ion-button color="dark-gray" class="btn-text-green" (click)="onSubmit()">
+          <ion-icon name="thumbs-up"></ion-icon> Accept
+        </button>
       </ion-row>
     </ion-grid>
   </div>
