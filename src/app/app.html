@@ -10,14 +10,17 @@
 
     <ion-content class="background-dark-gray">
       <ion-list>
+        <!-- menu page buttons -->
         <button color="light-green" menuClose ion-item *ngFor="let p of pages" (click)="openPage(p)">
           <ion-icon color="dark-gray" [name]="p.icon" item-left></ion-icon>
           <span class="dark-gray">{{p.title}}</span>
         </button>
+        <!-- log in button -->
         <button *ngIf="!loggedIn" color="light-green" menuClose ion-item (click)="openLogin()">
           <ion-icon color="dark-gray" name="log-in" item-left></ion-icon>
           <span class="dark-gray">Log In</span>
         </button>
+        <!-- log out button -->
         <button *ngIf="loggedIn" color="light-green" menuClose ion-item (click)="logOut()">
           <ion-icon color="dark-gray" name="log-in" item-left></ion-icon>
           <span class="dark-gray">Log Out</span>

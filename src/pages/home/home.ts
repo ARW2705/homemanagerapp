@@ -1,14 +1,17 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { NavController, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 
+// import interfaces and constants
 import { Climate } from '../../shared/climate';
 import { GarageDoor } from '../../shared/garagedoor';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 
+// import providers
 import { ClimateProvider } from '../../providers/climate/climate';
 import { GarageDoorProvider } from '../../providers/garage-door/garage-door';
 import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
 
+// import pages
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
 import { LoginPage } from '../login/login';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
@@ -20,13 +23,13 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
 })
 export class HomePage implements OnInit {
 
-  climate: Climate;
-  errMsg: string;
-  garageDoor: GarageDoor;
-  unitType: string = 'e';
-  desiredTemperature: number;
-  program: string;
   thermostatUptoDate: boolean = false;
+  desiredTemperature: number;
+  errMsg: string;
+  program: string;
+  unitType: string = 'e';
+  climate: Climate;
+  garageDoor: GarageDoor;
   private socket;
 
   constructor(public navCtrl: NavController,
@@ -42,22 +45,28 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
+    // get initial data via http
     this.getInitialHomeData();
+    // define websocket and subscribe to listeners
     this.wssConnection.getSocket()
       .subscribe(socket => {
         console.log('Home connection to socket established', socket);
         this.socket = socket;
+        // socket listener for climate control
         this.climateservice.listenForClimateData(socket)
           .subscribe(data => {
             console.log('Incoming climate data from server', data);
             this.handleWebsocketData(data);
           });
+        // socket listener for garage door
         this.garageDoorService.listenForGarageDoorData(socket)
           .subscribe(data => {
             console.log('Incoming garage door data from server', data);
             this.handleWebsocketData(data);
           });
       });
+    // after 5 sec delay, check that app has received a message from the thermostat
+    // if not, send ping to thermostat to emit data
     setTimeout(() => {
       if (!this.climateservice.isThermostatConnected) {
         console.log('Thermostat not verified, retrying...');
@@ -88,26 +97,40 @@ export class HomePage implements OnInit {
       }, err => this.errMsg = err);
   }
 
+  // handler for results from websocket listeners
   handleWebsocketData(data: any) {
     const method = data.type;
     const result = data.data;
     switch (method) {
+      // system communication events
+      // thermostat disconnected from server
       case 'thermostat-disconnected':
         console.log('Thermostat disconnected from server at:', result.disconnectedAt);
         break;
+
+      // climate system events
+      // new climate data from thermostat
       case 'climate-data':
         this.desiredTemperature = result.targetTemperature;
         this.climate = result;
         console.log('New climate data posted');
         break;
+      // a program was selected to be run by an app client
       case 'select-program':
         this.program = (result != null) ? result.name: "None Selected";
         console.log('Selected program:', result);
         break;
+
+      // garage door events
+      // updated status of garage door eiter from user operation in an app
+      // client or a condition change from the garage door
       case 'garage-door':
         this.garageDoor = result;
         console.log('New door status', result);
         break;
+
+      // system events
+      // error event TODO handle error if retries have failed
       case 'error':
         // this.errMsg = result;
         console.log('Encountered an error', result);
@@ -213,6 +236,7 @@ export class HomePage implements OnInit {
     this.climateservice.updateClimateParameters(this.desiredTemperature);
   }
 
+  // toggle target position of garage door and emit event to garage door and other client apps
   operateGarageDoor() {
     const action = (this.garageDoor.targetPosition == "OPEN") ? "CLOSED": "OPEN";
     this.garageDoorService.operateGarageDoor(action);

@@ -3,9 +3,11 @@ import { Nav, Platform, ModalController, Events } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 
+// import providers
 import { AuthenticationProvider } from '../providers/authentication/authentication';
 import { WebsocketConnectionProvider } from '../providers/websocket-connection/websocket-connection';
 
+// import pages
 import { BrewingPage } from '../pages/brewing/brewing';
 import { ClimatecontrolPage } from '../pages/climatecontrol/climatecontrol';
 import { GaragedoorPage } from '../pages/garagedoor/garagedoor';
@@ -20,8 +22,8 @@ export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
   rootPage: any = LandingPage;
-  loggedIn: boolean = false;
   authChecked: boolean = false;
+  loggedIn: boolean = false;
 
   pages: Array<{title: string, component: any, icon: string}>;
 
@@ -37,25 +39,28 @@ export class MyApp {
 
     // load user credentials from storage if 'remember' was set to true on login
     authService.loadUserCredentials();
+    // user authenticated from token
     events.subscribe('user:authed', () => {
       console.log("Authed from stored token");
       this.loggedIn = this.authService.isLoggedIn();
       this.authChecked = true;
       this.openPage(this.pages[0]);
     });
+    // no or invalid token, user not authenticated
     events.subscribe('user:not-authed', () => {
       console.log("Not-Authed from stored token");
       this.loggedIn = this.authService.isLoggedIn();
       this.authChecked = true;
       this.openLogin();
     });
+    // user is logged in
     events.subscribe('user:loggedin', () => {
       console.log("Log In Successful");
       this.loggedIn = this.authService.isLoggedIn();
       this.authChecked = true;
     });
 
-    // used for an example of ngFor and navigation
+    // navigation pages
     this.pages = [
       { title: 'At A Glance', component: HomePage , icon: 'home'},
       { title: 'Climate Control', component: ClimatecontrolPage, icon: 'thermometer'},
@@ -80,6 +85,7 @@ export class MyApp {
     this.nav.setRoot(page.component);
   }
 
+  // login modal
   openLogin() {
     console.log("App modal");
     const modal = this.modalCtrl.create(LoginPage);
@@ -92,6 +98,7 @@ export class MyApp {
     modal.present();
   }
 
+  // logout and close socket connection
   logOut() {
     this.wssConnection.disconnectSocket();
     this.loggedIn = false;

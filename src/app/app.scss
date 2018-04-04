@@ -34,18 +34,6 @@ body {
   background-color: $light-gray;
 }
 
-ion-list-header {
-  margin-bottom: 0px !important;
-}
-
-ion-list {
-  margin-bottom: 0px !important;
-}
-
-ion-label {
-  font-size: 1.2em;
-}
-
 ion-card-header {
   text-align: center;
 }
@@ -55,10 +43,55 @@ ion-datetime {
   font-weight: 500;
 }
 
+ion-label {
+  font-size: 1.2em;
+}
+
+ion-list {
+  margin-bottom: 0px !important;
+}
+
+ion-list-header {
+  margin-bottom: 0px !important;
+}
+
 ion-select {
   font-size: 1.3em;
   font-weight: 500;
   color: $dark-gray;
+}
+
+.background-dark-gray {
+  background-color: $dark-gray;
+}
+
+.background-light-green {
+  background-color: $light-green;
+}
+
+.dark-gray {
+  color: $dark-gray
+}
+
+.light-green {
+  color: $light-green;
+}
+
+.no-margin {
+  margin: 0px !important;
+}
+
+.no-padding {
+  padding: 0px !important;
+}
+
+.scroll {
+  height: 100%;
+}
+
+.scroll-content {
+  overflow-x: auto !important;
+  overflow-y: auto !important;
 }
 
 .toolbar-background {
@@ -67,37 +100,4 @@ ion-select {
 
 .toolbar-title {
   color: $light-green !important;
-}
-
-.scroll-content {
-  overflow-x: auto !important;
-  overflow-y: auto !important;
-}
-
-.scroll {
-  height: 100%;
-}
-
-.light-green {
-  color: $light-green;
-}
-
-.dark-gray {
-  color: $dark-gray
-}
-
-.background-light-green {
-  background-color: $light-green;
-}
-
-.background-dark-gray {
-  background-color: $dark-gray;
-}
-
-.no-padding {
-  padding: 0px !important;
-}
-
-.no-margin {
-  margin: 0px !important;
 }

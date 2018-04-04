@@ -11,6 +11,7 @@
   <ion-grid>
     <ion-row>
 
+      <!-- ion card for garage door button -->
       <ion-col class="no-padding no-margin" *ngIf="garageDoor">
         <ion-card color="light-gray">
           <ion-card-header>
@@ -28,15 +29,18 @@
     </ion-row>
     <ion-row>
 
+      <!-- ion card for climate control summary -->
       <ion-col col-12 col-lg-6 class="no-padding no-margin" *ngIf="climate && program">
         <ion-card color="light-gray">
           <ion-card-header>
             <span>Climate Control</span>
           </ion-card-header>
           <ion-card-content class="no-padding no-margin">
+
             <ion-grid>
               <ion-row>
 
+                <!-- current climate control temperature in zone 0 -->
                 <ion-col col-12 col-lg-6 class="no-padding">
                   <ion-card>
                     <ion-card-header>
@@ -48,6 +52,7 @@
                   </ion-card>
                 </ion-col>
 
+                <!-- current climate control humidity in zone 0 -->
                 <ion-col col-12 col-lg-6 class="no-padding">
                   <ion-card>
                     <ion-card-header>
@@ -62,6 +67,7 @@
               </ion-row>
               <ion-row>
 
+                <!-- selected temperature slider bar, zone agnostic -->
                 <ion-col>
                   <ion-label text-center>
                     Selected Temperature {{ desiredTemperature }}
@@ -79,30 +85,40 @@
 
               </ion-row>
               <ion-row justify-content-center>
+
+                <!-- program button with name of selected program if any, click to open program action sheet -->
                 <ion-col col-12 col-lg-10>
                   <button ion-button block class="card-btn" (click)="openClimateProgramActionSheet()">
                     Program: {{ program }}
                   </button>
                 </ion-col>
+
               </ion-row>
             </ion-grid>
+
           </ion-card-content>
         </ion-card>
       </ion-col>
+
     </ion-row>
   </ion-grid>
+
+  <!-- loading spinner -->
   <div *ngIf="!climate && !program && !errMsg">
     <ion-spinner></ion-spinner>
     <h4>Loading...</h4>
   </div>
+  <!-- error message -->
   <div *ngIf="errMsg">
-    <h2>Error</h2>
+    <h2>Oops...</h2>
     <h4>{{ errMsg }}</h4>
   </div>
+  <!-- if error is Unauthorized, show button to login -->
   <div *ngIf="errMsg == '401 - Unauthorized'">
     <h4>You must be logged in to view this content</h4>
     <button ion-button color="light-green" (click)="openLoginModal()">
       Log In
     </button>
   </div>
+
 </ion-content>
