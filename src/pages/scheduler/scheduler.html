@@ -34,7 +34,7 @@
     </ion-item>
 
     <ion-item *ngIf="modify">
-      <ion-label>Select Day to Modify</ion-label>
+      <ion-label>Selected Day to Modify</ion-label>
       <ion-select [(ngModel)]="dayToModify" interface="popover">
         <ion-option value=0>Monday</ion-option>
         <ion-option value=1>Tuesday</ion-option>
@@ -226,25 +226,28 @@
   <div *ngIf="viewReview">
     <ion-grid>
       <ion-row *ngFor="let day of stringDays; index as i" class="review-day">
-        <ion-col col-10 align-self-center>
-          <ion-label [ngClass]="(schedule[i * 16] > -1) ? 'review-label complete': 'review-label day-pending'">
+        <ion-col col-12>
+          <ion-item [ngClass]="(schedule[i * 16] > -1) ? 'review-label complete': 'review-label day-pending'">
             {{ day }}
-            <button ion-button class="adjust-btn" (click)="modifyOneDay(i)">EDIT<ion-icon name="git-branch"></ion-icon></button>
-          </ion-label>
+            <button item-end class="adjust-btn" (click)="modifyOneDay(i)">EDIT<ion-icon name="git-branch"></ion-icon></button>
+          </ion-item>
         </ion-col>
         <ion-col col-12 align-self-center>
-          <p *ngIf="schedule[i * 16] == -1" class="day-pending no-padding">{{ day }} must be submitted to complete the schedule</p>
+          <p *ngIf="schedule[i * 16] == -1" id="day-pending-warning" class="day-pending no-padding">{{ day }} must be submitted to complete the schedule</p>
         </ion-col>
         <ion-col class="no-padding">
           <ion-row *ngFor="let _ of time; index as j" class="review no-padding">
-            <ion-col col-12 col-lg *ngIf="getSchedulePointByIndex(i, j, 0) != -1 && getSchedulePointByIndex(i, j, 1) != -1">
+            <ion-col col-12 col-md *ngIf="getSchedulePointByIndex(i, j, 0) != -1 && getSchedulePointByIndex(i, j, 1) != -1">
               <ion-label>TIME:</ion-label>{{ convertTime(i, j) | date:'h:mm a' }}
             </ion-col>
-            <ion-col col-12 col-lg *ngIf="getSchedulePointByIndex(i, j, 2) != -1">
+            <ion-col col-12 col-md *ngIf="getSchedulePointByIndex(i, j, 2) != -1">
               <ion-label>TEMPERATURE:</ion-label>{{ getSchedulePointByIndex(i, j, 2) }}
             </ion-col>
-            <ion-col col-12 col-lg *ngIf="getSchedulePointByIndex(i, j, 3) != -1">
+            <ion-col col-12 col-md *ngIf="getSchedulePointByIndex(i, j, 3) != -1">
               <ion-label>ZONE:</ion-label>{{ getZoneName(getSchedulePointByIndex(i, j, 3)) }}
+            </ion-col>
+            <ion-col *ngIf="schedule[i * 16] != -1" col-12>
+              <span>-------------------------------------</span>
             </ion-col>
           </ion-row>
         </ion-col>

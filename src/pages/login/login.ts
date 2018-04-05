@@ -25,6 +25,7 @@ export class LoginPage {
     public modalCtrl: ModalController,
     private formBuilder: FormBuilder) {
       this.loginForm = this.formBuilder.group({
+        // TODO avoid warning if password manager fills in form
         username: ['', Validators.required],
         password: ['', Validators.required],
         remember: false

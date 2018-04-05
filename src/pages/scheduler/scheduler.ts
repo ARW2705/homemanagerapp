@@ -21,10 +21,10 @@ export class SchedulerPage implements OnInit {
   stringDays: Array<string> = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   temps: Array<number> = Array.from({length: (maxTemperature - minTemperature + 1)}, (_, i) => maxTemperature - i);
   zones: Array<string>;
-  defaultTime: string = "2000-01-01T08:00:00Z";
+  defaultTime: Array<string> = ["2000-01-01T08:00:00Z", "2000-01-01T12:00:00Z", "2000-01-01T17:00:00Z", "2000-01-01T22:00:00Z"];
   defaultTemp: number = 70;
   defaultZone: string = "";
-  time: Array<string> = Array.from({length: 4}, (_, i) => this.defaultTime);
+  time: Array<string> = this.defaultTime.slice(0);
   temp: Array<number> = Array.from({length: 4}, (_, i) => this.defaultTemp);
   zone: Array<string>;
   importArray: Array<number>;
@@ -68,7 +68,12 @@ export class SchedulerPage implements OnInit {
   clearModal() {
     this.days = [];
     this.dayToModify = 0;
-    this.time = this.time.map(i => this.defaultTime);
+    this.resetTimeSectionComponents();
+  }
+
+  // reset schedule component arrays to default
+  resetTimeSectionComponents() {
+    this.time = this.defaultTime.slice(0);
     this.temp = this.temp.map(i => this.defaultTemp);
     this.zone = this.zone.map(i => this.defaultZone);
   }
@@ -85,14 +90,6 @@ export class SchedulerPage implements OnInit {
     for (let i=0; i<7; i++) {
       if (this.days.indexOf(i.toString()) != -1) {
         this.populateScheduleForOneDay(i);
-        // for (let j=0; j<4; j++) {
-        //   let inputTime = new Date(this.time[j]);
-        //   let _hours = inputTime.getHours() + 8;
-        //   this.schedule[i * 16 + j * 4] = (_hours < 24) ? _hours: 0;
-        //   this.schedule[i * 16 + j * 4 + 1] = inputTime.getMinutes();
-        //   this.schedule[i * 16 + j * 4 + 2] = this.temp[j];
-        //   this.schedule[i * 16 + j * 4 + 3] = this.zoneNameToInt(this.zone[j]);
-        // }
       }
     }
     this.clearModal();
@@ -102,15 +99,20 @@ export class SchedulerPage implements OnInit {
     }
   }
 
+  // sort time periods chronologically and push values to schedule
   populateScheduleForOneDay(day: number) {
-    for (let j=0; j<4; j++) {
-      let inputTime = new Date(this.time[j]);
-      let _hours = inputTime.getHours() + 8;
-      this.schedule[day * 16 + j * 4] = (_hours < 24) ? _hours: 0;
-      this.schedule[day * 16 + j * 4 + 1] = inputTime.getMinutes();
-      this.schedule[day * 16 + j * 4 + 2] = this.temp[j];
-      this.schedule[day * 16 + j * 4 + 3] = this.zoneNameToInt(this.zone[j]);
+    // sort date strings in increasing order
+    this.time.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    for (let i=0; i < 4; i++) {
+      const inputTime = new Date(this.time[i]);
+      // TODO make timezone offset for schedule array dynamic
+      const _hours = inputTime.getHours() + 8;
+      this.schedule[day * 16 + i * 4] = (_hours > 23) ? _hours - 24: _hours;
+      this.schedule[day * 16 + i * 4 + 1] = inputTime.getMinutes();
+      this.schedule[day * 16 + i * 4 + 2] = this.temp[i];
+      this.schedule[day * 16 + i * 4 + 3] = this.zoneNameToInt(this.zone[i]);
     }
+    this.resetTimeSectionComponents();
   }
 
   // toggle between schedule selection view and current selected values review
@@ -119,6 +121,15 @@ export class SchedulerPage implements OnInit {
   }
 
   modifyOneDay(dayIndex: number) {
+    if (this.schedule[dayIndex * 16] != -1) {
+      for (let i=0; i < 4; i++) {
+        this.time[i] = this.convertTime(dayIndex, i);
+        this.temp[i] = this.schedule[dayIndex * 16 + i * 4 + 2];
+        this.zone[i] = this.zones[this.schedule[dayIndex * 16 + i * 4 + 3]];
+      }
+    } else {
+      this.resetTimeSectionComponents();
+    }
     this.modify = true;
     this.dayToModify = dayIndex;
     this.toggleDisplaySchedule();
@@ -168,8 +179,7 @@ export class SchedulerPage implements OnInit {
   }
 
   updateOneDay() {
-    const day = this.schedule[this.dayToModify * 16];
-    this.populateScheduleForOneDay(day);
+    this.populateScheduleForOneDay(this.dayToModify);
     this.modify = false;
     this.toggleDisplaySchedule();
   }

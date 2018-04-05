@@ -37,7 +37,7 @@
     </ion-item>
     <ion-item>
       <ion-label>Select Mode</ion-label>
-      <ion-select formControlName="mode" interface="popover">
+      <ion-select [(ngModel)]="selectedProgram.mode" formControlName="mode" interface="popover">
         <ion-option value="HEAT">HEAT</ion-option>
         <ion-option value="COOL">COOL</ion-option>
         <ion-option value="FAN">FAN</ion-option>

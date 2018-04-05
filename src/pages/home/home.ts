@@ -75,6 +75,8 @@ export class HomePage implements OnInit {
     }, 5000);
   }
 
+  /* Server listeners */
+
   // get data for each page summary
   getInitialHomeData() {
     this.climateservice.getInitialClimateData()
@@ -141,12 +143,11 @@ export class HomePage implements OnInit {
     }
   }
 
-  /* target temperature selection slider - will stop any active programs
-    and set new target temperature - other parameters will be unchanged
-    unless thermostat status changes */
-  onSliderChangeEnd() {
-    console.log("Selected temperature: ", this.desiredTemperature);
-    this.updateTargetTemperature();
+  /* Template actions */
+
+  // set html unicode for degrees fahrenheit or celsius
+  getTemperatureSymbol() {
+    return (this.unitType === 'm') ? "&#8451": "&#8457";
   }
 
   // climate control action sheet: select program, create program, update program
@@ -226,15 +227,22 @@ export class HomePage implements OnInit {
     modal.present();
   }
 
-  // set html unicode for degrees fahrenheit or celsius
-  getTemperatureSymbol() {
-    return (this.unitType === 'm') ? "&#8451": "&#8457";
+  /* target temperature selection slider - will stop any active programs
+    and set new target temperature - other parameters will be unchanged
+    unless thermostat status changes */
+  onSliderChangeEnd() {
+    console.log("Selected temperature: ", this.desiredTemperature);
+    this.updateTargetTemperature();
   }
+
+  /* Climate utility functions */
 
   // override set temperature, any active program will be set to inactive
   updateTargetTemperature() {
     this.climateservice.updateClimateParameters(this.desiredTemperature);
   }
+
+  /* Garage door utility functions */
 
   // toggle target position of garage door and emit event to garage door and other client apps
   operateGarageDoor() {

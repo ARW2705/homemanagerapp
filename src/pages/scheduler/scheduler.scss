@@ -23,21 +23,12 @@ page-scheduler {
     color: $light-green;
   }
   .adjust-btn {
-    font-size: 0.5em;
-    font-weight: 500;
-    color: $pale-blue;
-    border: 3px solid $pale-blue;
-    border-radius: 5%;
-    padding: 0 5px 0 5px;
-    ion-icon {
-      color: $pale-blue;
-    }
+
   }
   .day-pending {
     color: $warning !important;
     font-size: 1.6em;
     font-weight: 500;
-    text-align: center;
   }
   .no-padding {
     padding: 0 !important;
@@ -53,12 +44,20 @@ page-scheduler {
     }
   }
   .review-label {
-    font-size: 3em;
-    text-align: center;
+    button {
+      cursor: pointer;
+      font-size: 0.7em !important;
+      font-weight: 600;
+      color: $pale-blue;
+      background: $dark-gray;
+    }
+    ion-label {
+      padding-left: 22px;
+    }
+    font-size: 3em !important;
     margin: auto !important;
     background-color: $dark-gray;
     color: $light-green;
-    padding: 0;
   }
   .review-day {
     border: 3px solid $dark-gray;
@@ -72,6 +71,9 @@ page-scheduler {
   .item-select .label-md,
   .item-datetime .label-md {
     color: $dark-gray;
+  }
+  #day-pending-warning {
+    text-align: center;
   }
 
 }
