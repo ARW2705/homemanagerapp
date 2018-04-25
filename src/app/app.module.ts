@@ -5,6 +5,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { IonicStorageModule } from '@ionic/storage';
+import { TooltipsModule } from 'ionic-tooltips';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -17,6 +18,12 @@ import { SelectProgramPage } from '../pages/program-crud-operations/select-progr
 import { UpdateProgramPage } from '../pages/program-crud-operations/update-program/update-program';
 import { SchedulerPage } from '../pages/scheduler/scheduler';
 import { LandingPage } from '../pages/landing/landing';
+import { RecipePage } from '../pages/recipe/recipe';
+import { CreateRecipePage } from '../pages/recipe-crud-operations/create-recipe/create-recipe';
+import { UpdateRecipePage } from '../pages/recipe-crud-operations/update-recipe/update-recipe';
+import { BatchPage } from '../pages/batch/batch';
+
+import { ProgressBarComponent } from '../components/progress-bar/progress-bar';
 
 import { ClimateProvider } from '../providers/climate/climate';
 import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-httpmsg';
@@ -27,6 +34,7 @@ import { AuthenticationProvider } from '../providers/authentication/authenticati
 import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/interceptor/interceptor';
 import { GarageDoorProvider } from '../providers/garage-door/garage-door';
 import { WebsocketConnectionProvider } from '../providers/websocket-connection/websocket-connection';
+import { BrewIoProvider } from '../providers/brew-io/brew-io';
 
 @NgModule({
   declarations: [
@@ -40,13 +48,19 @@ import { WebsocketConnectionProvider } from '../providers/websocket-connection/w
     SelectProgramPage,
     UpdateProgramPage,
     SchedulerPage,
-    LandingPage
+    LandingPage,
+    ProgressBarComponent,
+    RecipePage,
+    BatchPage,
+    CreateRecipePage,
+    UpdateRecipePage
   ],
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp),
     HttpClientModule,
-    IonicStorageModule.forRoot()
+    IonicStorageModule.forRoot(),
+    TooltipsModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -60,7 +74,11 @@ import { WebsocketConnectionProvider } from '../providers/websocket-connection/w
     SelectProgramPage,
     UpdateProgramPage,
     SchedulerPage,
-    LandingPage
+    LandingPage,
+    RecipePage,
+    BatchPage,
+    CreateRecipePage,
+    UpdateRecipePage
   ],
   providers: [
     StatusBar,
@@ -83,7 +101,8 @@ import { WebsocketConnectionProvider } from '../providers/websocket-connection/w
       multi: true
     },
     GarageDoorProvider,
-    WebsocketConnectionProvider
+    WebsocketConnectionProvider,
+    BrewIoProvider
   ]
 })
 export class AppModule {}

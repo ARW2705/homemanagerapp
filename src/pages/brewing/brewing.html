@@ -17,5 +17,77 @@
 
 
 <ion-content padding>
-  <h1 class="warning">Coming Soon</h1>
+  <!-- TODO:
+    -recipe bar near/at top
+    -process summary, likely most of screen
+    -sensor/output values - card or one line?
+  -->
+
+  <ion-grid no-padding>
+
+    <ion-row class="top-buttons">
+      <ion-col col-4 align-self-center>
+        <button (click)="startNewBatch($event)">
+          Start a Batch
+        </button>
+      </ion-col>
+      <ion-col col-4 align-self-center>
+        <button (click)="navigateToRecipes($event)">
+          Recipes
+        </button>
+      </ion-col>
+      <ion-col col-4 align-self-center>
+        <button (click)="navigateToHistory($event)">
+          History
+        </button>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <ion-card>
+          <ion-card-header>
+            <span>In Progess</span>
+            <button ion-button (click)="sortPopover($event)">
+              Sort
+            </button>
+          </ion-card-header>
+          <ion-card-content *ngIf="!activeBatches">
+            <h3>No active batches</h3>
+          </ion-card-content>
+          <ion-card-content *ngIf="activeBatches">
+            <ion-grid>
+              <ion-row *ngFor="let batch of activeBatches">
+                <ion-col align-self-start>
+                  <ion-icon name="beer"></ion-icon>
+                  <h3 class="brew-name" [tooltip]="batch.style" positionH="right">
+                    {{ batch.name }}
+                  </h3>
+                </ion-col>
+                <ion-col align-self-end>
+                  <h3 class="process-name">
+                    {{ batch.status }}
+                  </h3>
+                </ion-col>
+              </ion-row>
+              <ion-row>
+                <ion-col>
+                  <progress-bar [tooltip]="getProcessEndDateTime(batch.id)" [progress]="getBatchProgress(batch.id)">{{ batch.status }}</progress-bar>
+                </ion-col>
+                <ion-col>
+                  <progress-bar [tooltip]="getBatchEndDateTime()"></progress-bar>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+    </ion-row>
+
+    <ion-row>
+      <!-- TODO sensor/output values -->
+    </ion-row>
+
+  </ion-grid>
 </ion-content>

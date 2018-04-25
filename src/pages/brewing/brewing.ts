@@ -1,25 +1,65 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { Component, OnInit, Input, Output } from '@angular/core';
+import { IonicPage, NavController, NavParams, ModalController, ActionSheetController } from 'ionic-angular';
 
-/**
- * Generated class for the BrewingPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
+import { BrewRoot } from '../../shared/brewing/brew-root';
+import { Batch } from '../../shared/brewing/batches';
+
+import { BrewIoProvider } from '../../providers/brew-io/brew-io';
+
+import { RecipePage } from '../recipe/recipe';
 
 @IonicPage()
 @Component({
   selector: 'page-brewing',
   templateUrl: 'brewing.html',
 })
-export class BrewingPage {
+export class BrewingPage implements OnInit {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  brews: Array<BrewRoot>;
+  activeBatches: Array<Batch>;
+  errMsg: string;
+
+  constructor(public navCtrl: NavController,
+    public navParams: NavParams,
+    private brewservice: BrewIoProvider) {
   }
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad BrewingPage');
+  }
+
+  ngOnInit() {
+    this.brewservice.getAllBrewRoots()
+      .subscribe(brews => {
+        this.brews = brews;
+        brews.forEach(root => {
+          root.batches.forEach(batch => {
+            if (batch.status) this.activeBatches.push(batch);
+          });
+        });
+      },
+        err => this.errMsg = err
+      );
+  }
+
+  navigateToRecipes(event) {
+    this.navCtrl.push(RecipePage);
+  }
+
+  navigateToHistory(event) {
+
+  }
+
+  startNewBatch(event) {
+
+  }
+
+  getBatchProgress(id: string) {
+    return 50;
+  }
+
+  getProcessEndDateTime(id: string) {
+
   }
 
 }

@@ -5,7 +5,7 @@ import * as io from 'socket.io-client';
 import { AuthenticationProvider } from '../authentication/authentication';
 
 import { baseURL } from '../../shared/baseurl';
-import { wssPort } from '../../shared/wss-port';
+// import { wssPort } from '../../shared/wss-port';
 
 @Injectable()
 export class WebsocketConnectionProvider {
@@ -19,7 +19,7 @@ export class WebsocketConnectionProvider {
   connectSocket() {
     return new Observable(obs => {
       const token = this.authService.getToken();
-      this.socket = io(baseURL + wssPort, {query: {token: token}});
+      this.socket = io(baseURL, {query: {token: token}});
       console.log('Connected to Socket');
       obs.next(this.socket);
     });

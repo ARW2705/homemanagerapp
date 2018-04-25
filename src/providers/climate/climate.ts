@@ -6,7 +6,7 @@ import 'rxjs/add/operator/catch';
 
 import { ClimateProgram } from '../../shared/climateprogram';
 import { baseURL } from '../../shared/baseurl';
-import { httpsPort } from '../../shared/https-port';
+import { apiVersion } from '../../shared/apiVersion';
 
 import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
 
@@ -147,13 +147,13 @@ export class ClimateProvider {
   // get intial climate data - temps/humidity/etc
   // on init only, websocket handles subsequent updates
   getInitialClimateData(): Observable<any> {
-    return this.http.get(baseURL + httpsPort + 'climate')
+    return this.http.get(baseURL + apiVersion + 'climate')
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
   // get all climate pre-programmed documents
   getClimatePrograms(): Observable<any> {
-    return this.http.get(baseURL + httpsPort + 'climate/programs')
+    return this.http.get(baseURL + apiVersion + 'climate/programs')
       .catch(err => this.processHttpmsgservice.handleError(err));
   }
 
