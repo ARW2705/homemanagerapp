@@ -40,11 +40,15 @@ export class MyApp {
     // load user credentials from storage if 'remember' was set to true on login
     authService.loadUserCredentials();
     // user authenticated from token
+    console.log(events);
     events.subscribe('user:authed', () => {
       console.log("Authed from stored token");
-      this.loggedIn = this.authService.isLoggedIn();
-      this.authChecked = true;
-      this.openPage(this.pages[0]);
+      wssConnection.connectSocket()
+        .subscribe(socket => {
+          this.loggedIn = this.authService.isLoggedIn();
+          this.authChecked = true;
+          this.openPage(this.pages[0]);
+        });
     });
     // no or invalid token, user not authenticated
     events.subscribe('user:not-authed', () => {
