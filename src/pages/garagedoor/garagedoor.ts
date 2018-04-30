@@ -24,16 +24,20 @@ export class GaragedoorPage implements OnInit {
 
   ngOnInit() {
     this.getGarageDoorStatus();
-    this.wssConnection.getSocket()
-      .subscribe(socket => {
-        console.log('Climate control connection to socket established', socket);
-        this.socket = socket;
-        this.garageDoorService.listenForGarageDoorData(socket)
-          .subscribe(data => {
-            console.log('Incoming data from server', data);
-            this.handleWebsocketData(data);
-          });
-      });
+    try {
+      this.wssConnection.getSocket()
+        .subscribe(socket => {
+          console.log('Climate control connection to socket established', socket);
+          this.socket = socket;
+          this.garageDoorService.listenForGarageDoorData(socket)
+            .subscribe(data => {
+              console.log('Incoming data from server', data);
+              this.handleWebsocketData(data);
+            });
+        });
+    } catch(e) {
+      console.log('Socket connection error', e);
+    }
   }
 
   ionViewDidLoad() {

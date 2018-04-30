@@ -32,6 +32,7 @@ export class AuthenticationProvider {
   tokenKey: string = 'JWT';
   isAuthenticated: boolean = false;
   username: Subject<string> = new Subject<string>();
+  publicUserName: string = "";
   authToken: string = undefined;
   remember: boolean = false;
 
@@ -67,6 +68,10 @@ export class AuthenticationProvider {
 
   getUsername(): Observable<string> {
     return this.username.asObservable();
+  }
+
+  getPublicUsername(): string {
+    return this.publicUserName;
   }
 
   getToken(): string {
@@ -105,16 +110,19 @@ export class AuthenticationProvider {
   }
 
   destroyUserCredentials() {
+    console.log('Logging out user');
     this.authToken = undefined;
     this.clearUsername();
     this.isAuthenticated = false;
-    this.storage.remove(this.tokenKey);
+    this.storage.remove(this.tokenKey)
+      .then(_ => console.log('Removed JWT from cache'));
   }
 
   logIn(user: any): Observable<any> {
     return this.http.post<AuthResponse>(baseURL + apiVersion + 'users/login',
       {"username": user.username, "password": user.password})
       .map(res => {
+        this.publicUserName = user.username;
         const credentials = {username: user.username, token: res.token};
 
         if (user.remember) this.storeUserCredentials(credentials);

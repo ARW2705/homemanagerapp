@@ -10,6 +10,7 @@ import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 import { ClimateProvider } from '../../providers/climate/climate';
 import { GarageDoorProvider } from '../../providers/garage-door/garage-door';
 import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
+import { AuthenticationProvider } from '../../providers/authentication/authentication';
 
 // import pages
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
@@ -39,6 +40,7 @@ export class HomePage implements OnInit {
     private toastCtrl: ToastController,
     public modalCtrl: ModalController,
     private wssConnection: WebsocketConnectionProvider,
+    private authService: AuthenticationProvider,
     @Inject('baseURL') private baseURL,
     @Inject('minTemperature') private minTemperature,
     @Inject('maxTemperature') private maxTemperature) {
@@ -48,31 +50,35 @@ export class HomePage implements OnInit {
     // get initial data via http
     this.getInitialHomeData();
     // define websocket and subscribe to listeners
-    this.wssConnection.getSocket()
-      .subscribe(socket => {
-        console.log('Home connection to socket established', socket);
-        this.socket = socket;
-        // socket listener for climate control
-        this.climateservice.listenForClimateData(socket)
-          .subscribe(data => {
-            console.log('Incoming climate data from server', data);
-            this.handleWebsocketData(data);
-          });
-        // socket listener for garage door
-        this.garageDoorService.listenForGarageDoorData(socket)
-          .subscribe(data => {
-            console.log('Incoming garage door data from server', data);
-            this.handleWebsocketData(data);
-          });
-      });
-    // after 5 sec delay, check that app has received a message from the thermostat
-    // if not, send ping to thermostat to emit data
-    setTimeout(() => {
-      if (!this.climateservice.isThermostatConnected) {
-        console.log('Thermostat not verified, retrying...');
-        this.climateservice.pingThermostat();
+    try {
+      this.wssConnection.getSocket()
+        .subscribe(socket => {
+          console.log('Home connection to socket established', socket);
+          this.socket = socket;
+          // socket listener for climate control
+          this.climateservice.listenForClimateData(socket)
+            .subscribe(data => {
+              console.log('Incoming climate data from server', data);
+              this.handleWebsocketData(data);
+            });
+          // socket listener for garage door
+          this.garageDoorService.listenForGarageDoorData(socket)
+            .subscribe(data => {
+              console.log('Incoming garage door data from server', data);
+              this.handleWebsocketData(data);
+            });
+        });
+        // after 5 sec delay, check that app has received a message from the thermostat
+        // if not, send ping to thermostat to emit data
+        setTimeout(() => {
+          if (!this.climateservice.isThermostatConnected) {
+            console.log('Thermostat not verified, retrying...');
+            this.climateservice.pingThermostat();
+          }
+        }, 5000);
+      } catch(e) {
+        console.log('Socket connection error', e);
       }
-    }, 5000);
   }
 
   /* Server listeners */

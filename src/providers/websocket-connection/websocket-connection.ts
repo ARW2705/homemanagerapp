@@ -5,7 +5,6 @@ import * as io from 'socket.io-client';
 import { AuthenticationProvider } from '../authentication/authentication';
 
 import { baseURL } from '../../shared/baseurl';
-// import { wssPort } from '../../shared/wss-port';
 
 @Injectable()
 export class WebsocketConnectionProvider {
@@ -26,6 +25,7 @@ export class WebsocketConnectionProvider {
   }
 
   disconnectSocket() {
+    console.log('Disconnected from socket');
     this.socket.disconnect();
   }
 

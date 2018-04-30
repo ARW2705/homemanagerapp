@@ -52,25 +52,29 @@ export class ClimatecontrolPage implements OnInit {
     // get initial data via http
     this.getInitialClimateData();
     // define websocket and subscribe to listener
-    this.wssConnection.getSocket()
-      .subscribe(socket => {
-        console.log('Climate control connection to socket established', socket);
-        this.socket = socket;
-        // socket listener for climate control
-        this.climateservice.listenForClimateData(socket)
-          .subscribe(data => {
-            console.log('Incoming data from server', data);
-            this.handleWebsocketData(data);
-          });
-      });
-    // after 5 sec delay, check that app has received a message from the thermostat
-    // if not, send ping to thermostat to emit data
-    setTimeout(() => {
-      if (!this.climateservice.isThermostatConnected) {
-        console.log('Thermostat not verified, retrying...');
-        this.climateservice.pingThermostat();
-      }
-    }, 5000);
+    try {
+      this.wssConnection.getSocket()
+        .subscribe(socket => {
+          console.log('Climate control connection to socket established', socket);
+          this.socket = socket;
+          // socket listener for climate control
+          this.climateservice.listenForClimateData(socket)
+            .subscribe(data => {
+              console.log('Incoming data from server', data);
+              this.handleWebsocketData(data);
+            });
+        });
+      // after 5 sec delay, check that app has received a message from the thermostat
+      // if not, send ping to thermostat to emit data
+      setTimeout(() => {
+        if (!this.climateservice.isThermostatConnected) {
+          console.log('Thermostat not verified, retrying...');
+          this.climateservice.pingThermostat();
+        }
+      }, 5000);
+    } catch(e) {
+      console.log('Socket connection error', e);
+    }
   }
 
   /* Server listeners */
