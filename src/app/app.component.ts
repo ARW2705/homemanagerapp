@@ -40,7 +40,6 @@ export class MyApp {
     // load user credentials from storage if 'remember' was set to true on login
     authService.loadUserCredentials();
     // user authenticated from token
-    console.log(events);
     events.subscribe('user:authed', () => {
       console.log("Authed from stored token");
       wssConnection.connectSocket()
@@ -94,9 +93,12 @@ export class MyApp {
     console.log("App modal");
     const modal = this.modalCtrl.create(LoginPage);
     modal.onDidDismiss(data => {
+      console.log('Login modal data', data);
       this.openPage(this.pages[0]);
       if (data !== undefined) {
         this.loggedIn = this.authService.isLoggedIn();
+      } else {
+        this.rootPage = HomePage;
       }
     });
     modal.present();

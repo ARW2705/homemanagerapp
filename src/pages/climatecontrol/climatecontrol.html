@@ -5,6 +5,7 @@
       <ion-icon name="menu"></ion-icon>
     </button>
     <ion-title>Climate Control</ion-title>
+    <login-name></login-name>
   </ion-navbar>
 
 </ion-header>
@@ -17,7 +18,7 @@
       <ion-col col-12 col-lg-6>
         <ion-slides pager #climateSlide *ngIf="climate">
           <ion-slide *ngFor="let zone of zones; index as i">
-            <ion-card color="light-gray">
+            <ion-card color="light-gray" class="top-level-card">
 
               <!-- card header with zone location name -->
               <ion-card-header>
@@ -93,7 +94,7 @@
       </ion-col>
       <!-- ion card with climate operating conditions -->
       <ion-col col-12 col-lg-6>
-        <ion-card *ngIf="climate && programs" color="light-gray">
+        <ion-card *ngIf="climate && programs" color="light-gray" class="top-level-card">
           <ion-card-header>
             <ion-grid>
               <ion-row>
@@ -212,5 +213,5 @@
       Log In
     </button>
   </div>
-  
+
 </ion-content>

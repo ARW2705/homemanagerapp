@@ -24,6 +24,7 @@ import { UpdateRecipePage } from '../pages/recipe-crud-operations/update-recipe/
 import { BatchPage } from '../pages/batch/batch';
 
 import { ProgressBarComponent } from '../components/progress-bar/progress-bar';
+import { LoginNameComponent } from '../components/login-name/login-name';
 
 import { ClimateProvider } from '../providers/climate/climate';
 import { ProcessHttpmsgProvider } from '../providers/process-httpmsg/process-httpmsg';
@@ -52,7 +53,8 @@ import { BrewIoProvider } from '../providers/brew-io/brew-io';
     RecipePage,
     BatchPage,
     CreateRecipePage,
-    UpdateRecipePage
+    UpdateRecipePage,
+    LoginNameComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,15 @@
+login-name {
+  p {
+    text-align: center;
+    margin: 0;
+    color: $medium-gray;
+    font-style: italic;
+    font-size: 0.9em;
+    span {
+      color: $light-green;
+      font-style: normal;
+      font-weight: 500;
+      font-size: 1.4em;
+    }
+  }
+}
