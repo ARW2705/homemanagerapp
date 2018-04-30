@@ -49,7 +49,6 @@ import { BrewIoProvider } from '../providers/brew-io/brew-io';
     UpdateProgramPage,
     SchedulerPage,
     LandingPage,
-    ProgressBarComponent,
     RecipePage,
     BatchPage,
     CreateRecipePage,
