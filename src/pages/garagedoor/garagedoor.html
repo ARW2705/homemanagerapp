@@ -10,8 +10,12 @@
     <button color="dark" ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>Garage Door Control</ion-title>
-    <login-name></login-name>
+    <ion-grid>
+      <ion-row>
+        <ion-title>Garage Door Control</ion-title>
+        <login-name></login-name>
+      </ion-row>
+    </ion-grid>
   </ion-navbar>
 
 </ion-header>
@@ -43,12 +47,16 @@
                 <ion-grid>
                   <ion-row>
                     <ion-col>
-                      Position: <span class="status-value">{{ doorStatus.position }}</span>
+                      Position:
+                      <br>
+                      <span class="status-value">{{ doorStatus.position }}</span>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col>
-                      Motion: <span class="status-value">{{ doorStatus.inMotion ? "IN MOTION": "AT REST" }}</span>
+                      Motion:
+                      <br>
+                      <span class="status-value">{{ doorStatus.inMotion ? "IN MOTION": "AT REST" }}</span>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -64,12 +72,16 @@
                 <ion-grid>
                   <ion-row>
                     <ion-col>
-                      Target Position: <span class="status-value">{{ doorStatus.targetPosition }}</span>
+                      Target Position:
+                      <br>
+                      <span class="status-value">{{ doorStatus.targetPosition }}</span>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col>
-                      Last Operated: <span class="status-value">{{ doorStatus.updatedAt | date:'M/d h:mm a' }}</span>
+                      Last Operated:
+                      <br>
+                      <span class="status-value">{{ doorStatus.updatedAt | date:'M/d h:mm a' }}</span>
                     </ion-col>
                   </ion-row>
                 </ion-grid>

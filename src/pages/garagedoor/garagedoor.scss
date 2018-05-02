@@ -3,6 +3,10 @@ page-garagedoor {
     color: $warning;
   }
 
+  ion-col {
+    text-align: center;
+  }
+
   ion-content {
     background-color: $light-gray;
   }
@@ -13,6 +17,10 @@ page-garagedoor {
       font-size: 1.5em !important;
     }
     background-color: $dark-gray;
+  }
+
+  ion-card-content {
+    padding: 0 0 13px 0 !important;
   }
 
   ion-icon {
