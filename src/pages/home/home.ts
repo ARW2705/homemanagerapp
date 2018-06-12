@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { NavController, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
+import { Component, OnInit } from '@angular/core';
+import { NavController, ActionSheetController, ModalController } from 'ionic-angular';
 
 // import interfaces and constants
 import { Climate } from '../../shared/climate';
@@ -10,7 +10,6 @@ import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 import { ClimateProvider } from '../../providers/climate/climate';
 import { GarageDoorProvider } from '../../providers/garage-door/garage-door';
 import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
-import { AuthenticationProvider } from '../../providers/authentication/authentication';
 
 // import pages
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
@@ -32,18 +31,15 @@ export class HomePage implements OnInit {
   climate: Climate;
   garageDoor: GarageDoor;
   private socket;
+  minTemperature = minTemperature;
+  maxTemperature = maxTemperature;
 
   constructor(public navCtrl: NavController,
     private climateservice: ClimateProvider,
     private garageDoorService: GarageDoorProvider,
     private actionsheetCtrl: ActionSheetController,
-    private toastCtrl: ToastController,
     public modalCtrl: ModalController,
-    private wssConnection: WebsocketConnectionProvider,
-    private authService: AuthenticationProvider,
-    @Inject('baseURL') private baseURL,
-    @Inject('minTemperature') private minTemperature,
-    @Inject('maxTemperature') private maxTemperature) {
+    private wssConnection: WebsocketConnectionProvider) {
   }
 
   ngOnInit() {
@@ -89,7 +85,7 @@ export class HomePage implements OnInit {
       .subscribe(climate => {
         this.desiredTemperature = climate.targetTemperature;
         this.climate = climate;
-      }, err => this.errMsg = err);
+      }, err => { console.log('init-climate', err); this.errMsg = err });
     this.climateservice.getClimatePrograms()
       .subscribe(programs => {
         const active = programs.filter(program => program.isActive);
@@ -98,11 +94,11 @@ export class HomePage implements OnInit {
         } else {
           this.program = "NONE SELECTED";
         }
-      }, err => this.errMsg = err);
+      }, err => { console.log('init-programs', err); this.errMsg = err });
     this.garageDoorService.getGarageDoorStatus()
       .subscribe(status => {
         this.garageDoor = status;
-      }, err => this.errMsg = err);
+      }, err => { console.log('init-garage', err); this.errMsg = err });
   }
 
   // handler for results from websocket listeners
@@ -140,11 +136,11 @@ export class HomePage implements OnInit {
       // system events
       // error event TODO handle error if retries have failed
       case 'error':
-        // this.errMsg = result;
+        this.errMsg = result;
         console.log('Encountered an error', result);
         break;
       default:
-        console.log('Supplied method is not available for HOME');
+        console.log('Supplied method is not available for HOME, this is not an error');
         break;
     }
   }
