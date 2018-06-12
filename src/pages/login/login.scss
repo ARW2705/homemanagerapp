@@ -5,4 +5,10 @@ page-login {
   .danger {
     color: $danger;
   }
+  .checkbox-checked .checkbox-inner {
+    left: 7px !important;
+    width: 9px !important;
+    height: 18px !important;
+    border-color: $dark-gray !important;
+  }
 }

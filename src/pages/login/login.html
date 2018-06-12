@@ -23,11 +23,15 @@
     </ion-item>
     <ion-item>
       <ion-label floating>Password</ion-label>
-      <ion-input type="password" formControlName="password"></ion-input>
+      <ion-input type="{{ showPassword ? 'text': 'password' }}" formControlName="password"></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label>Remember Me</ion-label>
-      <ion-toggle color="light-green" formControlName="remember"></ion-toggle>
+      <ion-label>Show password</ion-label>
+      <ion-checkbox (ionChange)="togglePasswordVisible()"></ion-checkbox>
+    </ion-item>
+    <ion-item>
+      <ion-label>Remember me</ion-label>
+      <ion-checkbox formControlName="remember"></ion-checkbox>
     </ion-item>
     <button ion-button color="light-green" type="submit" [disabled]="!loginForm.valid">
       Log In

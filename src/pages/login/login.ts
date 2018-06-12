@@ -16,6 +16,7 @@ export class LoginPage {
   loginForm: FormGroup;
   user: User = {_id: '', username: '', password: '', remember: false};
   errMsg: string;
+  showPassword: boolean = false;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -34,6 +35,10 @@ export class LoginPage {
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad LoginPage');
+  }
+
+  togglePasswordVisible() {
+    this.showPassword = (this.showPassword) ? false: true;
   }
 
   onSubmit() {
