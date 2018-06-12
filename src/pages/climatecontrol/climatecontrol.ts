@@ -1,10 +1,11 @@
-import { Component, OnInit, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 import { Slides } from 'ionic-angular';
 
 import { Climate } from '../../shared/climate';
 import { ClimateProgram } from '../../shared/climateprogram';
 import { Sensor } from '../../shared/sensor';
+import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 
 import { ClimateProvider } from '../../providers/climate/climate';
 import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
@@ -32,6 +33,9 @@ export class ClimatecontrolPage implements OnInit {
   selectedProgram: ClimateProgram | any;
   zones: Array<Sensor>;
   private socket;
+  minTemperature: number;
+  maxTemperature: number;
+  private tstatPingInterval;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -39,9 +43,10 @@ export class ClimatecontrolPage implements OnInit {
     private toastCtrl: ToastController,
     private actionsheetCtrl: ActionSheetController,
     public modalCtrl: ModalController,
-    private wssConnection: WebsocketConnectionProvider,
-    @Inject('minTemperature') private minTemperature,
-    @Inject('maxTemperature') private maxTemperature) {
+    private wssConnection: WebsocketConnectionProvider) {
+      this.minTemperature = minTemperature;
+      this.maxTemperature = maxTemperature;
+      this.tstatPingInterval = undefined;
   }
 
   ionViewDidLoad() {
@@ -66,8 +71,8 @@ export class ClimatecontrolPage implements OnInit {
         });
       // after 5 sec delay, check that app has received a message from the thermostat
       // if not, send ping to thermostat to emit data
-      setTimeout(() => {
-        if (!this.climateservice.isThermostatConnected) {
+      this.tstatPingInterval = setInterval(() => {
+        if (!this.climateservice.isThermostatConnected()) {
           console.log('Thermostat not verified, retrying...');
           this.climateservice.pingThermostat();
         }
@@ -85,6 +90,7 @@ export class ClimatecontrolPage implements OnInit {
       .subscribe(climate => {
         this.targetTemperature = climate.targetTemperature;
         this.zones = climate.zoneData;
+        this.selectedZone = climate.selectedZone;
         this.climate = climate;
       }, err => this.errMsg = err);
     this.climateservice.getClimatePrograms()
@@ -112,6 +118,7 @@ export class ClimatecontrolPage implements OnInit {
       case 'climate-data':
         this.targetTemperature = result.targetTemperature;
         this.zones = result.zoneData;
+        this.selectedZone = result.selectedZone;
         this.climate = result;
         console.log('New climate data posted');
         break;
@@ -151,7 +158,7 @@ export class ClimatecontrolPage implements OnInit {
         console.log('Encountered an error');
         break;
       default:
-        console.log('Supplied method is not valid');
+        console.log('Supplied method is not available for CLIMATE, this is not an error');
         break;
     }
   }
