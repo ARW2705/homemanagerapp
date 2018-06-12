@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angular';
 
 import { Climate } from '../../shared/climate';
-import { Sensor } from '../../shared/sensor';
 import { ClimateProvider } from '../../providers/climate/climate';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 
@@ -21,7 +20,7 @@ export class SchedulerPage implements OnInit {
   stringDays: Array<string> = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   temps: Array<number> = Array.from({length: (maxTemperature - minTemperature + 1)}, (_, i) => maxTemperature - i);
   zones: Array<string>;
-  defaultTime: Array<string> = ["2000-01-01T08:00:00Z", "2000-01-01T12:00:00Z", "2000-01-01T17:00:00Z", "2000-01-01T22:00:00Z"];
+  defaultTime: Array<string> = ["2000-01-01T08:00:00", "2000-01-01T12:00:00", "2000-01-01T17:00:00", "2000-01-01T22:00:00"];
   defaultTemp: number = 70;
   defaultZone: string = "";
   time: Array<string> = this.defaultTime.slice(0);
@@ -102,17 +101,16 @@ export class SchedulerPage implements OnInit {
   // sort time periods chronologically and push values to schedule
   populateScheduleForOneDay(day: number) {
     // sort date strings in increasing order
-    this.time.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+    // this.time.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
     for (let i=0; i < 4; i++) {
-      const inputTime = new Date(this.time[i]);
+      const inputTime = new Date(this.trimISOString(this.time[i]));
       // TODO make timezone offset for schedule array dynamic
-      const _hours = inputTime.getHours() + 8;
+      const _hours = inputTime.getHours();
       this.schedule[day * 16 + i * 4] = (_hours > 23) ? _hours - 24: _hours;
       this.schedule[day * 16 + i * 4 + 1] = inputTime.getMinutes();
       this.schedule[day * 16 + i * 4 + 2] = this.temp[i];
       this.schedule[day * 16 + i * 4 + 3] = this.zoneNameToInt(this.zone[i]);
     }
-    this.resetTimeSectionComponents();
   }
 
   // toggle between schedule selection view and current selected values review
@@ -130,6 +128,7 @@ export class SchedulerPage implements OnInit {
     } else {
       this.resetTimeSectionComponents();
     }
+    console.log('ISO one day', this.time);
     this.modify = true;
     this.dayToModify = dayIndex;
     this.toggleDisplaySchedule();
@@ -163,9 +162,8 @@ export class SchedulerPage implements OnInit {
 
   convertTime(i: number, j: number): string {
     const hour = this.schedule[i * 16 + j * 4];
-    const convertedHour = (!hour) ? 24: hour;
     const minute = this.schedule[i * 16 + j * 4 + 1];
-    const ISOhour = ((convertedHour < 10) ? "0": "") + convertedHour;
+    const ISOhour = ((hour < 10) ? "0": "") + hour;
     const ISOminute = ((minute < 10) ? "0": "") + minute;
     return `2000-01-01T${ISOhour}:${ISOminute}:00`;
   }
@@ -182,6 +180,11 @@ export class SchedulerPage implements OnInit {
     this.populateScheduleForOneDay(this.dayToModify);
     this.modify = false;
     this.toggleDisplaySchedule();
+  }
+
+  trimISOString(iso: string) {
+    if (!iso.endsWith('Z')) return iso;
+    return iso.substring(0, (iso.length - 1));
   }
 
 }
