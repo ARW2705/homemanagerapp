@@ -52,7 +52,7 @@
                       <span>Temperature</span>
                     </ion-card-header>
                     <ion-card-content class="conditions">
-                      {{ climate.zoneData[0].temperature }}<span [innerHtml]="getTemperatureSymbol()"></span>
+                      {{ climate.zoneData[0].temperature | number:'1.1-1' }}<span [innerHtml]="getTemperatureSymbol()"></span>
                     </ion-card-content>
                   </ion-card>
                 </ion-col>
@@ -64,7 +64,7 @@
                       <span>Humidity</span>
                     </ion-card-header>
                     <ion-card-content class="conditions">
-                      {{ climate.zoneData[0].humidity }}%
+                      {{ climate.zoneData[0].humidity | number:'1.0-0' }}%
                     </ion-card-content>
                   </ion-card>
                 </ion-col>
@@ -114,7 +114,7 @@
     <h4>Loading...</h4>
   </div>
   <!-- error message -->
-  <div *ngIf="errMsg">
+  <div *ngIf="errMsg && (errMsg != '401 - Unauthorized')">
     <h2>Oops...</h2>
     <h4>{{ errMsg }}</h4>
   </div>
