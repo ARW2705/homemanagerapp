@@ -4,8 +4,12 @@
     <button color="dark" ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
     </button>
-    <ion-title>Climate Control</ion-title>
-    <login-name></login-name>
+    <ion-grid>
+      <ion-row>
+        <ion-title>Climate Control</ion-title>
+        <login-name></login-name>
+      </ion-row>
+    </ion-grid>
   </ion-navbar>
 
 </ion-header>
@@ -47,7 +51,7 @@
                           <span class="inner-card">Temperature</span>
                         </ion-card-header>
                         <ion-card-content class="conditions">
-                          {{ zone.temperature }}<span [innerHtml]="getTemperatureSymbol()"></span>
+                          {{ zone.temperature | number:'1.1-1' }}<span [innerHtml]="getTemperatureSymbol()"></span>
                         </ion-card-content>
                       </ion-card>
                     </ion-col>
@@ -59,7 +63,7 @@
                           <span class="inner-card">Humidity</span>
                         </ion-card-header>
                         <ion-card-content class="conditions">
-                          {{ zone.humidity }}%
+                          {{ zone.humidity | number:'1.0-0' }}%
                         </ion-card-content>
                       </ion-card>
                     </ion-col>
