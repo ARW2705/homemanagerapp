@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { IonicPage, NavController, NavParams, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 import { Slides } from 'ionic-angular';
 
@@ -8,6 +8,7 @@ import { Sensor } from '../../shared/sensor';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 
 import { ClimateProvider } from '../../providers/climate/climate';
+import { LocalNodeProvider } from '../../providers/local-node/local-node';
 import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
 
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
@@ -20,10 +21,12 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
   selector: 'page-climatecontrol',
   templateUrl: 'climatecontrol.html',
 })
-export class ClimatecontrolPage implements OnInit {
+export class ClimatecontrolPage implements OnInit, OnDestroy {
 
   @ViewChild('climateSlide') slides: Slides;
   errMsg: string;
+  thermostatDisconnectMsg: string;
+  nodeDisconnectMsg: string;
   unitType: string = "e";
   currentTemperature: number;
   selectedZone: number = 0;
@@ -35,18 +38,21 @@ export class ClimatecontrolPage implements OnInit {
   private socket;
   minTemperature: number;
   maxTemperature: number;
-  private tstatPingInterval;
+  private connectionMonitorInterval;
+  thermostatRetryCounter: number = 0;
+  localNodeRetryCounter: number = 0;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     private climateservice: ClimateProvider,
+    private localNodeService: LocalNodeProvider,
     private toastCtrl: ToastController,
     private actionsheetCtrl: ActionSheetController,
     public modalCtrl: ModalController,
     private wssConnection: WebsocketConnectionProvider) {
       this.minTemperature = minTemperature;
       this.maxTemperature = maxTemperature;
-      this.tstatPingInterval = undefined;
+      this.connectionMonitorInterval = undefined;
   }
 
   ionViewDidLoad() {
@@ -68,17 +74,43 @@ export class ClimatecontrolPage implements OnInit {
               console.log('Incoming data from server', data);
               this.handleWebsocketData(data);
             });
+          this.localNodeService.listenForLocalNode(socket)
+            .subscribe(data => {
+              console.log('Local node status', data);
+              this.handleWebsocketData(data);
+            })
         });
-      // after 5 sec delay, check that app has received a message from the thermostat
-      // if not, send ping to thermostat to emit data
-      this.tstatPingInterval = setInterval(() => {
-        if (!this.climateservice.isThermostatConnected()) {
-          console.log('Thermostat not verified, retrying...');
-          this.climateservice.pingThermostat();
-        }
-      }, 5000);
     } catch(e) {
       console.log('Socket connection error', e);
+    }
+
+    this.connectionMonitorInterval = setInterval(() => {
+      if (!this.climateservice.isThermostatConnected()) {
+        console.log('Thermostat not verified, retrying...');
+        this.climateservice.pingThermostat();
+        if (this.thermostatRetryCounter > 5) {
+          this.thermostatDisconnectMsg = `Thermostat is not connected. Last connected at: ${this.climateservice.getThermostatConnectionDateTime()}`;
+        }
+        this.thermostatRetryCounter++;
+      } else {
+        this.thermostatDisconnectMsg = '';
+        this.thermostatRetryCounter = 0;
+      }
+      if (!this.localNodeService.isLocalNodeConnected()) {
+        if (this.localNodeRetryCounter > 5) {
+          this.nodeDisconnectMsg = `Local node is not connected. Last connected at: ${this.localNodeService.getLocalNodeConnectionDateTime()}`;
+        }
+        this.localNodeRetryCounter++;
+      } else {
+        this.nodeDisconnectMsg = '';
+        this.localNodeRetryCounter = 0;
+      }
+    }, 5000);
+  }
+
+  ngOnDestroy() {
+    if (this.connectionMonitorInterval) {
+      clearInterval(this.connectionMonitorInterval);
     }
   }
 
@@ -108,9 +140,25 @@ export class ClimatecontrolPage implements OnInit {
     const result = data.data;
     switch (method) {
       // system communication events
+      case 'thermostat-connected':
+        console.log('Thermostat connected to server at:', result.connectedAt);
+        this.thermostatDisconnectMsg = '';
+        break;
       // thermostat disconnected from server
       case 'thermostat-disconnected':
         console.log('Thermostat disconnected from server at:', result.disconnectedAt);
+        this.thermostatDisconnectMsg = `Thermostat has disconnected from server at: ${result.disconnectedAt}`;
+        break;
+      case 'thermostat-verified':
+        console.log('Thermostat verified at:', result.verifiedAt);
+        break;
+      case 'local-node-connected':
+        console.log('Local node connected to server at:', result.nodeConnectedAt);
+        this.nodeDisconnectMsg = '';
+        break;
+      case 'local-node-disconnected':
+        console.log('Local node disconnected from server at:', result.disconnectedAt);
+        this.nodeDisconnectMsg = `Local node has disconnected from server at: ${result.nodeDisconnectedAt}`;
         break;
 
       // climate system events
