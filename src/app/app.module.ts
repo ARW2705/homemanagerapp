@@ -18,10 +18,6 @@ import { SelectProgramPage } from '../pages/program-crud-operations/select-progr
 import { UpdateProgramPage } from '../pages/program-crud-operations/update-program/update-program';
 import { SchedulerPage } from '../pages/scheduler/scheduler';
 import { LandingPage } from '../pages/landing/landing';
-import { RecipePage } from '../pages/recipe/recipe';
-import { CreateRecipePage } from '../pages/recipe-crud-operations/create-recipe/create-recipe';
-import { UpdateRecipePage } from '../pages/recipe-crud-operations/update-recipe/update-recipe';
-import { BatchPage } from '../pages/batch/batch';
 
 import { ProgressBarComponent } from '../components/progress-bar/progress-bar';
 import { LoginNameComponent } from '../components/login-name/login-name';
@@ -36,6 +32,7 @@ import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/int
 import { GarageDoorProvider } from '../providers/garage-door/garage-door';
 import { WebsocketConnectionProvider } from '../providers/websocket-connection/websocket-connection';
 import { BrewIoProvider } from '../providers/brew-io/brew-io';
+import { LocalNodeProvider } from '../providers/local-node/local-node';
 
 @NgModule({
   declarations: [
@@ -50,11 +47,8 @@ import { BrewIoProvider } from '../providers/brew-io/brew-io';
     UpdateProgramPage,
     SchedulerPage,
     LandingPage,
-    RecipePage,
-    BatchPage,
-    CreateRecipePage,
-    UpdateRecipePage,
-    LoginNameComponent
+    LoginNameComponent,
+    ProgressBarComponent
   ],
   imports: [
     BrowserModule,
@@ -75,11 +69,7 @@ import { BrewIoProvider } from '../providers/brew-io/brew-io';
     SelectProgramPage,
     UpdateProgramPage,
     SchedulerPage,
-    LandingPage,
-    RecipePage,
-    BatchPage,
-    CreateRecipePage,
-    UpdateRecipePage
+    LandingPage
   ],
   providers: [
     StatusBar,
@@ -103,7 +93,8 @@ import { BrewIoProvider } from '../providers/brew-io/brew-io';
     },
     GarageDoorProvider,
     WebsocketConnectionProvider,
-    BrewIoProvider
+    BrewIoProvider,
+    LocalNodeProvider
   ]
 })
 export class AppModule {}
