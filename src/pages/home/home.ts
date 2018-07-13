@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, ActionSheetController, ModalController } from 'ionic-angular';
+import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/takeUntil';
 
 // import interfaces and constants
 import { Climate } from '../../shared/climate';
@@ -9,6 +11,7 @@ import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 // import providers
 import { ClimateProvider } from '../../providers/climate/climate';
 import { GarageDoorProvider } from '../../providers/garage-door/garage-door';
+import { LocalNodeProvider } from '../../providers/local-node/local-node';
 import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
 
 // import pages
@@ -26,6 +29,8 @@ export class HomePage implements OnInit {
   thermostatUptoDate: boolean = false;
   desiredTemperature: number;
   errMsg: string;
+  thermostatDisconnectMsg: string;
+  nodeDisconnectMsg: string;
   program: string;
   unitType: string = 'e';
   climate: Climate;
@@ -33,13 +38,19 @@ export class HomePage implements OnInit {
   private socket;
   minTemperature = minTemperature;
   maxTemperature = maxTemperature;
+  private connectionMonitorInterval;
+  thermostatRetryCounter: number = 0;
+  localNodeRetryCounter: number = 0;
+  private _unsubscribe: Subject<void> = new Subject<void>();
 
   constructor(public navCtrl: NavController,
+    private localNodeService: LocalNodeProvider,
     private climateservice: ClimateProvider,
     private garageDoorService: GarageDoorProvider,
     private actionsheetCtrl: ActionSheetController,
     public modalCtrl: ModalController,
     private wssConnection: WebsocketConnectionProvider) {
+      this.connectionMonitorInterval = undefined;
   }
 
   ngOnInit() {
@@ -48,33 +59,65 @@ export class HomePage implements OnInit {
     // define websocket and subscribe to listeners
     try {
       this.wssConnection.getSocket()
+        .takeUntil(this._unsubscribe)
         .subscribe(socket => {
           console.log('Home connection to socket established', socket);
           this.socket = socket;
           // socket listener for climate control
           this.climateservice.listenForClimateData(socket)
+            .takeUntil(this._unsubscribe)
             .subscribe(data => {
               console.log('Incoming climate data from server', data);
               this.handleWebsocketData(data);
             });
           // socket listener for garage door
           this.garageDoorService.listenForGarageDoorData(socket)
+            .takeUntil(this._unsubscribe)
             .subscribe(data => {
               console.log('Incoming garage door data from server', data);
               this.handleWebsocketData(data);
             });
+          this.localNodeService.listenForLocalNode(socket)
+            .takeUntil(this._unsubscribe)
+            .subscribe(data => {
+              console.log('Local node status', data);
+              this.handleWebsocketData(data);
+            });
         });
-        // after 5 sec delay, check that app has received a message from the thermostat
-        // if not, send ping to thermostat to emit data
-        setTimeout(() => {
-          if (!this.climateservice.isThermostatConnected) {
-            console.log('Thermostat not verified, retrying...');
-            this.climateservice.pingThermostat();
-          }
-        }, 5000);
       } catch(e) {
         console.log('Socket connection error', e);
       }
+
+      this.connectionMonitorInterval = setInterval(() => {
+        if (!this.climateservice.isThermostatConnected()) {
+          console.log('Thermostat not verified, retrying...');
+          this.climateservice.pingThermostat();
+          if (this.thermostatRetryCounter > 5) {
+            this.thermostatDisconnectMsg = `Thermostat is not connected. Last connected at: ${this.climateservice.getThermostatConnectionDateTime()}`;
+          }
+          this.thermostatRetryCounter++;
+        } else {
+          this.thermostatDisconnectMsg = '';
+          this.thermostatRetryCounter = 0;
+        }
+        if (!this.localNodeService.isLocalNodeConnected()) {
+          if (this.localNodeRetryCounter > 5) {
+            this.nodeDisconnectMsg = `Local node is not connected. Last connected at: ${this.localNodeService.getLocalNodeConnectionDateTime()}`;
+          }
+          this.localNodeRetryCounter++;
+        } else {
+          this.nodeDisconnectMsg = '';
+          this.localNodeRetryCounter = 0;
+        }
+      }, 5000);
+  }
+
+  ionViewDidLeave() {
+    if (this.connectionMonitorInterval) {
+      clearInterval(this.connectionMonitorInterval);
+    }
+    this._unsubscribe.next();
+    this._unsubscribe.complete();
   }
 
   /* Server listeners */
@@ -107,9 +150,25 @@ export class HomePage implements OnInit {
     const result = data.data;
     switch (method) {
       // system communication events
+      case 'thermostat-connected':
+        console.log('Thermostat connected to server at:', result.connectedAt);
+        this.thermostatDisconnectMsg = '';
+        break;
       // thermostat disconnected from server
       case 'thermostat-disconnected':
         console.log('Thermostat disconnected from server at:', result.disconnectedAt);
+        this.thermostatDisconnectMsg = `Thermostat has disconnected from server at: ${result.disconnectedAt}`;
+        break;
+      case 'thermostat-verified':
+        console.log('Thermostat verified at:', result.verifiedAt);
+        break;
+      case 'local-node-connected':
+        console.log('Local node connected to server at:', result.nodeConnectedAt);
+        this.nodeDisconnectMsg = '';
+        break;
+      case 'local-node-disconnected':
+        console.log('Local node disconnected from server at:', result.disconnectedAt);
+        this.nodeDisconnectMsg = `Local node has disconnected from server at: ${result.nodeDisconnectedAt}`;
         break;
 
       // climate system events

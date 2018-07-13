@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams } from 'ionic-angular';
+import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/takeUntil';
 
 import { GarageDoor } from '../../shared/garagedoor';
 import { GarageDoorProvider } from '../../providers/garage-door/garage-door';
 import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
 
-@IonicPage()
 @Component({
   selector: 'page-garagedoor',
   templateUrl: 'garagedoor.html',
@@ -15,6 +16,7 @@ export class GaragedoorPage implements OnInit {
   doorStatus: GarageDoor;
   errMsg: string;
   private socket;
+  private _unsubscribe: Subject<void> = new Subject<void>();
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -26,10 +28,12 @@ export class GaragedoorPage implements OnInit {
     this.getGarageDoorStatus();
     try {
       this.wssConnection.getSocket()
+        .takeUntil(this._unsubscribe)
         .subscribe(socket => {
-          console.log('Climate control connection to socket established', socket);
+          console.log('Garage door connection to socket established', socket);
           this.socket = socket;
           this.garageDoorService.listenForGarageDoorData(socket)
+            .takeUntil(this._unsubscribe)
             .subscribe(data => {
               console.log('Incoming data from server', data);
               this.handleWebsocketData(data);
@@ -42,6 +46,11 @@ export class GaragedoorPage implements OnInit {
 
   ionViewDidLoad() {
     console.log('ionViewDidLoad GaragedoorPage');
+  }
+
+  ionViewDidLeave() {
+    this._unsubscribe.next();
+    this._unsubscribe.complete();
   }
 
   handleWebsocketData(data: any) {

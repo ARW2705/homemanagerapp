@@ -1,6 +1,8 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { NavController, NavParams, ActionSheetController, ModalController, ToastController } from 'ionic-angular';
 import { Slides } from 'ionic-angular';
+import { Subject } from 'rxjs/Subject';
+import 'rxjs/add/operator/takeUntil';
 
 import { Climate } from '../../shared/climate';
 import { ClimateProgram } from '../../shared/climateprogram';
@@ -16,12 +18,11 @@ import { LoginPage } from '../login/login';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
 
-@IonicPage()
 @Component({
   selector: 'page-climatecontrol',
   templateUrl: 'climatecontrol.html',
 })
-export class ClimatecontrolPage implements OnInit, OnDestroy {
+export class ClimatecontrolPage implements OnInit {
 
   @ViewChild('climateSlide') slides: Slides;
   errMsg: string;
@@ -41,6 +42,8 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
   private connectionMonitorInterval;
   thermostatRetryCounter: number = 0;
   localNodeRetryCounter: number = 0;
+  retryLimit: number = 5;
+  private _unsubscribe: Subject<void> = new Subject<void>();
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
@@ -65,18 +68,21 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
     // define websocket and subscribe to listener
     try {
       this.wssConnection.getSocket()
+        .takeUntil(this._unsubscribe)
         .subscribe(socket => {
-          console.log('Climate control connection to socket established', socket);
+          console.log('Climate control connection to socket established');
           this.socket = socket;
           // socket listener for climate control
           this.climateservice.listenForClimateData(socket)
+            .takeUntil(this._unsubscribe)
             .subscribe(data => {
-              console.log('Incoming data from server', data);
+              console.log('Incoming data from server');
               this.handleWebsocketData(data);
             });
           this.localNodeService.listenForLocalNode(socket)
+            .takeUntil(this._unsubscribe)
             .subscribe(data => {
-              console.log('Local node status', data);
+              console.log('Local node status update');
               this.handleWebsocketData(data);
             })
         });
@@ -88,7 +94,7 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
       if (!this.climateservice.isThermostatConnected()) {
         console.log('Thermostat not verified, retrying...');
         this.climateservice.pingThermostat();
-        if (this.thermostatRetryCounter > 5) {
+        if (this.thermostatRetryCounter > this.retryLimit) {
           this.thermostatDisconnectMsg = `Thermostat is not connected. Last connected at: ${this.climateservice.getThermostatConnectionDateTime()}`;
         }
         this.thermostatRetryCounter++;
@@ -97,7 +103,7 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
         this.thermostatRetryCounter = 0;
       }
       if (!this.localNodeService.isLocalNodeConnected()) {
-        if (this.localNodeRetryCounter > 5) {
+        if (this.localNodeRetryCounter > this.retryLimit) {
           this.nodeDisconnectMsg = `Local node is not connected. Last connected at: ${this.localNodeService.getLocalNodeConnectionDateTime()}`;
         }
         this.localNodeRetryCounter++;
@@ -108,10 +114,12 @@ export class ClimatecontrolPage implements OnInit, OnDestroy {
     }, 5000);
   }
 
-  ngOnDestroy() {
+  ionViewDidLeave() {
     if (this.connectionMonitorInterval) {
       clearInterval(this.connectionMonitorInterval);
     }
+    this._unsubscribe.next();
+    this._unsubscribe.complete();
   }
 
   /* Server listeners */
