@@ -1,12 +1,11 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController, ModalController } from 'ionic-angular';
+import { NavController, NavParams, ViewController, ModalController } from 'ionic-angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { AuthenticationProvider } from '../../providers/authentication/authentication';
 import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
 import { User } from '../../shared/user';
 
-@IonicPage()
 @Component({
   selector: 'page-login',
   templateUrl: 'login.html',

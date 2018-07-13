@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController, ModalController } from 'ionic-angular';
+import { NavController, NavParams, ViewController, ModalController } from 'ionic-angular';
 import { Validators, FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 
 import { SchedulerPage } from '../../scheduler/scheduler';
 
-@IonicPage()
 @Component({
   selector: 'page-create-program',
   templateUrl: 'create-program.html',

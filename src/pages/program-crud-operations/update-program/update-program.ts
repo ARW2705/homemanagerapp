@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController, ModalController } from 'ionic-angular';
+import { NavController, NavParams, ViewController, ModalController } from 'ionic-angular';
 import { Validators, FormBuilder, FormGroup, AbstractControl } from '@angular/forms';
 
 import { ClimateProgram } from '../../../shared/climateprogram';
@@ -8,7 +8,6 @@ import { ClimateProvider } from '../../../providers/climate/climate';
 
 import { SchedulerPage } from '../../scheduler/scheduler';
 
-@IonicPage()
 @Component({
   selector: 'page-update-program',
   templateUrl: 'update-program.html',

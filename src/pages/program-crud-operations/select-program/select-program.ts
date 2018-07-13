@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angular';
+import { NavController, NavParams, ViewController } from 'ionic-angular';
 
 import { ClimateProgram } from '../../../shared/climateprogram';
 
 import { ClimateProvider } from '../../../providers/climate/climate';
 
-@IonicPage()
 @Component({
   selector: 'page-select-program',
   templateUrl: 'select-program.html',

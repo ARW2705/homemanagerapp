@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicPage, NavController, NavParams, ViewController } from 'ionic-angular';
+import { NavController, NavParams, ViewController } from 'ionic-angular';
 
 import { Climate } from '../../shared/climate';
 import { ClimateProvider } from '../../providers/climate/climate';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 
-@IonicPage()
 @Component({
   selector: 'page-scheduler',
   templateUrl: 'scheduler.html',

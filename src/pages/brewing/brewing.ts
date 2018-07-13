@@ -1,14 +1,11 @@
 import { Component, OnInit, Input, Output } from '@angular/core';
-import { IonicPage, NavController, NavParams, ModalController, ActionSheetController } from 'ionic-angular';
+import { NavController, NavParams, ModalController, ActionSheetController } from 'ionic-angular';
 
 import { BrewRoot } from '../../shared/brewing/brew-root';
 import { Batch } from '../../shared/brewing/batches';
 
 import { BrewIoProvider } from '../../providers/brew-io/brew-io';
 
-import { RecipePage } from '../recipe/recipe';
-
-@IonicPage()
 @Component({
   selector: 'page-brewing',
   templateUrl: 'brewing.html',
@@ -43,7 +40,7 @@ export class BrewingPage implements OnInit {
   }
 
   navigateToRecipes(event) {
-    this.navCtrl.push(RecipePage);
+    // this.navCtrl.push(RecipePage);
   }
 
   navigateToHistory(event) {
