@@ -15,8 +15,10 @@ export class ClimateProvider {
 
   desiredTemperature: number;
   payload = {type: null, data: null};
-  connected: boolean = false;
-  connectedAt: Date;
+  thermostatConnected: boolean = false;
+  thermostatVerified: boolean = false;
+  thermostatConnectedAt: Date;
+  thermostatDisconnectedAt: Date;
   private socket;
 
   constructor(private http: HttpClient,
@@ -35,56 +37,68 @@ export class ClimateProvider {
     }
     console.log('Listening for climate data');
     return new Observable(obs => {
-      this.socket.on('thermostat-verified', data => {
-        console.log('thermostat has been verified', data.connectedAt);
-        this.connected = true;
-        this.connectedAt = data.connectedAt;
+      this.socket.on('echo-thermostat-verified', data => {
+        console.log('thermostat has been verified');
+        this.thermostatVerified = true;
+        this.payload.type = 'thermostat-verified';
+        this.payload.data = data.verifiedAt;
+        obs.next(this.payload);
       });
-      this.socket.on('thermostat-disconnected', data => {
+      this.socket.on('echo-thermostat-connection', data => {
+        this.thermostatConnected = true;
+        this.thermostatConnectedAt = data.connectedAt;
+        this.payload.type = 'thermostat-connected';
+        this.payload.data = data.connectedAt;
+        console.log('thermostat connection confirmed at', data.connectedAt);
+        obs.next(this.payload);
+      });
+      this.socket.on('echo-thermostat-disconnection', data => {
+        this.thermostatConnected = false;
+        this.thermostatDisconnectedAt = data.disconnectedAt;
         this.payload.type = 'thermostat-disconnected';
         this.payload.data = data.disconnectedAt;
-        this.connected = false;
         console.log('Thermostat disconnected from server', data.disconnectedAt);
-      })
-      this.socket.on('new-climate-data', data => {
+        obs.next(this.payload);
+      });
+      this.socket.on('echo-post-current-climate-data', data => {
         this.payload.type = 'climate-data';
         this.payload.data = data.data;
-        this.connected = true;
+        this.thermostatConnected = true;
         console.log('New climate data from server', this.payload);
         obs.next(this.payload);
       });
-      this.socket.on('updated-climate-data', data => {
+      this.socket.on('echo-patch-current-climate-data', data => {
         this.payload.type = 'climate-data';
         this.payload.data = data.data;
-        this.connected = true;
+        this.thermostatConnected = true;
         console.log('Updated climate data from server', this.payload);
         obs.next(this.payload);
       });
-      this.socket.on('new-climate-program', data => {
+      this.socket.on('echo-post-new-program', data => {
         this.payload.type = 'new-program';
         this.payload.data = data.data
-        this.connected = true;
+        this.thermostatConnected = true;
         console.log('New climate program from server', this.payload);
         obs.next(this.payload);
       });
-      this.socket.on('selected-program', data => {
+      this.socket.on('echo-select-program', data => {
         this.payload.type = 'select-program';
         this.payload.data = data.data;
-        this.connected = true;
+        this.thermostatConnected = true;
         console.log('Selected program id:', this.payload.data);
         obs.next(this.payload);
       });
-      this.socket.on('updated-climate-program', data => {
+      this.socket.on('echo-update-climate-program', data => {
         this.payload.type = 'program-update';
         this.payload.data = data.data
-        this.connected = true;
+        this.thermostatConnected = true;
         console.log('New climate program from server', this.payload);
         obs.next(this.payload);
       });
-      this.socket.on('deleted-climate-program', data => {
+      this.socket.on('echo-delete-climate-program', data => {
         this.payload.type = 'delete-program';
         this.payload.data = data.data;
-        this.connected = true;
+        this.thermostatConnected = true;
         console.log('New climate program from server', this.payload);
         obs.next(this.payload);
       });
@@ -94,12 +108,12 @@ export class ClimateProvider {
         console.log('Encountered an error', error);
         obs.next(this.payload);
       });
-      this.socket.on('disconnect', notification => {
+      this.socket.on('disconnect', _ => {
         console.log('Client disconnected from socket');
       });
       return () => {
-        console.log('Socket disconnected');
-        this.socket.disconnect();
+        console.log('Climate control socket handler disconnected');
+        // this.socket.disconnect();
       };
     });
   }
@@ -108,12 +122,12 @@ export class ClimateProvider {
     this.socket.emit('ping-thermostat', {});
   }
 
-  getThermostatConnectionDate() {
-    return this.connectedAt;
+  getThermostatConnectionDateTime() {
+    return (this.thermostatConnected) ? this.thermostatConnectedAt: this.thermostatDisconnectedAt;
   }
 
   isThermostatConnected() {
-    return this.connected;
+    return (this.thermostatConnected && this.thermostatVerified);
   }
 
   // update climate parameters from app - will override running programs
