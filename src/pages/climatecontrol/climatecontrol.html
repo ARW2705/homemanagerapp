@@ -143,7 +143,7 @@
                 <!-- climate zone name being monitored -->
                 <ion-col col-6 class="align-right">
                   Monitoring Zone:<br>
-                  <div class="status-value">
+                  <div *ngIf="zones[selectedZone]" class="status-value">
                     {{ zones[selectedZone].locationName | uppercase }}
                   </div>
                 </ion-col>
