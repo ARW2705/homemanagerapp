@@ -60,18 +60,11 @@ export class ClimateProvider {
         console.log('Thermostat disconnected from server', data.disconnectedAt);
         obs.next(this.payload);
       });
-      this.socket.on('echo-post-current-climate-data', data => {
+      this.socket.on('response-current-climate-data', data => {
         this.payload.type = 'climate-data';
         this.payload.data = data.data;
         this.thermostatConnected = true;
         console.log('New climate data from server', this.payload);
-        obs.next(this.payload);
-      });
-      this.socket.on('echo-patch-current-climate-data', data => {
-        this.payload.type = 'climate-data';
-        this.payload.data = data.data;
-        this.thermostatConnected = true;
-        console.log('Updated climate data from server', this.payload);
         obs.next(this.payload);
       });
       this.socket.on('echo-post-new-program', data => {
@@ -81,7 +74,7 @@ export class ClimateProvider {
         console.log('New climate program from server', this.payload);
         obs.next(this.payload);
       });
-      this.socket.on('echo-select-program', data => {
+      this.socket.on('echo-response-select-program', data => {
         this.payload.type = 'select-program';
         this.payload.data = data.data;
         this.thermostatConnected = true;
@@ -113,7 +106,6 @@ export class ClimateProvider {
       });
       return () => {
         console.log('Climate control socket handler disconnected');
-        // this.socket.disconnect();
       };
     });
   }
@@ -140,7 +132,7 @@ export class ClimateProvider {
       payload.selectedMode = mode;
     }
     console.log('New operating parameters selected', payload);
-    this.socket.emit('patch-current-climate-data', payload);
+    this.socket.emit('request-patch-current-climate-data', payload);
   }
 
   // deactivate all running programs - if program selected, set it to active
@@ -158,13 +150,13 @@ export class ClimateProvider {
   // update existing program
   updateSelectedProgram(update: ClimateProgram) {
     console.log('Updating program:', update._id);
-    this.socket.emit('update-specified-program', update);
+    this.socket.emit('update-program', update);
   }
 
   // delete existing program
   deleteSelectedProgram(id: string) {
     console.log('Deleting program with id:', id);
-    this.socket.emit('delete-specified-program', id);
+    this.socket.emit('delete-program', id);
   }
 
   /* REST API handlers */
