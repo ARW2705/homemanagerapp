@@ -79,12 +79,12 @@ export class ClimatecontrolPage implements OnInit {
               console.log('Incoming data from server');
               this.handleWebsocketData(data);
             });
-          this.localNodeService.listenForLocalNode(socket)
-            .takeUntil(this._unsubscribe)
-            .subscribe(data => {
-              console.log('Local node status update');
-              this.handleWebsocketData(data);
-            })
+          // this.localNodeService.listenForLocalNode(socket)
+          //   .takeUntil(this._unsubscribe)
+          //   .subscribe(data => {
+          //     console.log('Local node status update');
+          //     this.handleWebsocketData(data);
+          //   })
         });
     } catch(e) {
       console.log('Socket connection error', e);
@@ -102,15 +102,15 @@ export class ClimatecontrolPage implements OnInit {
         this.thermostatDisconnectMsg = '';
         this.thermostatRetryCounter = 0;
       }
-      if (!this.localNodeService.isLocalNodeConnected()) {
-        if (this.localNodeRetryCounter > this.retryLimit) {
-          this.nodeDisconnectMsg = `Local node is not connected. Last connected at: ${this.localNodeService.getLocalNodeConnectionDateTime()}`;
-        }
-        this.localNodeRetryCounter++;
-      } else {
-        this.nodeDisconnectMsg = '';
-        this.localNodeRetryCounter = 0;
-      }
+      // if (!this.localNodeService.isLocalNodeConnected()) {
+      //   if (this.localNodeRetryCounter > this.retryLimit) {
+      //     this.nodeDisconnectMsg = `Local node is not connected. Last connected at: ${this.localNodeService.getLocalNodeConnectionDateTime()}`;
+      //   }
+      //   this.localNodeRetryCounter++;
+      // } else {
+      //   this.nodeDisconnectMsg = '';
+      //   this.localNodeRetryCounter = 0;
+      // }
     }, 5000);
   }
 

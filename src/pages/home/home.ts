@@ -77,12 +77,12 @@ export class HomePage implements OnInit {
               console.log('Incoming garage door data from server', data);
               this.handleWebsocketData(data);
             });
-          this.localNodeService.listenForLocalNode(socket)
-            .takeUntil(this._unsubscribe)
-            .subscribe(data => {
-              console.log('Local node status', data);
-              this.handleWebsocketData(data);
-            });
+          // this.localNodeService.listenForLocalNode(socket)
+          //   .takeUntil(this._unsubscribe)
+          //   .subscribe(data => {
+          //     console.log('Local node status', data);
+          //     this.handleWebsocketData(data);
+          //   });
         });
       } catch(e) {
         console.log('Socket connection error', e);
@@ -100,15 +100,15 @@ export class HomePage implements OnInit {
           this.thermostatDisconnectMsg = '';
           this.thermostatRetryCounter = 0;
         }
-        if (!this.localNodeService.isLocalNodeConnected()) {
-          if (this.localNodeRetryCounter > 5) {
-            this.nodeDisconnectMsg = `Local node is not connected. Last connected at: ${this.localNodeService.getLocalNodeConnectionDateTime()}`;
-          }
-          this.localNodeRetryCounter++;
-        } else {
-          this.nodeDisconnectMsg = '';
-          this.localNodeRetryCounter = 0;
-        }
+        // if (!this.localNodeService.isLocalNodeConnected()) {
+        //   if (this.localNodeRetryCounter > 5) {
+        //     this.nodeDisconnectMsg = `Local node is not connected. Last connected at: ${this.localNodeService.getLocalNodeConnectionDateTime()}`;
+        //   }
+        //   this.localNodeRetryCounter++;
+        // } else {
+        //   this.nodeDisconnectMsg = '';
+        //   this.localNodeRetryCounter = 0;
+        // }
       }, 5000);
   }
 
@@ -151,24 +151,24 @@ export class HomePage implements OnInit {
     switch (method) {
       // system communication events
       case 'thermostat-connected':
-        console.log('Thermostat connected to server at:', result.connectedAt);
+        console.log('Thermostat connected to server at:', result);
         this.thermostatDisconnectMsg = '';
         break;
       // thermostat disconnected from server
       case 'thermostat-disconnected':
-        console.log('Thermostat disconnected from server at:', result.disconnectedAt);
-        this.thermostatDisconnectMsg = `Thermostat has disconnected from server at: ${result.disconnectedAt}`;
+        console.log('Thermostat disconnected from server at:', result);
+        this.thermostatDisconnectMsg = `Thermostat has disconnected from server at: ${result}`;
         break;
       case 'thermostat-verified':
-        console.log('Thermostat verified at:', result.verifiedAt);
+        console.log('Thermostat verified at:', result);
         break;
       case 'local-node-connected':
-        console.log('Local node connected to server at:', result.nodeConnectedAt);
+        console.log('Local node connected to server at:', result);
         this.nodeDisconnectMsg = '';
         break;
       case 'local-node-disconnected':
-        console.log('Local node disconnected from server at:', result.disconnectedAt);
-        this.nodeDisconnectMsg = `Local node has disconnected from server at: ${result.nodeDisconnectedAt}`;
+        console.log('Local node disconnected from server at:', result);
+        this.nodeDisconnectMsg = `Local node has disconnected from server at: ${result}`;
         break;
 
       // climate system events
