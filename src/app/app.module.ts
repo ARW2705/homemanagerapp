@@ -6,6 +6,10 @@ import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { IonicStorageModule } from '@ionic/storage';
 import { TooltipsModule } from 'ionic-tooltips';
+import { VgCoreModule } from 'videogular2/core';
+import { VgControlsModule } from 'videogular2/controls';
+import { VgOverlayPlayModule } from 'videogular2/overlay-play';
+import { VgBufferingModule } from 'videogular2/buffering';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -18,6 +22,7 @@ import { SelectProgramPage } from '../pages/program-crud-operations/select-progr
 import { UpdateProgramPage } from '../pages/program-crud-operations/update-program/update-program';
 import { SchedulerPage } from '../pages/scheduler/scheduler';
 import { LandingPage } from '../pages/landing/landing';
+import { SecCamPage } from '../pages/sec-cam/sec-cam';
 
 import { ProgressBarComponent } from '../components/progress-bar/progress-bar';
 import { LoginNameComponent } from '../components/login-name/login-name';
@@ -33,6 +38,7 @@ import { GarageDoorProvider } from '../providers/garage-door/garage-door';
 import { WebsocketConnectionProvider } from '../providers/websocket-connection/websocket-connection';
 import { BrewIoProvider } from '../providers/brew-io/brew-io';
 import { LocalNodeProvider } from '../providers/local-node/local-node';
+import { SecCamProvider } from '../providers/sec-cam/sec-cam';
 
 @NgModule({
   declarations: [
@@ -48,14 +54,19 @@ import { LocalNodeProvider } from '../providers/local-node/local-node';
     SchedulerPage,
     LandingPage,
     LoginNameComponent,
-    ProgressBarComponent
+    ProgressBarComponent,
+    SecCamPage
   ],
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp),
     HttpClientModule,
     IonicStorageModule.forRoot(),
-    TooltipsModule
+    TooltipsModule,
+    VgCoreModule,
+    VgControlsModule,
+    VgOverlayPlayModule,
+    VgBufferingModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -69,7 +80,8 @@ import { LocalNodeProvider } from '../providers/local-node/local-node';
     SelectProgramPage,
     UpdateProgramPage,
     SchedulerPage,
-    LandingPage
+    LandingPage,
+    SecCamPage
   ],
   providers: [
     StatusBar,
@@ -94,7 +106,8 @@ import { LocalNodeProvider } from '../providers/local-node/local-node';
     GarageDoorProvider,
     WebsocketConnectionProvider,
     BrewIoProvider,
-    LocalNodeProvider
+    LocalNodeProvider,
+    SecCamProvider
   ]
 })
 export class AppModule {}

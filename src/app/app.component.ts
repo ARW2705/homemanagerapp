@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Nav, Platform, ModalController, Events } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -14,6 +14,7 @@ import { GaragedoorPage } from '../pages/garagedoor/garagedoor';
 import { HomePage } from '../pages/home/home';
 import { LandingPage } from '../pages/landing/landing';
 import { LoginPage } from '../pages/login/login';
+import { SecCamPage } from '../pages/sec-cam/sec-cam';
 
 @Component({
   templateUrl: 'app.html'
@@ -68,7 +69,8 @@ export class MyApp {
       { title: 'At A Glance', component: HomePage , icon: 'home'},
       { title: 'Climate Control', component: ClimatecontrolPage, icon: 'thermometer'},
       { title: 'Garage Door', component: GaragedoorPage, icon: 'car'},
-      { title: 'Brew I/O', component: BrewingPage, icon: 'beer'}
+      { title: 'Brew I/O', component: BrewingPage, icon: 'beer'},
+      { title: 'Security Cam', component: SecCamPage, icon: 'videocam'}
     ];
 
   }
