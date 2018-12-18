@@ -34,8 +34,7 @@ export class GarageDoorProvider {
         console.log('Client disconnected from socket');
       });
       return () => {
-        console.log('Socket disconnected');
-        this.socket.disconnect();
+        console.log('Garage door socket handler disconnected');
       };
     });
   }
