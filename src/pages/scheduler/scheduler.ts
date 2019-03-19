@@ -11,7 +11,7 @@ import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 })
 export class SchedulerPage implements OnInit {
 
-  climate: Climate;
+  private climate: Climate;
   viewReview: boolean = false;
   schedule: Array<number> = Array.from({length: 112}, (_, i) => -1);
   days: Array<string>;
@@ -53,13 +53,14 @@ export class SchedulerPage implements OnInit {
   }
 
   ngOnInit() {
-    this.climateService.getInitialClimateData()
-      .subscribe(climate => {
-        this.climate = climate;
-        this.defaultZone = this.climate.zoneData[0].locationName;
-        this.zone = Array.from({length: 4}, (_, i) => this.defaultZone);
-        this.zones = this.climate.zoneData.map(zone => zone.locationName);
-      }, err => console.log(err));
+    const climateData = this.climateService.getClimate();
+    console.log(climateData);
+    if (climateData) {
+      this.climate = climateData;
+      this.defaultZone = climateData.zoneData[0].locationName;
+      this.zone = Array.from({length: 4}, (_, i) => this.defaultZone);
+      this.zones = climateData.zoneData.map(zone => zone.locationName);
+    }
   }
 
   // reset schedule values to default
@@ -150,7 +151,7 @@ export class SchedulerPage implements OnInit {
     let matched = this.climate.zoneData.find(zone => {
       return zone.locationName == zoneName
     });
-    return matched.locationId;
+    return matched.deviceId;
   }
 
   convertTo12HR(hour: number) {
@@ -172,6 +173,7 @@ export class SchedulerPage implements OnInit {
   }
 
   getZoneName(id: number): string {
+    console.log(this.zones);
     return this.zones[id];
   }
 
