@@ -26,7 +26,7 @@ export class UpdateProgramPage implements OnInit {
     public viewCtrl: ViewController,
     public modalCtrl: ModalController,
     private formBuilder: FormBuilder,
-    private climateservice: ClimateProvider) {
+    private climateService: ClimateProvider) {
       this.programUpdateForm = this.formBuilder.group({
         name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(10)]],
         mode: ['', Validators.required],
@@ -36,9 +36,7 @@ export class UpdateProgramPage implements OnInit {
   }
 
   ngOnInit() {
-    this.climateservice.getClimatePrograms()
-      .subscribe(programs => this.programs = programs,
-        err => this.errMsg = err);
+    this.programs = this.climateService.getPrograms();
   }
 
   ionViewDidLoad() {
