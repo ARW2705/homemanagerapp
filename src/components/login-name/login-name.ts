@@ -13,6 +13,7 @@ export class LoginNameComponent {
   constructor(private authService: AuthenticationProvider) {
     console.log('Hello LoginNameComponent Component');
     this.user = this.authService.getPublicUsername();
+    console.log('got user', this.user);
   }
 
 }

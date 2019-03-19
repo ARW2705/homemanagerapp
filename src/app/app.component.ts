@@ -68,8 +68,8 @@ export class MyApp {
     this.pages = [
       { title: 'At A Glance', component: HomePage , icon: 'home'},
       { title: 'Climate Control', component: ClimatecontrolPage, icon: 'thermometer'},
-      { title: 'Garage Door', component: GaragedoorPage, icon: 'car'},
-      { title: 'Brew I/O', component: BrewingPage, icon: 'beer'},
+      // { title: 'Garage Door', component: GaragedoorPage, icon: 'car'},
+      // { title: 'Brew I/O', component: BrewingPage, icon: 'beer'},
       { title: 'Security Cam', component: SecCamPage, icon: 'videocam'}
     ];
 

@@ -47,7 +47,7 @@ export class AuthenticationProvider {
   checkJWTtoken() {
     this.http.get<JWTResponse>(baseURL + apiVersion + 'users/checkJWTtoken')
       .subscribe(res => {
-        console.log("JWT Token Valid: ", res);
+        console.log("JWT Token Valid");
         this.sendUsername(res.user.username);
         this.events.publish("user:authed");
       },
@@ -84,7 +84,7 @@ export class AuthenticationProvider {
       .then(key => {
         if (key) {
           const credentials = JSON.parse(key);
-          console.log("Loaded user credentials: ", credentials);
+          console.log("Loaded user credentials");
           if (credentials && credentials.username != undefined) {
             this.useCredentials(credentials);
             if (this.authToken) this.checkJWTtoken();
@@ -98,13 +98,13 @@ export class AuthenticationProvider {
 
   // store username and wbt to ionic storage if 'remember' is set to true at login
   storeUserCredentials(credentials: any) {
-    console.log("Storing user credentials", credentials);
     this.storage.set(this.tokenKey, JSON.stringify(credentials));
     this.useCredentials(credentials);
   }
 
   useCredentials(credentials: any) {
     this.isAuthenticated = true;
+    this.publicUserName = credentials.username;
     this.sendUsername(credentials.username);
     this.authToken = credentials.token;
   }
@@ -122,7 +122,6 @@ export class AuthenticationProvider {
     return this.http.post<AuthResponse>(baseURL + apiVersion + 'users/login',
       {"username": user.username, "password": user.password})
       .map(res => {
-        this.publicUserName = user.username;
         const credentials = {username: user.username, token: res.token};
 
         if (user.remember) this.storeUserCredentials(credentials);
