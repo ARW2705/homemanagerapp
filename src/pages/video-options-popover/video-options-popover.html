@@ -1,0 +1,10 @@
+<ion-list>
+  <ion-list-header>Select a Video</ion-list-header>
+  <!-- TODO show only a part of the available options and have others on a different page -->
+  <button
+    ion-button
+    (click)="submit(video.filename, i)"
+    *ngFor="let video of videoNameList; index as i">
+    {{ video.location }} - {{ video.filename * 1000 | date:'short'}}
+  </button>
+</ion-list>

@@ -1,0 +1,53 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Query Security Camera Videos</ion-title>
+  </ion-navbar>
+
+</ion-header>
+
+
+<ion-content padding>
+  <form [formGroup]="queryForm" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-label class="input-labels">Beginning Date and Time</ion-label>
+      <ion-datetime
+        displayFormat="MMM DD, YYYY hh:mm"
+        pickerFormat="MMM DD, YYYY hh:mm A"
+        formControlName="startDateTime">
+      </ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label class="input-labels">Ending Date and Time</ion-label>
+      <ion-datetime
+        displayFormat="MMM DD, YYYY hh:mm"
+        pickerFormat="MMM DD, YYYY hh:mm A"
+        formControlName="endDateTime">
+      </ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label class="input-labels">Filter by Triggering Event</ion-label>
+      <ion-select formControlName="event">
+        <ion-option value="all">All</ion-option>
+        <ion-option value="motion">Motion Detection</ion-option>
+        <ion-option value="request">User Requested</ion-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label class="input-labels">Filter by Starred</ion-label>
+      <ion-toggle formControlName="starred"></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label class="input-labels">Limit Results to {{ this.queryForm.value.limit }}</ion-label>
+      <ion-select formControlName="limit">
+        <ion-option value="12">12</ion-option>
+        <ion-option value="24">24</ion-option>
+        <ion-option value="48">48</ion-option>
+      </ion-select>
+    </ion-item>
+    <!-- Future feature - Filter by location(s) -->
+    <button class="submit-button" ion-button type="submit">
+      Submit Search
+    </button>
+  </form>
+</ion-content>
