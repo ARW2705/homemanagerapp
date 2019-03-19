@@ -5,6 +5,7 @@ page-sec-cam {
     display: flex;
     overflow: hidden;
     background-color: black;
+    max-height: 475px;
   }
 
   vg-player:fullscreen {
@@ -14,6 +15,23 @@ page-sec-cam {
 
   ion-list {
     width: 100%;
+  }
+
+  ion-card-header {
+    padding-top: 8px !important;
+    padding-bottom: 0 !important;
+  }
+
+  ion-card-content {
+    padding: 0 !important;
+    button {
+      display: block;
+      width: 100%;
+      color: $light-green !important;
+      background-color: $dark-gray !important;
+      font-size: 1.4em !important;
+      padding: 0.5em !important;
+    }
   }
 
   ion-list-header {
@@ -30,7 +48,65 @@ page-sec-cam {
     padding-left: 0;
   }
 
+  #star-btn {
+    position: absolute;
+    top: 10px;
+    left: 5px;
+    z-index: 100;
+    background: transparent;
+    color: $light-gray;
+    font-size: 3em;
+  }
+
+  .starred {
+    color: $warning !important;
+  }
+
   .in-progress {
     background-color: red;
+  }
+
+  .player {
+    padding-bottom: 0;
+  }
+
+  .controls {
+    padding-top: 0;
+    ion-card {
+      margin: 0;
+      width: 100%;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .popover-md
+    .popover-content {
+      width: 80% !important;
+      left: 10% !important;
+    }
+  }
+
+  @media screen and (min-width: 768px) and (max-width: 992px) {
+    .popover-md
+    .popover-content {
+      width: calc(90% - 250px) !important;
+      left: calc(5% + 250px) !important;
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .controls {
+      padding-top: 5px !important;
+      padding-bottom: 0 !important;
+    }
+    ion-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+    }
+    ion-card-header {
+      font-size: 1.5em !important;
+    }
   }
 }

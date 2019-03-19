@@ -19,7 +19,11 @@
   <ion-grid>
 
     <ion-row>
-      <vg-player>
+      <ion-col class="player" col-12 col-xl-8>
+        <button id="star-btn" *ngIf="selectedVideo" [ngClass]="(selectedVideo.starred) ? 'starred': ''" (click)="toggleStarred()">
+          ★
+        </button>
+        <vg-player>
           <video
             [src]="videoURL"
             [vgMedia]="media"
@@ -28,40 +32,67 @@
             preload="auto"
             controls>
           </video>
-      </vg-player>
-    </ion-row>
-
-    <ion-row justify-content-between>
-      <ion-col col-4>
-        <button ion-button (click)="toggleRecording()" [(ngClass)]="classRecording">{{ recordDisplay }}</button>
+        </vg-player>
       </ion-col>
-      <ion-col col-8>
-        <ion-item id="processing" *ngIf="recordingProcessing">Preparing recording for viewing</ion-item>
+
+      <ion-col class="controls" col-12 col-xl-4>
+        <ion-card>
+          <ion-card-header>
+            <ion-grid>
+              <ion-row *ngIf="!selectedVideo && !recordingProcessing">
+                There is no video currently selected
+              </ion-row>
+              <ion-row justify-content-between *ngIf="selectedVideo && !recordingProcessing">
+                <ion-col col-md-6 col-clg col-xl-12>
+                  Location - {{ selectedVideo.location }}
+                </ion-col>
+                <ion-col col-md-6 col-clg col-xl-12>
+                  Recorded by - {{ selectedVideo.triggerEvent }}
+                </ion-col>
+                <ion-col col-md-6 col-clg col-xl-12>
+                  {{ selectedVideo.startDateTime | date: 'fullDate'}}
+                </ion-col>
+                <ion-col col-md-6 col-clg col-xl-12>
+                  {{ selectedVideo.startDateTime | date: 'shortTime' }} -
+                  {{ selectedVideo.endDateTime | date: 'shortTime' }}
+                </ion-col>
+              </ion-row>
+              <ion-row *ngIf="recordingProcessing">
+                <p id="processing">Processing recording</p>
+              </ion-row>
+            </ion-grid>
+          </ion-card-header>
+
+          <ion-card-content>
+            <ion-grid>
+              <ion-row>
+                <ion-col col-6 col-lg-3 col-xl-12>
+                  <button ion-button (click)="openOptionsPopover()">
+                    Select Video
+                  </button>
+                </ion-col>
+                <ion-col col-6 col-lg-3 col-xl-12>
+                  <button ion-button (click)="openQueryModal()">
+                    Search videos
+                  </button>
+                </ion-col>
+                <ion-col col-6 col-lg-3 col-xl-12>
+                  <button ion-button (click)="toggleStarred()" *ngIf="selectedVideo">
+                    {{ (selectedVideo.starred) ? 'Unstar Video': 'Star Video' }}
+                  </button>
+                </ion-col>
+                <ion-col col-6 col-lg-3 col-xl-12>
+                  <button ion-button (click)="toggleRecording()" [(ngClass)]="classRecording">
+                    {{ recordDisplay }}
+                  </button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            <!-- Future feature - Select different locations -->
+          </ion-card-content>
+        </ion-card>
       </ion-col>
-    </ion-row>
 
-    <ion-row justify-content-between>
-      <ion-item>
-        <ion-label>Select video</ion-label>
-        <ion-select [(ngModel)]="videoNameList">
-          <ion-option
-            [value]="videoNameList"
-            *ngFor="let filename of videoNameList; index as i"
-            (ionSelect)="selectVideo($event[i])">
-            {{ locationName }} - {{ filename * 1000 | date:'short'}}
-          </ion-option>
-        </ion-select>
-      </ion-item>
-      <!-- <ion-list radio-group>
-        <ion-list-header>
-          Available security camera videos
-        </ion-list-header>
-        <ion-item *ngFor="let filename of videoNameList; index as i">
-          <ion-label>Front door - {{ filename * 1000 | date:'short' }}</ion-label>
-          <ion-radio [checked]="i == 0" value="{{ filename }}" (ionSelect)="selectVideo($event)"></ion-radio>
-        </ion-item>
-      </ion-list> -->
     </ion-row>
-
   </ion-grid>
 </ion-content>
