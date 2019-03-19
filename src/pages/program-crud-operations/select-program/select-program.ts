@@ -18,13 +18,11 @@ export class SelectProgramPage implements OnInit {
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
     public viewCtrl: ViewController,
-    private climateservice: ClimateProvider) {
+    private climateService: ClimateProvider) {
   }
 
   ngOnInit() {
-    this.climateservice.getClimatePrograms()
-      .subscribe(programs => this.programs = programs,
-        err => this.errMsg = err);
+    this.programs = this.climateService.getPrograms();
   }
 
   ionViewDidLoad() {
