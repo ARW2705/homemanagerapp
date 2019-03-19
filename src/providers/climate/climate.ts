@@ -4,6 +4,7 @@ import { Observable } from 'rxjs/Observable';
 import * as io from 'socket.io-client';
 import 'rxjs/add/operator/catch';
 
+import { Climate, ControlParams } from '../../shared/climate';
 import { ClimateProgram } from '../../shared/climateprogram';
 import { baseURL } from '../../shared/baseurl';
 import { apiVersion } from '../../shared/apiVersion';
@@ -14,16 +15,42 @@ import { ProcessHttpmsgProvider } from '../process-httpmsg/process-httpmsg';
 export class ClimateProvider {
 
   desiredTemperature: number;
-  payload = {type: null, data: null};
-  thermostatConnected: boolean = false;
-  thermostatVerified: boolean = false;
   thermostatConnectedAt: Date;
-  thermostatDisconnectedAt: Date;
+  thermostatDisconnectedAt: Date = null;
+  updateTimeLimit = 5 * 60 * 1000;
+  private connectionMonitorInterval;
+  private retryCounter;
+  private retryLimit;
+  private thermostatDisconnectMsg;
   private socket;
+  private climate: Climate;
+  private programs: Array<ClimateProgram>;
+  private storedProgramId: string;
 
   constructor(private http: HttpClient,
     private processHttpMsgService: ProcessHttpmsgProvider) {
       console.log('Hello ClimateProvider Provider');
+  }
+
+  setReconnectMonitorInterval() {
+    console.log('Checking for thermostat connection');
+    this.connectionMonitorInterval = setInterval(() => {
+      if (!this.isThermostatConnected()) {
+        console.log('Thermostat not verified, retrying...');
+        this.pingThermostat();
+        if (this.retryCounter > this.retryLimit) {
+          this.thermostatDisconnectMsg = `Thermostat is not connected. Last connected at: ${this.getLastThermostatConnection()}`;
+        }
+        this.retryCounter++;
+      } else {
+        this.thermostatDisconnectMsg = '';
+        this.retryCounter = 0;
+      }
+    }, 5000);
+  }
+
+  clearReconnectMonitorInterval() {
+    clearInterval(this.connectionMonitorInterval);
   }
 
   /* Websocket handlers */
@@ -35,157 +62,174 @@ export class ClimateProvider {
       console.log('Websocket failed to connect to server');
       return;
     }
+    this.getInitialData();
     console.log('Listening for climate data');
     return new Observable(obs => {
-      this.socket.on('broadcast-response-update-thermostat-verified', data => {
-      // this.socket.on('echo-thermostat-verified', data => {
-        console.log('thermostat has been verified', data.verifiedAt);
-        this.thermostatVerified = true;
-        this.payload.type = 'thermostat-verified';
-        this.payload.data = data.verifiedAt;
-        obs.next(this.payload);
+      this.socket.on('broadcast-proxy-response-ping-thermostat', () => {
+        this.updateThermostatConnection();
+        obs.next(this.formatData('connection', {connectedAt: this.thermostatConnectedAt}));
       });
-      this.socket.on('broadcast-response-update-thermostat-connection', data => {
-      // this.socket.on('echo-thermostat-connection', data => {
-        this.thermostatConnected = true;
-        this.thermostatConnectedAt = data.connectedAt;
-        this.payload.type = 'thermostat-connected';
-        this.payload.data = data.connectedAt;
-        console.log('thermostat connection confirmed at', data.connectedAt);
-        obs.next(this.payload);
+
+      this.socket.on('broadcast-request-update-thermostat-disconnection', timestamp => {
+        this.thermostatDisconnectedAt = timestamp.lastConnectedAt;
+        obs.next(this.formatData('connection', {disconnectedAt: this.thermostatDisconnectedAt}));
       });
-      this.socket.on('broadcast-response-update-thermostat-disconnection', data => {
-      // this.socket.on('echo-thermostat-disconnection', data => {
-        this.thermostatConnected = false;
-        this.thermostatDisconnectedAt = data.disconnectedAt;
-        this.payload.type = 'thermostat-disconnected';
-        this.payload.data = data.disconnectedAt;
-        console.log('Thermostat disconnected from server', data.disconnectedAt);
-        obs.next(this.payload);
+
+      this.socket.on('broadcast-proxy-response-post-climate-data', data => {
+        this.updateThermostatConnection();
+        const formatted = this.formatData('climate', data);
+        if (formatted.type != 'error') this.climate = data;
+        obs.next(formatted);
       });
-      this.socket.on('broadcast-response-update-current-climate-data', data => {
-      // this.socket.on('response-current-climate-data', data => {
-        this.payload.type = 'climate-data';
-        this.payload.data = data.data;
-        this.thermostatConnected = true;
-        console.log('New climate data from server', this.payload);
-        obs.next(this.payload);
+
+      this.socket.on('response-get-programs', programs => {
+        const formatted = this.formatData('programs', programs);
+        if (formatted.type != 'error') this.programs = programs;
+        obs.next(formatted);
       });
-      this.socket.on('broadcast-response-create-climate-program', data => {
-      // this.socket.on('echo-post-new-program', data => {
-        this.payload.type = 'new-program';
-        this.payload.data = data.data
-        this.thermostatConnected = true;
-        console.log('New climate program from server', this.payload);
-        obs.next(this.payload);
+
+      this.socket.on('broadcast-proxy-response-get-thermostat-program-id', id => {
+        const formatted = this.formatData('program-id', id);
+        this.storedProgramId = id.queryId;
+        obs.next(formatted);
       });
-      this.socket.on('broadcast-response-select-climate-program', data => {
-      // this.socket.on('echo-response-select-program', data => {
-        this.payload.type = 'select-program';
-        this.payload.data = data.data;
-        this.thermostatConnected = true;
-        console.log('Selected program id:', this.payload.data);
-        obs.next(this.payload);
+
+      this.socket.on('broadcast-response-update-program', update => {
+        const formatted = this.formatData('program-update', update);
+        if (formatted.type != 'error') {
+          const index = this.programs.map(program => program._id).indexOf(update.id);
+          this.programs.splice(index, 1, update);
+        }
+        obs.next(formatted);
       });
-      this.socket.on('broadcast-response-update-climate-program', data => {
-      // this.socket.on('echo-update-climate-program', data => {
-        this.payload.type = 'program-update';
-        this.payload.data = data.data
-        this.thermostatConnected = true;
-        console.log('New climate program from server', this.payload);
-        obs.next(this.payload);
+
+      this.socket.on('broadcast-response-create-program', program => {
+        const formatted = this.formatData('program-new', program);
+        if (formatted.type != 'error') this.programs.push(program);
+        obs.next(formatted);
       });
-      this.socket.on('broadcast-response-delete-climate-program', data => {
-      // this.socket.on('echo-delete-climate-program', data => {
-        this.payload.type = 'delete-program';
-        this.payload.data = data.data;
-        this.thermostatConnected = true;
-        console.log('New climate program from server', this.payload);
-        obs.next(this.payload);
+
+      this.socket.on('broadcast-proxy-response-update-program', update => {
+        const formatted = this.formatData('program-update', update);
+        if (formatted.type != 'error') {
+          const index = this.programs.map(program => program._id).indexOf(update.id);
+          if (index != -1) this.programs.splice(index, 1, update);
+        }
+        obs.next(formatted);
       });
-      this.socket.on('error', error => {
-        this.payload.type = 'error';
-        this.payload.data = error;
-        console.log('Encountered an error', error);
-        obs.next(this.payload);
+
+      this.socket.on('broadcast-proxy-response-toggle-program', status => {
+        const formatted = this.formatData('program-status', status);
+        if (formatted.type != 'error') {
+          const toUpdate = this.programs.find(program => program._id == status.id);
+          if (toUpdate) toUpdate.isActive = status.isActive;
+        }
+        obs.next(formatted);
       });
+
+      this.socket.on('broadcast-proxy-response-delete-program', dbres => {
+        const formatted = this.formatData('program-delete', dbres);
+        if (formatted.type != 'error') {
+          const index = this.programs.map(program => program._id).indexOf(dbres.id);
+          if (index != -1) this.programs.splice(index, 1);
+        }
+        obs.next(formatted);
+      });
+
       this.socket.on('disconnect', _ => {
         console.log('Client disconnected from socket');
       });
+
       return () => {
         console.log('Climate control socket handler disconnected');
       };
     });
   }
 
+  getClimate() {
+    return this.climate;
+  }
+
+  getPrograms() {
+    return this.programs;
+  }
+
+  getInitialData() {
+    this.getClimateData();
+    this.getClimatePrograms();
+  }
+
+  formatData(type: string, data: any) {
+    return {
+      type: data.error ? 'error': type,
+      data: data.error ? data.error: data
+    };
+  }
+
   pingThermostat() {
-    // this.socket.emit('ping-thermostat', {});
     this.socket.emit('request-ping-thermostat', {});
   }
 
-  getThermostatConnectionDateTime() {
-    return (this.thermostatConnected) ? this.thermostatConnectedAt: this.thermostatDisconnectedAt;
+  getClimateData() {
+    this.socket.emit('request-get-climate-data', {});
+  }
+
+  getClimatePrograms() {
+    this.socket.emit('request-get-programs', {});
+  }
+
+  updateThermostatConnection() {
+    this.thermostatConnectedAt = new Date();
+    this.thermostatDisconnectedAt = null;
   }
 
   isThermostatConnected() {
-    return (this.thermostatConnected && this.thermostatVerified);
+    const now = new Date().getTime();
+    const last = new Date(this.thermostatConnectedAt).getTime();
+    return !(this.thermostatDisconnectedAt || now - last > this.updateTimeLimit);
+  }
+
+  getLastThermostatConnection():string {
+    return `${this.thermostatConnectedAt}` || 'N/A';
+  }
+
+  getThermostatStoredProgramId() {
+    this.socket.emit('request-get-thermostat-program-id');
+  }
+
+  setZoneName(deviceId: number, name: string) {
+    this.socket.emit('request-update-zone-name', {deviceId: deviceId, name: name});
   }
 
   // update climate parameters from app - will override running programs
-  updateClimateParameters(temperature: number = null, mode: string = null) {
-    this.desiredTemperature = temperature;
-    const payload:any = {};
-    if (temperature) {
-      payload.targetTemperature = temperature;
-    } else if (mode) {
-      payload.selectedMode = mode;
-    }
-    console.log('New operating parameters selected', payload);
-    // this.socket.emit('request-patch-current-climate-data', payload);
-    this.socket.emit('request-update-current-climate-data', payload);
+  updateClimateParameters(params: ControlParams) {
+    this.desiredTemperature = params.setTemperature;
+    console.log('New operating parameters selected', params);
+    this.socket.emit('request-update-climate-settings', params);
   }
 
   // deactivate all running programs - if program selected, set it to active
   selectProgram(id: string) {
     console.log('Select program to run with id:', id);
-    // this.socket.emit('select-program', id);
-    this.socket.emit('request-select-climate-program', id);
+    this.socket.emit('request-select-program', id);
   }
 
   // add new program
   addNewProgram(program: ClimateProgram) {
     console.log('Submitting new program');
-    // this.socket.emit('post-new-program', program);
-    this.socket.emit('request-create-climate-program', program);
+    this.socket.emit('request-create-program', program);
   }
 
   // update existing program
   updateSelectedProgram(update: ClimateProgram) {
     console.log('Updating program:', update._id);
-    // this.socket.emit('update-program', update);
-    this.socket.emit('request-update-climate-program', update);
+    this.socket.emit('request-update-program', update);
   }
 
   // delete existing program
   deleteSelectedProgram(id: string) {
     console.log('Deleting program with id:', id);
-    // this.socket.emit('delete-program', id);
-    this.socket.emit('request-delete-climate-program', id);
-  }
-
-  /* REST API handlers */
-
-  // get intial climate data - temps/humidity/etc
-  // on init only, websocket handles subsequent updates
-  getInitialClimateData(): Observable<any> {
-    return this.http.get(baseURL + apiVersion + 'climate')
-      .catch(err => this.processHttpMsgService.handleError(err));
-  }
-
-  // get all climate pre-programmed documents
-  getClimatePrograms(): Observable<any> {
-    return this.http.get(baseURL + apiVersion + 'climate/programs')
-      .catch(err => this.processHttpMsgService.handleError(err));
+    this.socket.emit('request-delete-program', id);
   }
 
   /* Service provider utility */
