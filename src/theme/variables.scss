@@ -20,7 +20,22 @@ $app-direction: ltr;
 // the Sass variables found in Ionic's source scss files.
 // To view all the possible Ionic variables, see:
 // http://ionicframework.com/docs/theming/overriding-ionic-variables/
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  clg: 1060px,
+  xl: 1200px
+);
 
+$grid-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  clg: 1000px,
+  xl: 1140px
+);
 
 
 
@@ -60,6 +75,7 @@ $alert-ios-button-text-color: color($colors, light-green, base);
 $alert-ios-head-text-align: center;
 $spilt-pane-ios-side-min-width: 200px;
 $split-pane-ios-side-max-width: 250px;
+$popover-ios-width: calc(90% - 250px);
 .alert-ios .alert-head {
   background: color($colors, dark-gray, base);
 }
@@ -84,6 +100,7 @@ $split-pane-md-side-max-width: 250px;
 $checkbox-md-icon-background-color-on: color($colors, light-green, base);
 $checkbox-md-icon-size: 28px;
 $checkbox-md-icon-border-color-on: color($colors, dark-gray, base);
+$popover-md-width: calc(90% - 250px);
 .alert-md .alert-head {
   background: color($colors, dark-gray, base);
 }
@@ -105,6 +122,7 @@ $alert-wp-button-text-color: color($colors, light-green, base);
 $alert-wp-head-text-align: center;
 $split-pane-md-side-min-width: 200px;
 $split-pane-wp-side-max-width: 250px;
+$popover-wp-width: calc(90% - 250px);
 .alert-wp .alert-head {
   background: color($colors, dark-gray, base);
 }
