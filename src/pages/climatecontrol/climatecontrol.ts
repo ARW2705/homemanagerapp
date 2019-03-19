@@ -4,7 +4,7 @@ import { Slides } from 'ionic-angular';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/takeUntil';
 
-import { Climate } from '../../shared/climate';
+import { Climate, ControlParams } from '../../shared/climate';
 import { ClimateProgram } from '../../shared/climateprogram';
 import { Sensor } from '../../shared/sensor';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
@@ -25,29 +25,30 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
 export class ClimatecontrolPage implements OnInit {
 
   @ViewChild('climateSlide') slides: Slides;
-  errMsg: string;
-  thermostatDisconnectMsg: string;
-  nodeDisconnectMsg: string;
-  unitType: string = "e";
-  currentTemperature: number;
-  selectedZone: number = 0;
-  targetTemperature: number;
-  climate: Climate;
-  programs: Array<ClimateProgram>;
-  selectedProgram: ClimateProgram | any;
-  zones: Array<Sensor>;
+  private controlParams: ControlParams;
+  private currentTemperature: number;
+  private displayOperatingStatus: string;
+  private displaySetMode: string;
+  private errMsg: string;
+  private isClimateLoaded: boolean = false;
+  private isProgramLoaded: boolean = false;
+  private noProgramSelected = {name: 'None Selected', isActive: false};
+  private selectedProgram: ClimateProgram | any;
+  private setZone: number = 0;
+  private setTemperature: number;
   private socket;
-  minTemperature: number;
-  maxTemperature: number;
-  private connectionMonitorInterval;
-  thermostatRetryCounter: number = 0;
-  localNodeRetryCounter: number = 0;
-  retryLimit: number = 5;
+  private sleep: boolean = false;
+  private thermostatDisconnectMsg: string;
+  private unitType: string = "e";
+  private zones: Array<Sensor>;
   private _unsubscribe: Subject<void> = new Subject<void>();
+
+  public minTemperature: number;
+  public maxTemperature: number;
 
   constructor(public navCtrl: NavController,
     public navParams: NavParams,
-    private climateservice: ClimateProvider,
+    private climateService: ClimateProvider,
     private localNodeService: LocalNodeProvider,
     private toastCtrl: ToastController,
     private actionsheetCtrl: ActionSheetController,
@@ -55,7 +56,12 @@ export class ClimatecontrolPage implements OnInit {
     private wssConnection: WebsocketConnectionProvider) {
       this.minTemperature = minTemperature;
       this.maxTemperature = maxTemperature;
-      this.connectionMonitorInterval = undefined;
+      this.controlParams = {
+        setTemperature: 70,
+        setMode: 'OFF',
+        setZone: 0,
+        sleep: false
+      };
   }
 
   ionViewDidLoad() {
@@ -63,8 +69,6 @@ export class ClimatecontrolPage implements OnInit {
   }
 
   ngOnInit() {
-    // get initial data via http
-    this.getInitialClimateData();
     // define websocket and subscribe to listener
     try {
       this.wssConnection.getSocket()
@@ -73,145 +77,63 @@ export class ClimatecontrolPage implements OnInit {
           console.log('Climate control connection to socket established');
           this.socket = socket;
           // socket listener for climate control
-          this.climateservice.listenForClimateData(socket)
+          this.climateService.listenForClimateData(socket)
             .takeUntil(this._unsubscribe)
             .subscribe(data => {
               console.log('Incoming data from server');
               this.handleWebsocketData(data);
             });
-          // this.localNodeService.listenForLocalNode(socket)
-          //   .takeUntil(this._unsubscribe)
-          //   .subscribe(data => {
-          //     console.log('Local node status update');
-          //     this.handleWebsocketData(data);
-          //   })
         });
     } catch(e) {
       console.log('Socket connection error', e);
     }
-
-    this.connectionMonitorInterval = setInterval(() => {
-      if (!this.climateservice.isThermostatConnected()) {
-        console.log('Thermostat not verified, retrying...');
-        this.climateservice.pingThermostat();
-        if (this.thermostatRetryCounter > this.retryLimit) {
-          this.thermostatDisconnectMsg = `Thermostat is not connected. Last connected at: ${this.climateservice.getThermostatConnectionDateTime()}`;
-        }
-        this.thermostatRetryCounter++;
-      } else {
-        this.thermostatDisconnectMsg = '';
-        this.thermostatRetryCounter = 0;
-      }
-      // if (!this.localNodeService.isLocalNodeConnected()) {
-      //   if (this.localNodeRetryCounter > this.retryLimit) {
-      //     this.nodeDisconnectMsg = `Local node is not connected. Last connected at: ${this.localNodeService.getLocalNodeConnectionDateTime()}`;
-      //   }
-      //   this.localNodeRetryCounter++;
-      // } else {
-      //   this.nodeDisconnectMsg = '';
-      //   this.localNodeRetryCounter = 0;
-      // }
-    }, 5000);
+    this.climateService.setReconnectMonitorInterval();
   }
 
   ionViewDidLeave() {
-    if (this.connectionMonitorInterval) {
-      clearInterval(this.connectionMonitorInterval);
-    }
     this._unsubscribe.next();
     this._unsubscribe.complete();
   }
 
   /* Server listeners */
 
-  // get climate and climate program data
-  getInitialClimateData() {
-    this.climateservice.getInitialClimateData()
-      .subscribe(climate => {
-        this.targetTemperature = climate.targetTemperature;
-        this.zones = climate.zoneData;
-        this.selectedZone = climate.selectedZone;
-        this.climate = climate;
-      }, err => this.errMsg = err);
-    this.climateservice.getClimatePrograms()
-      .subscribe(programs => {
-        console.log(programs);
-        this.programs = programs;
-        this.selectedProgram = programs.filter(program => program.isActive)[0]
-          || {name: "None Selected", isActive: false};
-      }, err => this.errMsg = err);
-  }
-
   // handler for results from websocket listeners
   handleWebsocketData(data: any) {
     const method = data.type;
     const result = data.data;
     switch (method) {
-      // system communication events
-      case 'thermostat-connected':
-        console.log('Thermostat connected to server at:', result.connectedAt);
-        this.thermostatDisconnectMsg = '';
-        break;
-      // thermostat disconnected from server
-      case 'thermostat-disconnected':
-        console.log('Thermostat disconnected from server at:', result.disconnectedAt);
-        this.thermostatDisconnectMsg = `Thermostat has disconnected from server at: ${result.disconnectedAt}`;
-        break;
-      case 'thermostat-verified':
-        console.log('Thermostat verified at:', result.verifiedAt);
-        break;
-      case 'local-node-connected':
-        console.log('Local node connected to server at:', result.nodeConnectedAt);
-        this.nodeDisconnectMsg = '';
-        break;
-      case 'local-node-disconnected':
-        console.log('Local node disconnected from server at:', result.disconnectedAt);
-        this.nodeDisconnectMsg = `Local node has disconnected from server at: ${result.nodeDisconnectedAt}`;
-        break;
-
-      // climate system events
-      // new climate data from thermostat
-      case 'climate-data':
-        this.targetTemperature = result.targetTemperature;
-        this.zones = result.zoneData;
-        this.selectedZone = result.selectedZone;
-        this.climate = result;
-        console.log('New climate data posted');
-        break;
-      // new pre-programmed schedule created and becomes selected if specified by user
-      case 'new-program':
-        this.programs.push(result);
-        this.selectedProgram = this.programs.filter(program => program.isActive)[0]
-          || {name: 'None Selected', isActive: false};
-        console.log('New climate program created');
-        break;
-      // a program was selected to be run by an app client
-      case 'select-program':
-        this.selectedProgram = result || {name: "None Selected", isActive: false};
-        console.log('Selected program');
-        break;
-      // a program was updated
-      case 'program-update':
-        for (let i=0; i<this.programs.length; i++) {
-          if (this.programs[i]._id === result._id) {
-            this.programs.splice(i, 1, result);
-            console.log('Program has been updated');
-            break;
-          }
+      case 'connection':
+        if (result.connectedAt) {
+          this.thermostatDisconnectMsg = '';
+          this.climateService.clearReconnectMonitorInterval();
+        } else if (result.disconnectedAt) {
+          this.thermostatDisconnectMsg = `Thermostat disconnected at ${result.disconnectedAt}`;
+          this.climateService.setReconnectMonitorInterval();
+        } else {
+          console.log('Unknown connection message');
         }
-        console.log('Program was not found');
+        console.log('New connection data');
         break;
-      // a program was deleted, if it was running, selected program is set to none
-      case 'delete-program':
-        // TODO implement program deletion handler
-        console.log('Program has been deleted');
+      case 'climate':
+        this.setTemperature = result.setTemperature;
+        this.zones = result.zoneData;
+        this.setZone = result.setZone;
+        this.displayOperatingStatus = result.operatingStatus;
+        this.displaySetMode = result.setMode;
+        this.isClimateLoaded = true;
+        console.log('New climate data');
         break;
-
-      // system events
-      // error event TODO handle error if retries have failed
+      case 'programs':
+        this.isProgramLoaded = true;
+        console.log('All programs');
+        break;
+      case 'program-status':
+        const active = this.climateService.getPrograms().find(program => program.isActive);
+        this.selectedProgram = active || this.noProgramSelected;
+        console.log('Program selection complete');
+        break;
       case 'error':
-        // this.errMsg = result;
-        console.log('Encountered an error');
+        this.errMsg = result.data;
         break;
       default:
         console.log('Supplied method is not available for CLIMATE, this is not an error');
@@ -219,12 +141,9 @@ export class ClimatecontrolPage implements OnInit {
     }
   }
 
-  /* Template actions */
-
-  // show updating messages while GET request is in progress
   displayLoading() {
-    this.climate.operatingStatus = "UPDATING";
-    this.climate.selectedMode = "UPDATING";
+    this.displayOperatingStatus = "UPDATING";
+    this.displaySetMode = "UPDATING";
     this.selectedProgram.isActive = false;
   }
 
@@ -248,7 +167,7 @@ export class ClimatecontrolPage implements OnInit {
             modal.onDidDismiss(data => {
               // set _id to 0 if no programs are being set to active
               const id = (data) ? data._id: 0;
-              this.climateservice.selectProgram(id);
+              this.climateService.selectProgram(id);
             });
             modal.present();
           }
@@ -262,7 +181,7 @@ export class ClimatecontrolPage implements OnInit {
             modal.onDidDismiss(data => {
               if (data) {
                 console.log("Valid", data);
-                this.climateservice.addNewProgram(data);
+                this.climateService.addNewProgram(data);
               }
             });
             modal.present();
@@ -277,7 +196,7 @@ export class ClimatecontrolPage implements OnInit {
             modal.onDidDismiss(data => {
               if (data) {
                 console.log("Valid", data);
-                this.climateservice.updateSelectedProgram(data);
+                this.climateService.updateSelectedProgram(data);
               }
             });
             modal.present();
@@ -348,11 +267,13 @@ export class ClimatecontrolPage implements OnInit {
     actionSheet.present();
   }
 
+  // TODO create zone setup modal
+
   /* target temperature selection slider - will stop any active programs
     and set new target temperature - other parameters will be unchanged
     unless thermostat status changes */
   onSliderChangeEnd() {
-    console.log(this.targetTemperature);
+    console.log(this.setTemperature);
     this.displayLoading();
     this.updateTargetTemperature();
   }
@@ -371,13 +292,14 @@ export class ClimatecontrolPage implements OnInit {
 
   // override set mode, any active program will be set to inactive
   updateTargetMode(mode: string) {
-    this.climateservice.updateClimateParameters(null, mode);
+    this.controlParams.setMode = mode;
+    this.climateService.updateClimateParameters(this.controlParams);
   }
 
   // override set temperature, any active program will be set to inactive
   updateTargetTemperature() {
-    console.log('socket', this.socket);
-    this.climateservice.updateClimateParameters(this.targetTemperature);
+    this.controlParams.setTemperature = this.setTemperature;
+    this.climateService.updateClimateParameters(this.controlParams);
   }
 
 }
