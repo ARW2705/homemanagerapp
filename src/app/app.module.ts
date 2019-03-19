@@ -10,6 +10,7 @@ import { VgCoreModule } from 'videogular2/core';
 import { VgControlsModule } from 'videogular2/controls';
 import { VgOverlayPlayModule } from 'videogular2/overlay-play';
 import { VgBufferingModule } from 'videogular2/buffering';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
@@ -23,6 +24,8 @@ import { UpdateProgramPage } from '../pages/program-crud-operations/update-progr
 import { SchedulerPage } from '../pages/scheduler/scheduler';
 import { LandingPage } from '../pages/landing/landing';
 import { SecCamPage } from '../pages/sec-cam/sec-cam';
+import { VideoQueryFormPage } from '../pages/video-query-form/video-query-form';
+import { VideoOptionsPopoverPage } from '../pages/video-options-popover/video-options-popover';
 
 import { ProgressBarComponent } from '../components/progress-bar/progress-bar';
 import { LoginNameComponent } from '../components/login-name/login-name';
@@ -55,7 +58,9 @@ import { SecCamProvider } from '../providers/sec-cam/sec-cam';
     LandingPage,
     LoginNameComponent,
     ProgressBarComponent,
-    SecCamPage
+    SecCamPage,
+    VideoQueryFormPage,
+    VideoOptionsPopoverPage
   ],
   imports: [
     BrowserModule,
@@ -66,7 +71,9 @@ import { SecCamProvider } from '../providers/sec-cam/sec-cam';
     VgCoreModule,
     VgControlsModule,
     VgOverlayPlayModule,
-    VgBufferingModule
+    VgBufferingModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -81,7 +88,9 @@ import { SecCamProvider } from '../providers/sec-cam/sec-cam';
     UpdateProgramPage,
     SchedulerPage,
     LandingPage,
-    SecCamPage
+    SecCamPage,
+    VideoQueryFormPage,
+    VideoOptionsPopoverPage
   ],
   providers: [
     StatusBar,
