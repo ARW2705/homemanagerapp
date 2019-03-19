@@ -4,7 +4,9 @@ import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/takeUntil';
 
 // import interfaces and constants
-import { Climate } from '../../shared/climate';
+import { videoBaseURL } from '../../shared/videourl';
+import { VideoMetaData } from '../../shared/videodata';
+import { Climate, ControlParams } from '../../shared/climate';
 import { GarageDoor } from '../../shared/garagedoor';
 import { minTemperature, maxTemperature } from '../../shared/temperatureconst';
 
@@ -13,6 +15,8 @@ import { ClimateProvider } from '../../providers/climate/climate';
 import { GarageDoorProvider } from '../../providers/garage-door/garage-door';
 import { LocalNodeProvider } from '../../providers/local-node/local-node';
 import { WebsocketConnectionProvider } from '../../providers/websocket-connection/websocket-connection';
+import { SecCamProvider } from '../../providers/sec-cam/sec-cam';
+import { AuthenticationProvider } from '../../providers/authentication/authentication';
 
 // import pages
 import { CreateProgramPage } from '../program-crud-operations/create-program/create-program';
@@ -26,22 +30,23 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
 })
 export class HomePage implements OnInit {
 
-  thermostatUptoDate: boolean = false;
-  desiredTemperature: number;
-  errMsg: string;
-  thermostatDisconnectMsg: string;
-  nodeDisconnectMsg: string;
-  program: string;
-  unitType: string = 'e';
-  climate: Climate;
-  garageDoor: GarageDoor;
+  private desiredTemperature: number = (maxTemperature + minTemperature) / 2;
+  private errMsg: string;
+  private thermostatDisconnectMsg: string;
+  private programName: string;
+  private unitType: string = 'e';
+  private garageDoor: GarageDoor;
+  private isClimateLoaded: boolean = false;
+  private isProgramLoaded: boolean = false;
+  private isGarageDoorLoaded: boolean = false;
+  private isSecCamLoaded: boolean = false;
   private socket;
-  minTemperature = minTemperature;
-  maxTemperature = maxTemperature;
-  private connectionMonitorInterval;
-  thermostatRetryCounter: number = 0;
-  localNodeRetryCounter: number = 0;
+  private minTemperature = minTemperature;
+  private maxTemperature = maxTemperature;
   private _unsubscribe: Subject<void> = new Subject<void>();
+  private videoURL: string = '';
+  private video: VideoMetaData = null;
+  private controlParams: ControlParams;
 
   constructor(public navCtrl: NavController,
     private localNodeService: LocalNodeProvider,
@@ -49,9 +54,16 @@ export class HomePage implements OnInit {
     private garageDoorService: GarageDoorProvider,
     private actionsheetCtrl: ActionSheetController,
     public modalCtrl: ModalController,
-    private wssConnection: WebsocketConnectionProvider) {
-      this.connectionMonitorInterval = undefined;
-  }
+    private wssConnection: WebsocketConnectionProvider,
+    private secCamService: SecCamProvider,
+    private authService: AuthenticationProvider) {
+      this.controlParams = {
+        setTemperature: 70,
+        setMode: 'OFF',
+        setZone: 0,
+        sleep: false
+      };
+    }
 
   ngOnInit() {
     // get initial data via http
@@ -63,13 +75,15 @@ export class HomePage implements OnInit {
         .subscribe(socket => {
           console.log('Home connection to socket established', socket);
           this.socket = socket;
+
           // socket listener for climate control
           this.climateservice.listenForClimateData(socket)
             .takeUntil(this._unsubscribe)
             .subscribe(data => {
-              console.log('Incoming climate data from server', data);
+              console.log('Incoming climate or program data from server', data);
               this.handleWebsocketData(data);
             });
+
           // socket listener for garage door
           this.garageDoorService.listenForGarageDoorData(socket)
             .takeUntil(this._unsubscribe)
@@ -77,45 +91,27 @@ export class HomePage implements OnInit {
               console.log('Incoming garage door data from server', data);
               this.handleWebsocketData(data);
             });
-          // this.localNodeService.listenForLocalNode(socket)
-          //   .takeUntil(this._unsubscribe)
-          //   .subscribe(data => {
-          //     console.log('Local node status', data);
-          //     this.handleWebsocketData(data);
-          //   });
+
+          // socket listener for seccam video
+          this.secCamService.listenForSecCamData(socket)
+            .takeUntil(this._unsubscribe)
+            .subscribe(data => {
+              console.log('Incoming sec cam data from server');
+              this.handleWebsocketData(data);
+            });
+
+          // request latest security camera video
+          this.secCamService.getVideoFilenames({
+            startDateTime: '', endDateTime: '', event: 'all', starred: false, limit: 1
+          });
         });
       } catch(e) {
         console.log('Socket connection error', e);
       }
-
-      this.connectionMonitorInterval = setInterval(() => {
-        if (!this.climateservice.isThermostatConnected()) {
-          console.log('Thermostat not verified, retrying...');
-          this.climateservice.pingThermostat();
-          if (this.thermostatRetryCounter > 5) {
-            this.thermostatDisconnectMsg = `Thermostat is not connected. Last connected at: ${this.climateservice.getThermostatConnectionDateTime()}`;
-          }
-          this.thermostatRetryCounter++;
-        } else {
-          this.thermostatDisconnectMsg = '';
-          this.thermostatRetryCounter = 0;
-        }
-        // if (!this.localNodeService.isLocalNodeConnected()) {
-        //   if (this.localNodeRetryCounter > 5) {
-        //     this.nodeDisconnectMsg = `Local node is not connected. Last connected at: ${this.localNodeService.getLocalNodeConnectionDateTime()}`;
-        //   }
-        //   this.localNodeRetryCounter++;
-        // } else {
-        //   this.nodeDisconnectMsg = '';
-        //   this.localNodeRetryCounter = 0;
-        // }
-      }, 5000);
+      this.climateservice.setReconnectMonitorInterval();
   }
 
   ionViewDidLeave() {
-    if (this.connectionMonitorInterval) {
-      clearInterval(this.connectionMonitorInterval);
-    }
     this._unsubscribe.next();
     this._unsubscribe.complete();
   }
@@ -124,20 +120,6 @@ export class HomePage implements OnInit {
 
   // get data for each page summary
   getInitialHomeData() {
-    this.climateservice.getInitialClimateData()
-      .subscribe(climate => {
-        this.desiredTemperature = climate.targetTemperature;
-        this.climate = climate;
-      }, err => { console.log('init-climate', err); this.errMsg = err });
-    this.climateservice.getClimatePrograms()
-      .subscribe(programs => {
-        const active = programs.filter(program => program.isActive);
-        if (active.length) {
-          this.program = active[0].name;
-        } else {
-          this.program = "NONE SELECTED";
-        }
-      }, err => { console.log('init-programs', err); this.errMsg = err });
     this.garageDoorService.getGarageDoorStatus()
       .subscribe(status => {
         this.garageDoor = status;
@@ -148,40 +130,35 @@ export class HomePage implements OnInit {
   handleWebsocketData(data: any) {
     const method = data.type;
     const result = data.data;
+    let tempProgram;
     switch (method) {
-      // system communication events
-      case 'thermostat-connected':
-        console.log('Thermostat connected to server at:', result);
-        this.thermostatDisconnectMsg = '';
+      case 'connection':
+        if (result.connectedAt) {
+          this.thermostatDisconnectMsg = '';
+          this.climateservice.clearReconnectMonitorInterval();
+        } else if (result.disconnectedAt) {
+          this.thermostatDisconnectMsg = `Thermostat disconnected at ${result.disconnectedAt}`;
+          this.climateservice.setReconnectMonitorInterval();
+        } else {
+          console.log('Unknown connection message');
+        }
+        console.log('New connection data');
         break;
-      // thermostat disconnected from server
-      case 'thermostat-disconnected':
-        console.log('Thermostat disconnected from server at:', result);
-        this.thermostatDisconnectMsg = `Thermostat has disconnected from server at: ${result}`;
+      case 'climate':
+        this.desiredTemperature = result.setTemperature;
+        this.isClimateLoaded = true;
+        console.log('New climate data');
         break;
-      case 'thermostat-verified':
-        console.log('Thermostat verified at:', result);
+      case 'programs':
+        tempProgram = this.climateservice.getPrograms().find(program => program.isActive);
+        this.programName = tempProgram ? tempProgram.name: 'None Selected';
+        this.isProgramLoaded = true;
+        console.log('All programs');
         break;
-      case 'local-node-connected':
-        console.log('Local node connected to server at:', result);
-        this.nodeDisconnectMsg = '';
-        break;
-      case 'local-node-disconnected':
-        console.log('Local node disconnected from server at:', result);
-        this.nodeDisconnectMsg = `Local node has disconnected from server at: ${result}`;
-        break;
-
-      // climate system events
-      // new climate data from thermostat
-      case 'climate-data':
-        this.desiredTemperature = result.targetTemperature;
-        this.climate = result;
-        console.log('New climate data posted');
-        break;
-      // a program was selected to be run by an app client
-      case 'select-program':
-        this.program = (result != null) ? result.name: "None Selected";
-        console.log('Selected program:', result);
+      case 'program-status':
+        tempProgram = this.climateservice.getPrograms().find(program => program.isActive);
+        this.programName = tempProgram ? tempProgram.name: 'None Selected';
+        console.log('Program selection complete');
         break;
 
       // garage door events
@@ -191,7 +168,13 @@ export class HomePage implements OnInit {
         this.garageDoor = result;
         console.log('New door status', result);
         break;
-
+      // seccam events
+      case 'video-list':
+        this.video = result[0];
+        const token = this.authService.getToken();
+        this.videoURL = `${videoBaseURL}${result[0].filename}/?vidauth=${token}`;
+        this.isSecCamLoaded = true;
+        break;
       // system events
       // error event TODO handle error if retries have failed
       case 'error':
@@ -235,18 +218,14 @@ export class HomePage implements OnInit {
           text: 'Create a New Program',
           handler: () => {
             console.log("Create a New Program");
-            this.climateservice.getClimatePrograms()
-              .subscribe(programs => {
-                // start creation modal
-                const modal = this.modalCtrl.create(CreateProgramPage);
-                modal.onDidDismiss(data => {
-                  if (data) {
-                    console.log("Valid", data);
-                    this.climateservice.addNewProgram(data);
-                  }
-                });
-                modal.present();
-              });
+            const modal = this.modalCtrl.create(CreateProgramPage);
+            modal.onDidDismiss(data => {
+              if (data) {
+                console.log("Valid", data);
+                this.climateservice.addNewProgram(data);
+              }
+            });
+            modal.present();
           }
         },
         {
@@ -300,7 +279,8 @@ export class HomePage implements OnInit {
 
   // override set temperature, any active program will be set to inactive
   updateTargetTemperature() {
-    this.climateservice.updateClimateParameters(this.desiredTemperature);
+    this.controlParams.setTemperature = this.desiredTemperature;
+    this.climateservice.updateClimateParameters(this.controlParams);
   }
 
   /* Garage door utility functions */
