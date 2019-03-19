@@ -17,7 +17,7 @@
     <ion-row>
 
       <!-- ion card for garage door button -->
-      <ion-col class="no-padding no-margin" *ngIf="garageDoor">
+      <!-- <ion-col class="no-padding no-margin" *ngIf="garageDoor">
         <ion-card color="light-gray">
           <ion-card-header>
             <span>Garage Door Controller</span>
@@ -29,13 +29,13 @@
             </button>
           </ion-card-content>
         </ion-card>
-      </ion-col>
+      </ion-col> -->
 
     </ion-row>
     <ion-row>
 
       <!-- ion card for climate control summary -->
-      <ion-col col-12 col-lg-6 class="no-padding no-margin" *ngIf="climate && program">
+      <ion-col col-12 col-lg-6 class="no-padding card-container">
         <ion-card color="light-gray">
           <ion-card-header>
             <span>Climate Control</span>
@@ -51,8 +51,11 @@
                     <ion-card-header>
                       <span>Temperature</span>
                     </ion-card-header>
-                    <ion-card-content class="conditions">
+                    <ion-card-content class="conditions"  *ngIf="isClimateLoaded">
                       {{ climate.zoneData[0].temperature | number:'1.1-1' }}<span [innerHtml]="getTemperatureSymbol()"></span>
+                    </ion-card-content>
+                    <ion-card-content class="conditions"  *ngIf="!isClimateLoaded">
+                      <ion-spinner></ion-spinner>
                     </ion-card-content>
                   </ion-card>
                 </ion-col>
@@ -63,8 +66,11 @@
                     <ion-card-header>
                       <span>Humidity</span>
                     </ion-card-header>
-                    <ion-card-content class="conditions">
+                    <ion-card-content class="conditions" *ngIf="isClimateLoaded">
                       {{ climate.zoneData[0].humidity | number:'1.0-0' }}%
+                    </ion-card-content>
+                    <ion-card-content class="conditions"  *ngIf="!isClimateLoaded">
+                      <ion-spinner></ion-spinner>
                     </ion-card-content>
                   </ion-card>
                 </ion-col>
@@ -93,8 +99,8 @@
 
                 <!-- program button with name of selected program if any, click to open program action sheet -->
                 <ion-col col-12 col-lg-10>
-                  <button ion-button block class="card-btn" (click)="openClimateProgramActionSheet()">
-                    Program: {{ program }}
+                  <button ion-button block class="card-btn" (click)="openClimateProgramActionSheet()" [disabled]="!isProgramLoaded">
+                    Program: {{ programName }}
                   </button>
                 </ion-col>
 
@@ -105,11 +111,41 @@
         </ion-card>
       </ion-col>
 
+      <ion-col col-12 col-lg-6 class="no-padding card-container" *ngIf="isSecCamLoaded">
+        <ion-card color="light-gray">
+          <ion-card-header>
+            <span>Security Camera</span>
+          </ion-card-header>
+          <ion-card-content class="player-container">
+            <ion-grid>
+              <ion-row>
+                <vg-player>
+                  <video
+                    [src]="videoURL"
+                    [vgMedia]="media"
+                    #media
+                    id="singleVideo"
+                    preload="auto"
+                    controls>
+                  </video>
+                </vg-player>
+              </ion-row>
+              <ion-row class="metadata-container">
+                <p>
+                  {{ video.location | titlecase }} on {{ video.startDateTime | date: 'medium'}}
+                </p>
+              </ion-row>
+            </ion-grid>
+          </ion-card-content>
+        </ion-card>
+
+      </ion-col>
+
     </ion-row>
   </ion-grid>
 
   <!-- loading spinner -->
-  <div *ngIf="!climate && !program && !errMsg">
+  <div *ngIf="!isClimateLoaded && !isProgramLoaded && !errMsg">
     <ion-spinner></ion-spinner>
     <h4>Loading...</h4>
   </div>
