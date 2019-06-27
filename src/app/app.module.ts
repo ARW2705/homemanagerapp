@@ -16,7 +16,6 @@ import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
 import { ClimatecontrolPage } from '../pages/climatecontrol/climatecontrol';
 import { GaragedoorPage } from '../pages/garagedoor/garagedoor';
-import { BrewingPage } from '../pages/brewing/brewing';
 import { LoginPage } from '../pages/login/login';
 import { CreateProgramPage } from '../pages/program-crud-operations/create-program/create-program';
 import { SelectProgramPage } from '../pages/program-crud-operations/select-program/select-program';
@@ -26,6 +25,7 @@ import { LandingPage } from '../pages/landing/landing';
 import { SecCamPage } from '../pages/sec-cam/sec-cam';
 import { VideoQueryFormPage } from '../pages/video-query-form/video-query-form';
 import { VideoOptionsPopoverPage } from '../pages/video-options-popover/video-options-popover';
+import { ZoneNamePage } from '../pages/zone-name/zone-name';
 
 import { ProgressBarComponent } from '../components/progress-bar/progress-bar';
 import { LoginNameComponent } from '../components/login-name/login-name';
@@ -39,7 +39,6 @@ import { AuthenticationProvider } from '../providers/authentication/authenticati
 import { AuthorizedInterceptor, UnauthorizedInterceptor } from '../providers/interceptor/interceptor';
 import { GarageDoorProvider } from '../providers/garage-door/garage-door';
 import { WebsocketConnectionProvider } from '../providers/websocket-connection/websocket-connection';
-import { BrewIoProvider } from '../providers/brew-io/brew-io';
 import { LocalNodeProvider } from '../providers/local-node/local-node';
 import { SecCamProvider } from '../providers/sec-cam/sec-cam';
 
@@ -49,7 +48,6 @@ import { SecCamProvider } from '../providers/sec-cam/sec-cam';
     HomePage,
     ClimatecontrolPage,
     GaragedoorPage,
-    BrewingPage,
     LoginPage,
     CreateProgramPage,
     SelectProgramPage,
@@ -60,7 +58,8 @@ import { SecCamProvider } from '../providers/sec-cam/sec-cam';
     ProgressBarComponent,
     SecCamPage,
     VideoQueryFormPage,
-    VideoOptionsPopoverPage
+    VideoOptionsPopoverPage,
+    ZoneNamePage
   ],
   imports: [
     BrowserModule,
@@ -81,7 +80,6 @@ import { SecCamProvider } from '../providers/sec-cam/sec-cam';
     HomePage,
     ClimatecontrolPage,
     GaragedoorPage,
-    BrewingPage,
     LoginPage,
     CreateProgramPage,
     SelectProgramPage,
@@ -90,7 +88,8 @@ import { SecCamProvider } from '../providers/sec-cam/sec-cam';
     LandingPage,
     SecCamPage,
     VideoQueryFormPage,
-    VideoOptionsPopoverPage
+    VideoOptionsPopoverPage,
+    ZoneNamePage
   ],
   providers: [
     StatusBar,
@@ -114,7 +113,6 @@ import { SecCamProvider } from '../providers/sec-cam/sec-cam';
     },
     GarageDoorProvider,
     WebsocketConnectionProvider,
-    BrewIoProvider,
     LocalNodeProvider,
     SecCamProvider
   ]

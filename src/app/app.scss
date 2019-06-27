@@ -101,3 +101,17 @@ ion-select {
 .toolbar-title {
   color: $light-green !important;
 }
+
+@media screen and (min-width: map-get($grid-breakpoints, sm)) {
+  .zone-name-modal .modal-wrapper {
+    width: 50%;
+    height: 35%;
+    position: absolute;
+    top: 25%;
+    left: 25%;
+
+    ion-row {
+      padding: 10px 0;
+    }
+  }
+}
