@@ -20,8 +20,8 @@
 
       <!-- card slides for each monitored climate zone -->
       <ion-col col-12 col-lg-6>
-        <ion-slides pager #climateSlide *ngIf="isClimateLoaded">
-          <ion-slide *ngFor="let zone of zones; index as i">
+        <ion-slides pager #climateSlide *ngIf="climate">
+          <ion-slide *ngFor="let zone of climate.zoneData; index as i">
             <ion-card color="light-gray" class="top-level-card">
 
               <!-- card header with zone location name -->
@@ -32,7 +32,15 @@
                       <button (click)="slideToLeft(i)"><ion-icon name="arrow-dropleft-circle"></ion-icon></button>
                     </ion-col>
                     <ion-col>
-                      <span>{{ zone.locationName | titlecase }}</span>
+                      <span>
+                        {{ zone.locationName | titlecase }}
+                        <button *ngIf="i"
+                                (click)="openZoneNameModal(zone)">
+                          <ion-icon class="zone-name-edit-button"
+                                    name="create">
+                          </ion-icon>
+                        </button>
+                      </span>
                     </ion-col>
                     <ion-col col-2>
                       <button (click)="slideToRight(i)"><ion-icon name="arrow-dropright-circle"></ion-icon></button>
@@ -63,7 +71,7 @@
                           <span class="inner-card">Humidity</span>
                         </ion-card-header>
                         <ion-card-content class="conditions">
-                          {{ zone.humidity | number:'1.0-0' }}%
+                          {{ zone.humidity <= 0 ? '--': zone.humidity | number:'1.0-0' }}%
                         </ion-card-content>
                       </ion-card>
                     </ion-col>
@@ -74,7 +82,7 @@
                     <!-- ion slider for set temperature -->
                     <ion-col class="adjust-down">
                       <ion-label text-center>
-                        Selected Temperature {{ setTemperature }}
+                        Selected Temperature {{ climate.setTemperature }}
                         <span [innerHtml]="getTemperatureSymbol()"></span>
                       </ion-label>
                       <ion-range
@@ -98,7 +106,7 @@
       </ion-col>
       <!-- ion card with climate operating conditions -->
       <ion-col col-12 col-lg-6>
-        <ion-card *ngIf="isClimateLoaded && isProgramLoaded" color="light-gray" class="top-level-card">
+        <ion-card *ngIf="climate && isProgramLoaded" color="light-gray" class="top-level-card">
           <ion-card-header>
             <ion-grid>
               <ion-row>
@@ -117,7 +125,7 @@
                 <ion-col col-6>
                   Set Temperature:<br>
                   <div class="status-value">
-                    {{ setTemperature }}
+                    {{ climate.setTemperature }}
                     <span [innerHtml]="getTemperatureSymbol()"></span>
                   </div>
                 </ion-col>
@@ -136,15 +144,15 @@
                 <ion-col col-6>
                   Home System:<br>
                   <div class="status-value">
-                    {{ displayOperatingStatus | uppercase }}
+                    {{ climate.operatingStatus | uppercase }}
                   </div>
                 </ion-col>
 
                 <!-- climate zone name being monitored -->
                 <ion-col col-6 class="align-right">
                   Monitoring Zone:<br>
-                  <div *ngIf="zones[setZone]" class="status-value">
-                    {{ zones[setZone].locationName | uppercase }}
+                  <div *ngIf="climate.zoneData[zoneIndex]" class="status-value">
+                    {{ climate.zoneData[zoneIndex].locationName | uppercase }}
                   </div>
                 </ion-col>
               </ion-row>
@@ -154,7 +162,17 @@
               <ion-row justify-content-center>
                 <ion-col col-12 col-lg-10>
                   <button ion-button block class="card-btn" (click)="openModeActionSheet()">
-                    Operation Mode: {{ displaySetMode }}
+                    Operation Mode: {{ climate.setMode }}
+                  </button>
+                </ion-col>
+              </ion-row>
+
+              <!-- selected zone to monitor with currently selected zone name -->
+
+              <ion-row justify-content-center>
+                <ion-col col-12 col-lg-10>
+                  <button ion-button block class="card-btn" (click)="openZoneActionSheet()">
+                    Zone: {{ climate.zoneData[zoneIndex].locationName }}
                   </button>
                 </ion-col>
               </ion-row>
@@ -174,12 +192,12 @@
 
                 <ion-col>
                   <ion-label text-center>
-                    Selected Temperature {{ setTemperature }}
+                    Selected Temperature {{ climate.setTemperature }}
                     <span [innerHtml]="getTemperatureSymbol()"></span>
                   </ion-label>
                   <ion-range
                     (ionBlur)="onSliderChangeEnd()"
-                    [(ngModel)]="setTemperature"
+                    [(ngModel)]="climate.setTemperature"
                     color="light-green"
                     min="{{ minTemperature }}" max="{{ maxTemperature }}" pin>
                     <ion-label range-left>{{ minTemperature}}</ion-label>
@@ -197,7 +215,7 @@
 
   <!-- loading spinner -->
 
-  <div *ngIf="!isClimateLoaded && !errMsg">
+  <div *ngIf="!climate && !errMsg">
     <ion-spinner></ion-spinner>
     <h4>Loading...</h4>
   </div>

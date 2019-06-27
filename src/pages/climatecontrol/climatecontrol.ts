@@ -17,6 +17,7 @@ import { CreateProgramPage } from '../program-crud-operations/create-program/cre
 import { LoginPage } from '../login/login';
 import { SelectProgramPage } from '../program-crud-operations/select-program/select-program';
 import { UpdateProgramPage } from '../program-crud-operations/update-program/update-program';
+import { ZoneNamePage } from '../zone-name/zone-name';
 
 @Component({
   selector: 'page-climatecontrol',
@@ -25,6 +26,7 @@ import { UpdateProgramPage } from '../program-crud-operations/update-program/upd
 export class ClimatecontrolPage implements OnInit {
 
   @ViewChild('climateSlide') slides: Slides;
+  private climate: Climate = null;
   private controlParams: ControlParams;
   private currentTemperature: number;
   private displayOperatingStatus: string;
@@ -33,8 +35,8 @@ export class ClimatecontrolPage implements OnInit {
   private isClimateLoaded: boolean = false;
   private isProgramLoaded: boolean = false;
   private noProgramSelected = {name: 'None Selected', isActive: false};
-  private selectedProgram: ClimateProgram | any;
-  private setZone: number = 0;
+  private selectedProgram: ClimateProgram | any = this.noProgramSelected;
+  private zoneIndex: number = 0;
   private setTemperature: number;
   private socket;
   private sleep: boolean = false;
@@ -59,7 +61,7 @@ export class ClimatecontrolPage implements OnInit {
       this.controlParams = {
         setTemperature: 70,
         setMode: 'OFF',
-        setZone: 0,
+        setZoneDeviceId: 0,
         sleep: false
       };
   }
@@ -115,20 +117,22 @@ export class ClimatecontrolPage implements OnInit {
         console.log('New connection data');
         break;
       case 'climate':
-        this.setTemperature = result.setTemperature;
-        this.zones = result.zoneData;
-        this.setZone = result.setZone;
-        this.displayOperatingStatus = result.operatingStatus;
-        this.displaySetMode = result.setMode;
-        this.isClimateLoaded = true;
+        console.log(result);
+        this.climate = result;
+        this.controlParams.setMode = this.climate.setMode;
+        this.controlParams.setTemperature = this.climate.setTemperature;
+        this.controlParams.setZoneDeviceId = this.climate.setZoneDeviceId;
+        this.zoneIndex = this.climateService.getZoneIndex(this.climate.setZoneDeviceId);
         console.log('New climate data');
         break;
       case 'programs':
+      console.log('programs', result);
         this.isProgramLoaded = true;
         console.log('All programs');
         break;
       case 'program-status':
         const active = this.climateService.getPrograms().find(program => program.isActive);
+        console.log('active', active);
         this.selectedProgram = active || this.noProgramSelected;
         console.log('Program selection complete');
         break;
@@ -226,6 +230,25 @@ export class ClimatecontrolPage implements OnInit {
     modal.present();
   }
 
+  // zone name form modal
+  openZoneNameModal(zone: Sensor) {
+
+    const modal = this.modalCtrl.create(
+      ZoneNamePage,
+      {oldName: zone.locationName},
+      {cssClass : 'zone-name-modal'}
+    );
+    modal.onDidDismiss(data => {
+      if (data !== undefined) {
+        this.climateService.setZoneName({
+          deviceId: zone.deviceId,
+          name: data
+        });
+      }
+    });
+    modal.present();
+  }
+
   // climate control action sheet for mode override: COOL, HEAT, FAN, OFF
   openModeActionSheet() {
     const actionSheet = this.actionsheetCtrl.create({
@@ -267,13 +290,36 @@ export class ClimatecontrolPage implements OnInit {
     actionSheet.present();
   }
 
+  openZoneActionSheet() {
+    const sheetButtons = [];
+    for (let i=0; i < this.climate.zoneData.length; i++) {
+      sheetButtons.push({
+        text: `${this.climate.zoneData[i].locationName}`,
+        handler: () => {
+          this.updateTargetZone(this.climate.zoneData[i].deviceId);
+        }
+      });
+    }
+    sheetButtons.push({
+      text: 'Cancel',
+      role: 'cancel',
+      handler: () => {
+        console.log("Mode selection cancelled");
+      }
+    })
+    const actionSheet = this.actionsheetCtrl.create({
+      title: 'Select Zone',
+      buttons: sheetButtons
+    });
+    actionSheet.present();
+  }
+
   // TODO create zone setup modal
 
   /* target temperature selection slider - will stop any active programs
     and set new target temperature - other parameters will be unchanged
     unless thermostat status changes */
   onSliderChangeEnd() {
-    console.log(this.setTemperature);
     this.displayLoading();
     this.updateTargetTemperature();
   }
@@ -298,8 +344,16 @@ export class ClimatecontrolPage implements OnInit {
 
   // override set temperature, any active program will be set to inactive
   updateTargetTemperature() {
-    this.controlParams.setTemperature = this.setTemperature;
+    this.controlParams.setTemperature = this.climate.setTemperature;
     this.climateService.updateClimateParameters(this.controlParams);
+  }
+
+  updateTargetZone(deviceId: number) {
+    console.log(this.controlParams.setZoneDeviceId);
+    this.controlParams.setZoneDeviceId = deviceId;
+    console.log(this.controlParams.setZoneDeviceId, deviceId);
+    this.climateService.updateClimateParameters(this.controlParams);
+    console.log(this.controlParams.setZoneDeviceId, deviceId);
   }
 
 }
