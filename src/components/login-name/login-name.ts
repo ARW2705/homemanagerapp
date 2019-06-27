@@ -7,13 +7,10 @@ import { AuthenticationProvider } from '../../providers/authentication/authentic
   templateUrl: 'login-name.html'
 })
 export class LoginNameComponent {
-
   user: string;
 
-  constructor(private authService: AuthenticationProvider) {
-    console.log('Hello LoginNameComponent Component');
+  constructor(public authService: AuthenticationProvider) {
     this.user = this.authService.getPublicUsername();
-    console.log('got user', this.user);
   }
 
 }
